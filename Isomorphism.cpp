@@ -19,7 +19,7 @@ bool Isomorphism::isomorphismSlow(const Hypergraph& h1, const Hypergraph& h2) {
   iota(perm.begin(), perm.end(), 0);
   do {
     vector< vector<int> > modifiedIncidenceMatrix = h2.applyFunction(perm);
-    if (h1.isEqual(modifiedEdgeList)) return true;
+    if (h1.isEqual(modifiedIncidenceMatrix)) return true;
   } while (next_permutation(perm.begin(), perm.end()));
   return false;
 }

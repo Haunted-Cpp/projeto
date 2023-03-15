@@ -9,6 +9,7 @@ private:
 public:
   Hypergraph();
   void readIncidenceMatrix();
+  void randomHypergraph();
   void sortAndCheck(std::vector< std::vector<int> >&) const;
   
   std::vector< std::vector<int> > applyFunction(const std::vector<int>& permutation) const;
@@ -19,4 +20,5 @@ public:
   
   int getNodeCount() const;
   int getEdgeCount() const;
+  void printGraph() const;
 };

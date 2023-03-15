@@ -3,13 +3,53 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <random>
+#include <chrono>
 
 #include "Hypergraph.hpp"
 
 using namespace std;
 
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+int gen(int lo, int hi) { return uniform_int_distribution<int>(lo,hi)(rng); }
+
+/*
+ * Simple Hypergraph Class
+ * No empty hyperedge
+ * No duplicate hyperedge
+ */
+
 Hypergraph::Hypergraph() {
-  readIncidenceMatrix();
+  //readIncidenceMatrix();
+  randomHypergraph();
+}
+
+void Hypergraph::randomHypergraph() {
+  N = gen(1, 3);
+  M = min( (1 << N) - 1, gen(1, 3));
+  vector<int> subset;
+  for (int mask = 1; mask < (1 << N); mask++) {
+    subset.emplace_back(mask);
+  }
+  shuffle(subset.begin(), subset.end(), rng);
+  
+  
+  vector<int> perm(N);
+  iota(perm.begin(), perm.end(), 0);
+  shuffle(perm.begin(), perm.end(), rng);
+  
+  for (int i = 0; i < M; i++) {
+    vector<int> edge;
+    for (int j = 0; j < N; j++) {
+      if ((subset[i] >> j) & 1) {
+        edge.emplace_back(perm[j]);
+      }
+    }
+    incidenceMatrix.emplace_back(edge);
+  }
+  sortAndCheck(incidenceMatrix);
+  //vector<int> pickEdge(
 }
 
 void Hypergraph::readIncidenceMatrix() {
@@ -71,5 +111,13 @@ int Hypergraph::getNodeCount() const {
 
 int Hypergraph::getEdgeCount() const {
   return M;
+}
+
+void Hypergraph::printGraph() const {
+  for (int i = 0; i < M; i++) {
+    cout << "Hyperedge " << i << ": " << '\n';
+    for (auto& node : incidenceMatrix[i]) cout << node << ' ';
+    cout << '\n';
+  }
 }
 

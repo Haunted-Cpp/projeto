@@ -29,9 +29,7 @@ map<string, int> ESU::counter;
 vector< vector< pair<int, int> > > ESU::subgraphs;
 
 void ESU::enumerateSubgraphs() {
-  //cout << (int) subgraphs.size() << ' ' << (int) subgraph.size() << '\n';
   if ((int) subgraph.size() == K) {
-    //cout << "YES" << '\n';
     if (computeEquivalenceClass) {
       // Join all topological equivalent subgraphs into a single class
       string mat = Isomorphism::canonStr(edgeList, K);
@@ -113,12 +111,8 @@ vector< pair<int, string> > ESU::getEquivalenceClass(const vector< vector<int> >
 }
 
 vector< vector< pair<int, int> > > ESU::getAllSubgraphs(const vector< vector<int> >& g, int k) {
-  cout << (int) g.size() << '\n';
-  int tot = 0;
-  for (auto x : g) tot += (int) x.size();
-  cout << tot << '\n';
-   setupAndRun(g, k, false);
-   return subgraphs;
+  setupAndRun(g, k, false);
+  return subgraphs;
 }
 
 vector< vector< pair<int, int> > > ESU::startEdgeGraphSubgraphs(Hypergraph& h, const int k) {

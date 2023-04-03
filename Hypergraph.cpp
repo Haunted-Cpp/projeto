@@ -68,7 +68,6 @@ void Hypergraph::readIncidenceMatrix() {
        // Check that each node is numbered from 0 to n - 1
        assert(node >= 1 && node <= N);
      }
-     assert(edge.size() == 2);
      incidenceMatrix.emplace_back(edge);
    }
    sortAndCheck(incidenceMatrix);

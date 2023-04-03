@@ -1,11 +1,4 @@
-#include <iostream>
-#include <cassert>
-#include <vector>
-#include <algorithm>
-#include <numeric>
-#include <random>
-#include <chrono>
-#include <set>
+#include <bits/stdc++.h>
 
 #include "Hypergraph.hpp"
 
@@ -75,6 +68,7 @@ void Hypergraph::readIncidenceMatrix() {
        // Check that each node is numbered from 0 to n - 1
        assert(node >= 1 && node <= N);
      }
+     assert(edge.size() == 2);
      incidenceMatrix.emplace_back(edge);
    }
    sortAndCheck(incidenceMatrix);
@@ -105,11 +99,11 @@ vector< vector<int> > Hypergraph::buildEdgeGraph() {
       int p1 = 0;
       int p2 = 0;
       while (p1 < (int) incidenceMatrix[i].size() && p2 < (int) incidenceMatrix[j].size()) {
-        if (incidenceMatrix[i][p1] == incidenceMatrix[i][p2]) {
+        if (incidenceMatrix[i][p1] == incidenceMatrix[j][p2]) {
           edgeGraph[i].emplace_back(j);
           edgeGraph[j].emplace_back(i);
           break;
-        } else if (incidenceMatrix[i][p1] < incidenceMatrix[i][p2]) {
+        } else if (incidenceMatrix[i][p1] < incidenceMatrix[j][p2]) {
           ++p1;
         } else {
           ++p2;
@@ -148,20 +142,23 @@ void Hypergraph::printIncidenceMatrix() const {
 
 /*
  * If called with every possible produced subgraph it will print every non-induced subgraph
+ * ------------ Make sure size is correct!!! ----
+ * Note that number of nodes is not known!!
  */ 
-//void Hypergraph::printEdgeSubgraph(const string& subgraph, int k) const {
-  //cout << "Selected subgraph" << '\n';
-  //for (int i = 0; i < n; i++) {
-    
-    
-  //}
-  //for (int i = 0; i < n; i++) {
-    
-  //}
-  //for (int i = 0; i < M; i++) {
-    //cout << "Hyperedge " << i << ": " << '\n';
-    //for (auto& node : incidenceMatrix[i]) cout << node << ' ';
-    //cout << '\n';
-  //}
-//}
+void Hypergraph::printEdgeSubgraph(const vector< pair<int, int> >& edgeList) {
+  cout << "Selected subgraph" << '\n';
+  vector<int> nodes;
+  for (auto& [a, b] : edgeList) {
+    cout << a << ' ' << b << '\n';
+    nodes.emplace_back(a);
+    nodes.emplace_back(b);
+  }
+  sort(nodes.begin(), nodes.end());
+  nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
+  cout << "Nodes in each edge" << '\n';
+  for (auto& node : nodes) {
+    for (auto& value : incidenceMatrix[node]) cout << value << ' ';
+    cout << '\n';
+  }
+}
 

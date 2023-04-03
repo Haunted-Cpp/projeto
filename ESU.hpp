@@ -23,9 +23,8 @@ private:
   static void clearDataStruct();
   static void enumerateSubgraphs();
   static void setupAndRun(const std::vector< std::vector<int> >& , int, bool);
-  
 public:
-  static void startEdgeGraphSubgraphs(Hypergraph&, int);
+  static std::vector< std::vector< std::pair<int, int> > > startEdgeGraphSubgraphs(Hypergraph&, int);
   static std::vector< std::pair<int, std::string> > getEquivalenceClass(const std::vector< std::vector<int> >&, int);
   static std::vector< std::vector< std::pair<int, int> > > getAllSubgraphs(const std::vector< std::vector<int> >&, int);
 };

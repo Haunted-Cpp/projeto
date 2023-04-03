@@ -16,5 +16,6 @@ public:
   int getNodeCount() const;
   int getEdgeCount() const;
   void printIncidenceMatrix() const;
+  void printEdgeSubgraph(const std::vector< std::pair<int, int> >&); 
   std::vector< std::vector<int> > buildEdgeGraph();
 };

@@ -6,7 +6,6 @@
 #include <set>
 #include <stack>
 #include <map>
-//#include <vector>
 
 #include "nauty.h"
 
@@ -56,13 +55,13 @@ int main() {
     g[st].emplace_back(et);
     g[et].emplace_back(st);
   }
-  ESU solve;
+  //ESU solve;
   //solve.start(g, 1);
   //solve.start(g, 2);
   //solve.start(g, 3);
-  //solve.start(g, 4);
-  //solve.start(g, 5);
-  solve.start(g, 4);
+  ESU::start(g, 4);
+  ESU::start(g, 5);
+  ESU::start(g, 6);
   //solve.start(g, 7);
   //Hypergraph h1;
   //h1.readIncidenceMatrix();

@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <map>
 
 #include "nauty.h"
 #include "Hypergraph.hpp"
@@ -11,14 +12,19 @@
 using namespace std;
 
 
-//int Isomorphism::lab[MAX_INPUT_N];
-//int Isomorphism::ptn[MAX_INPUT_N];
-//int Isomorphism::orbits[MAX_INPUT_N];
-int Isomorphism::mapping[MAX_INPUT_N];
-//graph Isomorphism::g[MAX_INPUT_N * MAX_INPUT_N];
-//graph Isomorphism::cg[MAX_INPUT_N * MAX_INPUT_N];
-  
+/* 
+ * Initialize static variables
+ */
+ 
+int Isomorphism::lab[MAX_MOTIF_SIZE];
+int Isomorphism::ptn[MAX_MOTIF_SIZE];
+int Isomorphism::orbits[MAX_MOTIF_SIZE];
+graph Isomorphism::g[MAX_N * MAX_M];
+graph Isomorphism::cg[MAX_N * MAX_M];
+set* Isomorphism::gv;
+map< vector< pair<int, int> >, string> Isomorphism::canonStrCache; // could maybe be replaced by hashing or pre-calc
 
+ 
   
 bool Isomorphism::isomorphismSlow(const Hypergraph& h1, const Hypergraph& h2) {
   if (h1.getNodeCount() != h2.getNodeCount()) return false;
@@ -40,76 +46,66 @@ bool Isomorphism::isomorphismNauty(const Hypergraph& h1, const Hypergraph& h2) {
 
 
 string Isomorphism::canonStr(const vector< pair<int, int> >& edgeList, int n) {
-  // Comprees the nodes ids to 0 - # no nodes - 1
-  
-  
-  
-  //vector<int> nodes;
-  //for (auto& [a, b] : edgeList) {
-    //nodes.emplace_back(a);
-    //nodes.emplace_back(b);
-  //}
-  //sort(nodes.begin(), nodes.end());
-  //nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
-  //if ( (int) nodes.size() != 3) {
-    //for (auto [a, b] : edgeList) cout << a << ' ' << b << '\n';
-    //exit(0);
-  //}
-  //for (auto& [a, b] : edgeList) {
-    //a = lower_bound(nodes.begin(), nodes.end(), a) - nodes.begin();
-    //b = lower_bound(nodes.begin(), nodes.end(), b) - nodes.begin();
-  //}
-  
-  
-  
-  DYNALLSTAT(int,lab,lab_sz);
-  DYNALLSTAT(int,ptn,ptn_sz);
-  DYNALLSTAT(int,orbits,orbits_sz);
-  DYNALLSTAT(graph,g,g_sz);
-  DYNALLSTAT(graph,cg,cg_sz);
-  
+  if (canonStrCache.find(edgeList) != canonStrCache.end()) {
+    // this step can be done also with a tree like structure ...
+    return canonStrCache[edgeList];
+  }
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
-  //int n = 5;
-  //int n = (int) nodes.size();
-  
-  //int n = h.getNodeCount() + h.getEdgeCount(); // number of nodes in our modified graph # node + # edges
-  /* Select option for canonical labelling */
   options.getcanon = TRUE;
-  //int n = 0;
-  for (int i = 0; i < (int) edgeList.size(); i++) {
-    assert(edgeList[i].first >= 0 && edgeList[i].first < MAX_INPUT_N);
-    assert(edgeList[i].second >= 0 && edgeList[i].second < MAX_INPUT_N);
-    mapping[edgeList[i].first] = 2 * i;
-    mapping[edgeList[i].second] = 2 * i + 1;
-  }
   int m = SETWORDSNEEDED(n);
-  nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
-  
-  DYNALLOC1(int,lab,lab_sz,n,"malloc");
-  DYNALLOC1(int,ptn,ptn_sz,n,"malloc");
-  DYNALLOC1(int,orbits,orbits_sz,n,"malloc");
-  DYNALLOC2(graph,g,g_sz,n,m,"malloc");
-  
-  
+  //nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
   EMPTYGRAPH(g,m,n);
-  for (auto& [a, b] : edgeList) {
-    ADDONEEDGE(g, mapping[a], mapping[b], m);
-  }
-  
-  DYNALLOC2(graph,cg,cg_sz,n,m,"malloc");
+  for (auto& [a, b] : edgeList) ADDONEEDGE(g, a, b, m);
   densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
- 
   string adjMat = "";
   for (int i = 0; i < n; i++) {
-    set* gv = GRAPHROW(cg,i,m); 
-    for (int j = 0; j < n; j++) {
-      adjMat += ISELEMENT(gv,j) ? '1' : '0';
-    }
+    gv = GRAPHROW(cg,i,m); 
+    for (int j = 0; j <= i; j++) adjMat += ISELEMENT(gv,j) ? '1' : '0';
+    //adjMat += '\n';
+  }
+  return canonStrCache[edgeList] = adjMat;
+}
+
+/*
+string Isomorphism::canonStrSparse(const vector< pair<int, int> >& edgeList, int n) {
+  //DYNALLSTAT(int,lab,lab_sz);
+  //DYNALLSTAT(int,ptn,ptn_sz);
+  //DYNALLSTAT(int,orbits,orbits_sz);
+  static DEFAULTOPTIONS_SPARSEGRAPH(options);
+  statsblk stats;
+  sparsegraph sg; 
+  int n,m,i;
+  options.getcanon = TRUE;
+  SG_INIT(sg);
+  m = SETWORDSNEEDED(n);
+  nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
+  //DYNALLOC1(int,lab,lab_sz,n,"malloc");
+  //DYNALLOC1(int,ptn,ptn_sz,n,"malloc");
+  //DYNALLOC1(int,orbits,orbits_sz,n,"malloc");
+  SG_ALLOC(sg,n,2*n,"malloc");
+  sg.nv = n; 
+  sg.nde = 2*n; 
+  for (i = 0; i < n; ++i) {
+    sg.v[i] = 2*i;
+    sg.d[i] = 2;
+    sg.e[2*i] = (i+n-1)%n;
+    sg.e[2*i+1] = (i+n+1)%n; 
+  }
+  //printf("Generators for Aut(C[%d]):\n",n);
+  sparsenauty(&sg,lab,ptn,orbits,&options,&stats,cg);
+  //printf("Automorphism group size = ");
+  //writegroupsize(stdout,stats.grpsize1,stats.grpsize2);
+  //printf("\n");
+  string adjMat = "";
+  for (int i = 0; i < n; i++) {
+    gv = GRAPHROW(cg,i,m); 
+    for (int j = 0; j <= i; j++) adjMat += ISELEMENT(gv,j) ? '1' : '0';
     adjMat += '\n';
   }
   return adjMat;
-}
+
+}*/
 
 vector<graph> Isomorphism::canonization(const Hypergraph& h) {
   DYNALLSTAT(int,lab,lab_sz);

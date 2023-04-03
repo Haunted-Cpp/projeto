@@ -100,19 +100,14 @@ vector< vector<int> > Hypergraph::applyFunction(const vector<int>& permutation) 
 
 vector< vector<int> > Hypergraph::buildEdgeGraph() { 
   vector< vector<int> > edgeGraph(getEdgeCount());
-  //edgeGraph.resize(getEdgeCount());
   for (int i = 0; i < getEdgeCount(); i++) {
     for (int j = 0; j < i; j++) {
-      
       int p1 = 0;
       int p2 = 0;
-      
       while (p1 < (int) incidenceMatrix[i].size() && p2 < (int) incidenceMatrix[j].size()) {
-        
         if (incidenceMatrix[i][p1] == incidenceMatrix[i][p2]) {
           edgeGraph[i].emplace_back(j);
           edgeGraph[j].emplace_back(i);
-          //cout << i << ' ' << j << '\n';
           break;
         } else if (incidenceMatrix[i][p1] < incidenceMatrix[i][p2]) {
           ++p1;
@@ -124,7 +119,6 @@ vector< vector<int> > Hypergraph::buildEdgeGraph() {
   }
   return edgeGraph;
 }
-
 
 
 
@@ -152,7 +146,18 @@ void Hypergraph::printIncidenceMatrix() const {
   }
 }
 
-//void Hypergraph::printEdgeGraph() const {
+/*
+ * If called with every possible produced subgraph it will print every non-induced subgraph
+ */ 
+//void Hypergraph::printEdgeSubgraph(const string& subgraph, int k) const {
+  //cout << "Selected subgraph" << '\n';
+  //for (int i = 0; i < n; i++) {
+    
+    
+  //}
+  //for (int i = 0; i < n; i++) {
+    
+  //}
   //for (int i = 0; i < M; i++) {
     //cout << "Hyperedge " << i << ": " << '\n';
     //for (auto& node : incidenceMatrix[i]) cout << node << ' ';

@@ -3,10 +3,16 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <set>
+#include <stack>
+#include <map>
+//#include <vector>
 
 #include "nauty.h"
+
 #include "Hypergraph.hpp"
 #include "Isomorphism.hpp"
+#include "ESU.hpp"
 
 using namespace std;
 
@@ -40,9 +46,27 @@ void testIsomorphism(int tt = 100'000'000) {
 int main() {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  Hypergraph h1;
-  h1.readIncidenceMatrix();
-  h1.ESU(2);
+  int n, m;
+  cin >> n >> m;
+  vector< vector<int> > g(n);
+  for (int i = 0; i < m; i++) {
+    int st, et, w;
+    cin >> st >> et >> w;
+    --st; --et;
+    g[st].emplace_back(et);
+    g[et].emplace_back(st);
+  }
+  ESU solve;
+  //solve.start(g, 1);
+  //solve.start(g, 2);
+  //solve.start(g, 3);
+  //solve.start(g, 4);
+  //solve.start(g, 5);
+  solve.start(g, 4);
+  //solve.start(g, 7);
+  //Hypergraph h1;
+  //h1.readIncidenceMatrix();
+  //h1.ESU(2);
   //h1.buildEdgeGraph();
   return 0; 
 }

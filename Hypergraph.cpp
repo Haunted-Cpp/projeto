@@ -98,8 +98,9 @@ vector< vector<int> > Hypergraph::applyFunction(const vector<int>& permutation) 
   return modifiedEdgeList;
 }
 
-void Hypergraph::buildEdgeGraph() { 
-  edgeGraph.resize(getEdgeCount());
+vector< vector<int> > Hypergraph::buildEdgeGraph() { 
+  vector< vector<int> > edgeGraph(getEdgeCount());
+  //edgeGraph.resize(getEdgeCount());
   for (int i = 0; i < getEdgeCount(); i++) {
     for (int j = 0; j < i; j++) {
       
@@ -119,63 +120,13 @@ void Hypergraph::buildEdgeGraph() {
           ++p2;
         }
       }
-      
     }
   }
+  return edgeGraph;
 }
 
 
-void Hypergraph::enumerateSubgraphs(vector<int> vSubgraph, vector<int> vExtension, int k, int v) {
-  if ( (int) vSubgraph.size() == k ) {
-     //print subgraph
-    for (auto& node : vSubgraph) cout << node + 1 << ' ';
-    cout << '\n';
-    cout << '\n';
-    return;
-  }
-  
-  set<int> chk;
-  for (auto to : vSubgraph) {
-    chk.insert(to);
-    for (auto& nei : edgeGraph[to]) {
-      chk.insert(nei);
-    }
-  }
-  
-  while (!vExtension.empty()) {
-    int w = vExtension.back();
-    vExtension.pop_back();
-    
-    vector<int> vExtensionX = vExtension;
-    for (auto& nei : edgeGraph[w]) if (nei > v) {
-      if (chk.find(nei) != chk.end()) continue;
-      
-      
-      vExtensionX.emplace_back(nei);
-    }
-      
-    sort(vExtensionX.begin(), vExtensionX.end());
-    vExtensionX.erase(unique(vExtensionX.begin(), vExtensionX.end()), vExtensionX.end());
-    
-    vSubgraph.emplace_back(w);
-    enumerateSubgraphs(vSubgraph, vExtensionX, k, v);
-    vSubgraph.pop_back();
-    
-    
-  }
-};
 
-
-void Hypergraph::ESU(int k) {
-  buildEdgeGraph();
-  for (int i = 0; i < getEdgeCount(); i++) {
-    vector<int> vExtension;
-    for (auto& nei : edgeGraph[i]) if (nei > i) vExtension.emplace_back(nei);
-    vector<int> vSubgraph = {i};
-    enumerateSubgraphs(vSubgraph, vExtension, k, i);
-  }
-  
-}
 
 bool Hypergraph::isEqual(const vector< vector<int> >& edgeList1) const {
   return incidenceMatrix == edgeList1;

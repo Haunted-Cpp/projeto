@@ -41,27 +41,35 @@ void testIsomorphism(int tt = 100'000'000) {
 int main() {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  //Hypergraph h;
-  //h.readIncidenceMatrix();
+  Hypergraph h;
+  h.readIncidenceMatrix();
+  
+  Hypergraph h1 = h.induceSubgraph({2, 4, 3, 1});
+  h1.printIncidenceMatrix();
+  
+  Hypergraph h2;
+  h2.readIncidenceMatrix();
+  //cout << (bool) (Isomorphism::isomorphismNauty(h1, h2)) << '\n';
+  //for (auto x : Isomorphism::canonization(h1)) cout << x << '\n';
   //auto test = ESU::startEdgeGraphSubgraphs(h, 3);
   //cout << test.size() << '\n';
   //for (auto t : test) {
     //h.printEdgeSubgraph(t);
   //}
-  int n, m;
-  cin >> n >> m;
-  vector< vector<int> > g(n);
-  for (int i = 0; i < m; i++) {
-    int st, et, w;
-    cin >> st >> et >> w;
-    --st; --et;
-    g[st].emplace_back(et);
-    g[et].emplace_back(st);
-  }
+  //int n, m;
+  //cin >> n >> m;
+  //vector< vector<int> > g(n);
+  //for (int i = 0; i < m; i++) {
+    //int st, et, w;
+    //cin >> st >> et >> w;
+    //--st; --et;
+    //g[st].emplace_back(et);
+    //g[et].emplace_back(st);
+  //}
   
-  for (auto [a, b] : ESU::getEquivalenceClass(g, 5)) {
-    cout << a << ' ' << b << '\n';
-  }
+  //for (auto [a, b] : ESU::getEquivalenceClass(g, 5)) {
+    //cout << a << ' ' << b << '\n';
+  //}
   return 0; 
 }
 

@@ -1,16 +1,15 @@
-#include <iostream>
-#include <cassert>
-#include <vector>
-#include <algorithm>
-#include <numeric>
-#include <map>
+#include <bits/stdc++.h>
 
 #include "nauty.h"
 #include "Hypergraph.hpp"
 #include "Isomorphism.hpp"
 
-using namespace std;
+//using namespace std;
 
+using std::string;
+using std::vector;
+using std::pair;
+using std::map;
 
 /* 
  * Initialize static variables
@@ -26,7 +25,7 @@ map< vector< pair<int, int> >, string> Isomorphism::canonStrCache; // could mayb
 
  
   
-bool Isomorphism::isomorphismSlow(const Hypergraph& h1, const Hypergraph& h2) {
+bool Isomorphism::isomorphismSlow(Hypergraph& h1, Hypergraph& h2) {
   if (h1.getNodeCount() != h2.getNodeCount()) return false;
   if (h1.getEdgeCount() != h2.getEdgeCount()) return false;
   const int nodeCount = h1.getNodeCount();
@@ -40,12 +39,12 @@ bool Isomorphism::isomorphismSlow(const Hypergraph& h1, const Hypergraph& h2) {
   return false;
 }
 
-bool Isomorphism::isomorphismNauty(const Hypergraph& h1, const Hypergraph& h2) {
+bool Isomorphism::isomorphismNauty(Hypergraph& h1, Hypergraph& h2) {
   return canonization(h1) == canonization(h2);
 }
 
 
-string Isomorphism::canonStr(const vector< pair<int, int> >& edgeList, int n) {
+string Isomorphism::canonStr( vector< pair<int, int> >& edgeList, int n) {
   if (canonStrCache.find(edgeList) != canonStrCache.end()) {
     // this step can be done also with a tree like structure ...
     return canonStrCache[edgeList];
@@ -107,7 +106,7 @@ string Isomorphism::canonStrSparse(const vector< pair<int, int> >& edgeList, int
 
 }*/
 
-vector<graph> Isomorphism::canonization(const Hypergraph& h) {
+vector<graph> Isomorphism::canonization(Hypergraph& h) {
   DYNALLSTAT(int,lab,lab_sz);
   DYNALLSTAT(int,ptn,ptn_sz);
   DYNALLSTAT(int,orbits,orbits_sz);

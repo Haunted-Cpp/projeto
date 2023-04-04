@@ -134,3 +134,11 @@ void ESU::setGraph(const vector< vector<int> >& inputGraph) {
 int ESU::getNodeCount() {
   return (int) graph.size();
 }
+
+// implementar o caso K = 3 do paper
+
+
+// queria testar a minha variação mas com limite de nós -> problema (pode ficar com menos ...) -> adicionar enquanto for menor ... -> pode ter mts arestas!!!
+
+
+// ESU Hypergraph version

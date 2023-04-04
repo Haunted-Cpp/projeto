@@ -15,9 +15,9 @@ private:
   static set* gv;
   static std::map< std::vector< std::pair<int, int> >, std::string> canonStrCache;
 public:
-   static bool isomorphismSlow(const Hypergraph& h1, const Hypergraph& h2);
-   static bool isomorphismNauty(const Hypergraph& h1, const Hypergraph& h2);
-   static std::vector<graph> canonization(const Hypergraph& h);
-   static std::string canonStr(const std::vector<std::pair<int, int> >&, int); 
-   static std::string canonStrSparse(const std::vector<std::pair<int, int> >&, int); 
+   static bool isomorphismSlow( Hypergraph& h1,  Hypergraph& h2);
+   static bool isomorphismNauty( Hypergraph& h1,  Hypergraph& h2);
+   static std::vector<graph> canonization( Hypergraph& h);
+   static std::string canonStr( std::vector<std::pair<int, int> >&, int); 
+   static std::string canonStrSparse( std::vector<std::pair<int, int> >&, int); 
 };

@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 
+#include "Settings.hpp"
 #include "Hypergraph.hpp"
 
 using namespace std;
@@ -72,15 +73,19 @@ void Hypergraph::readIncidenceMatrix() {
    }
    sortAndCheck(incidenceMatrix);
 }
-void Hypergraph::sortAndCheck(vector< vector<int> >& edge) const {
-  for (int i = 0; i < M; i++) sort(edge[i].begin(), edge[i].end());
+void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
+  hashEdge.clear();
+  for (int i = 0; i < M; i++) {
+    sort(edge[i].begin(), edge[i].end());
+    if ((int) edge[i].size() <= MAX_HYPER_MOTIF_SIZE) hashEdge.insert(edge[i]); // insert into hash table
+  }
   sort(edge.begin(), edge.end());
   edge.erase(unique(edge.begin(), edge.end()), edge.end());
   // Each edge should be unique => List size without duplicates MUST be M
   assert ( (int) edge.size() == M );
 }
 
-vector< vector<int> > Hypergraph::applyFunction(const vector<int>& permutation) const {
+vector< vector<int> > Hypergraph::applyFunction(const vector<int>& permutation) {
   vector< vector<int> > modifiedEdgeList;
   for (int i = 0; i < M; i++) {
     vector<int> edge;
@@ -115,26 +120,26 @@ vector< vector<int> > Hypergraph::buildEdgeGraph() {
 
 
 
-bool Hypergraph::isEqual(const vector< vector<int> >& edgeList1) const {
+bool Hypergraph::isEqual(const vector< vector<int> >& edgeList1)  {
   return incidenceMatrix == edgeList1;
 }
 
-vector< vector<int> > Hypergraph::getIncidenceMatrix() const {
+vector< vector<int> > Hypergraph::getIncidenceMatrix()  {
   return incidenceMatrix;
 }
 
-int Hypergraph::getNodeCount() const {
+int Hypergraph::getNodeCount()  {
   return N;
 }
 
-int Hypergraph::getEdgeCount() const {
+int Hypergraph::getEdgeCount()  {
   return M;
 }
 
-void Hypergraph::printIncidenceMatrix() const {
+void Hypergraph::printIncidenceMatrix()  {
   for (int i = 0; i < M; i++) {
-    cout << "Hyperedge " << i << ": " << '\n';
-    for (auto& node : incidenceMatrix[i]) cout << node << ' ';
+    cout << "Hyperedge " << i + 1 << ": " << '\n';
+    for (auto& node : incidenceMatrix[i]) cout << node + 1 << ' ';
     cout << '\n';
   }
 }
@@ -144,11 +149,11 @@ void Hypergraph::printIncidenceMatrix() const {
  * ------------ Make sure size is correct!!! ----
  * Note that number of nodes is not known!!
  */ 
-void Hypergraph::printEdgeSubgraph(const vector< pair<int, int> >& edgeList) {
+void Hypergraph::printEdgeSubgraph(vector< pair<int, int> >& edgeList) {
   cout << "Selected subgraph" << '\n';
   vector<int> nodes;
   for (auto& [a, b] : edgeList) {
-    cout << a << ' ' << b << '\n';
+    cout << a + 1 << ' ' << b + 1 << '\n';
     nodes.emplace_back(a);
     nodes.emplace_back(b);
   }
@@ -156,8 +161,56 @@ void Hypergraph::printEdgeSubgraph(const vector< pair<int, int> >& edgeList) {
   nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
   cout << "Nodes in each edge" << '\n';
   for (auto& node : nodes) {
-    for (auto& value : incidenceMatrix[node]) cout << value << ' ';
+    for (auto& value : incidenceMatrix[node]) cout << value + 1 << ' ';
     cout << '\n';
   }
 }
 
+
+Hypergraph Hypergraph::filterEdge(int maximumSize) {
+  Hypergraph h;
+  h.setN(getNodeCount());
+  vector< vector<int> > adj;
+  for (auto edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
+  h.setN(getNodeCount());
+  h.setM((int)adj.size());
+  h.setIncidenceMatrix(adj);
+  return h;
+}
+
+void Hypergraph::setN(int n) {
+  N = n;
+}
+void Hypergraph::setM(int m) {
+  M = m;
+}
+
+void Hypergraph::setIncidenceMatrix(std::vector< std::vector<int> >& adj) {
+  // n and m shoud be ok .... 
+  incidenceMatrix = adj;
+  sortAndCheck(incidenceMatrix);
+}
+
+
+// we assume subgraph is 1-indexed!!!
+Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
+  const int nodes = (int) subgraph.size();
+  assert(nodes <= 4); // only for motifs of size 3 and 4!
+  Hypergraph h;
+  h.setN(nodes);
+  vector< vector<int> > adj;
+  for (int mask = 0; mask < (1 << nodes); mask++) {
+    vector<int> edge;
+    for (int i = 0; i < nodes; i++) {
+      if ((mask >> i) & 1) edge.emplace_back(subgraph[i] - 1); // convert to 0-indexed
+    }
+    sort(edge.begin(), edge.end());
+    if (hashEdge.find(edge) != hashEdge.end()) {
+      adj.emplace_back(edge);
+      
+    }
+  }
+  h.setM((int) adj.size());
+  h.setIncidenceMatrix(adj);
+  return h;
+}

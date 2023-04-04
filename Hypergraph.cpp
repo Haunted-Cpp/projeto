@@ -1,7 +1,10 @@
 #include <bits/stdc++.h>
 
 #include "Settings.hpp"
+#include "nauty.h"
 #include "Hypergraph.hpp"
+#include "Isomorphism.hpp"
+
 
 using namespace std;
 
@@ -44,7 +47,6 @@ void Hypergraph::randomHypergraph() {
     incidenceMatrix.emplace_back(edge);
   }
   sortAndCheck(incidenceMatrix);
-  //vector<int> pickEdge(
 }
 
 void Hypergraph::readIncidenceMatrix() {
@@ -57,6 +59,7 @@ void Hypergraph::readIncidenceMatrix() {
    * ...
    */
    cin >> N >> M;
+   assert(N <= MAX_INPUT_N);
    incidenceMatrix.clear();
    for (int i = 0; i < M; i++) {
      int k;
@@ -136,6 +139,11 @@ int Hypergraph::getEdgeCount()  {
   return M;
 }
 
+vector<int> Hypergraph::getEdge(int n) {
+  assert(n >= 0 && n < M);
+  return incidenceMatrix[n];
+}
+
 void Hypergraph::printIncidenceMatrix()  {
   for (int i = 0; i < M; i++) {
     cout << "Hyperedge " << i + 1 << ": " << '\n';
@@ -169,11 +177,9 @@ void Hypergraph::printEdgeSubgraph(vector< pair<int, int> >& edgeList) {
 
 Hypergraph Hypergraph::filterEdge(int maximumSize) {
   Hypergraph h;
-  h.setN(getNodeCount());
   vector< vector<int> > adj;
   for (auto edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
   h.setN(getNodeCount());
-  h.setM((int)adj.size());
   h.setIncidenceMatrix(adj);
   return h;
 }
@@ -186,13 +192,27 @@ void Hypergraph::setM(int m) {
 }
 
 void Hypergraph::setIncidenceMatrix(std::vector< std::vector<int> >& adj) {
-  // n and m shoud be ok .... 
+  setM( (int) adj.size() );
   incidenceMatrix = adj;
   sortAndCheck(incidenceMatrix);
 }
 
+void Hypergraph::compress() {
+  vector<int> nodes;
+  for (auto& edge : incidenceMatrix) {
+    for (auto& vertex : edge) nodes.emplace_back(vertex);
+  }
+  sort(nodes.begin(), nodes.end());
+  nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
+  for (auto& edge : incidenceMatrix) {
+    for (auto& vertex : edge) {
+      vertex = lower_bound(nodes.begin(), nodes.end(), vertex) - nodes.begin();
+    }
+  }
+}
 
-// we assume subgraph is 1-indexed!!!
+// 0 indexeddddddddddddddd !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// we assume subgraph is 0-indexed!!!
 Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   const int nodes = (int) subgraph.size();
   assert(nodes <= 4); // only for motifs of size 3 and 4!
@@ -202,15 +222,14 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   for (int mask = 0; mask < (1 << nodes); mask++) {
     vector<int> edge;
     for (int i = 0; i < nodes; i++) {
-      if ((mask >> i) & 1) edge.emplace_back(subgraph[i] - 1); // convert to 0-indexed
+      if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed
     }
     sort(edge.begin(), edge.end());
     if (hashEdge.find(edge) != hashEdge.end()) {
       adj.emplace_back(edge);
-      
     }
   }
-  h.setM((int) adj.size());
   h.setIncidenceMatrix(adj);
+  h.compress();
   return h;
 }

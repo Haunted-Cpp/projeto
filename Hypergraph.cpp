@@ -64,6 +64,7 @@ void Hypergraph::readIncidenceMatrix() {
    for (int i = 0; i < M; i++) {
      int k;
      cin >> k;
+     //k = 2;
      vector<int> edge(k);
      for (int j = 0; j < k; j++) {
        int node;
@@ -72,6 +73,8 @@ void Hypergraph::readIncidenceMatrix() {
        // Check that each node is numbered from 0 to n - 1
        assert(node >= 1 && node <= N);
      }
+     //int trash;
+     //cin >> trash;
      incidenceMatrix.emplace_back(edge);
    }
    sortAndCheck(incidenceMatrix);
@@ -232,4 +235,15 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   h.setIncidenceMatrix(adj);
   h.compress();
   return h;
+}
+
+bool Hypergraph::validEdge(std::vector<int> edge) { // it MUST be sorted
+  assert(is_sorted(edge.begin(), edge.end()));
+  return hashEdge.find(edge) != hashEdge.end();
+}
+
+int Hypergraph::getEdgeMaxDeg() {
+  int mx = 0;
+  for (auto edge : incidenceMatrix) mx = max(mx, (int) edge.size());
+  return mx;
 }

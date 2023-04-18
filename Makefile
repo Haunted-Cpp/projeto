@@ -14,8 +14,8 @@ NAUTY_SRC =                   \
 	nauty/schreier.c	          \
 	nauty/naurng.c
 
-output: Main.o Isomorphism.o Hypergraph.o ESU.o
-	$(COMPILER) -o main Main.o ESU.o Isomorphism.o Hypergraph.o $(NAUTY_SRC) $(FLAGS) $(VERSION)
+output: Main.o Isomorphism.o Hypergraph.o ESU.o GTrie.o
+	$(COMPILER) -o main Main.o ESU.o Isomorphism.o Hypergraph.o GTrie.o $(NAUTY_SRC) $(FLAGS) $(VERSION)
 
 Main.o: Main.cpp
 	$(COMPILER) -c Main.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
@@ -29,6 +29,8 @@ ESU.o: ESU.cpp ESU.hpp
 Hypergraph.o: Hypergraph.cpp Hypergraph.hpp
 	$(COMPILER) -c Hypergraph.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
 
+GTrie.o: GTrie.cpp GTrie.hpp
+	$(COMPILER) -c GTrie.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
 
 
 clean:

@@ -6,10 +6,12 @@
 #include <set>
 #include <stack>
 #include <map>
+#include <memory>
 
 #include "nauty.h"
 
 #include "Hypergraph.hpp"
+#include "GTrie.hpp"
 #include "Isomorphism.hpp"
 #include "ESU.hpp"
 
@@ -39,9 +41,22 @@ void testIsomorphism(int tt = 100'000'000) {
 }
 
 void readHypergraph() {
-  Hypergraph h;
-  h.readIncidenceMatrix();
-  ESU::k4(h);
+  Hypergraph h1;
+  h1.readIncidenceMatrix();
+  GTrie trie(3) ;
+  
+  Hypergraph h2;
+  h2.readIncidenceMatrix();
+  
+  Hypergraph h3;
+  h3.readIncidenceMatrix();
+  
+  trie.insert(h1);
+  trie.insert(h2);
+  trie.insert(h3);
+  
+  trie.dfs();
+  //ESU::k4(h);
 }
 
 void readNormal() {
@@ -64,7 +79,8 @@ void readNormal() {
 int main() {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  readNormal();
+  readHypergraph();
+  //readNormal();
   return 0; 
 }
 

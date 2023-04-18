@@ -27,6 +27,8 @@ public:
   std::vector< std::vector<int> > getIncidenceMatrix();
   int getNodeCount();
   int getEdgeCount();
+  int getEdgeMaxDeg();
+  bool validEdge(std::vector<int>); 
   void printIncidenceMatrix();
   void printEdgeSubgraph(std::vector< std::pair<int, int> >&); 
   

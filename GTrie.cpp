@@ -45,45 +45,20 @@ GTrie::GTrie(int k) : K(k) { // Limit on MAX EDGE size
   }
 }
 
+/*
+ * Given a set of nodes, produce the labelling at depth i.
+ * The vector nodes is used to allow orderings different from 0 .. n - 1
+ * The last vertex is always the one to be added
+ */
+
 
 string GTrie::getEncoding(Hypergraph& subHyperGraph, const vector<int>& nodes, int depth) {
-  //assert(is_sorted(nodes.begin(), nodes.end())); -- maybe force them to be sorted?
+  assert( (int) nodes.size() == depth );
   string encode;
-  //vector<int> previousNodes;
-  //auto findEncoding = [&](auto&& findEncoding, int len, int last) {
-    //if (len == 0) {
-      
-      //previousNodes.emplace_back(startNode);
-      //sort(previousNodes.begin(), previousNodes.end());
-      
-      
-      //if (subHyperGraph.validEdge(previousNodes)) encode += '1'; // this is actually not need, can be do in a better way!
-      //else encode += '0';
-      //previousNodes.pop_back();
-      //return;
-    //}
-    //for (int i = last + 1; i < (int) nodes.size(); i++) {
-      //previousNodes.emplace_back(nodes[i]);
-      //findEncoding(findEncoding, len - 1, i);
-      //previousNodes.pop_back();
-    //}
-  //};
-  //findEncoding(findEncoding, 1, -1);
-  //encode += (subHyperGraph.validEdge({startNode, startNode}) ? '1' : '0'); // edge case - self loop
-  //encode += '#';
-  
-  //for (int j = 3; j <= K; j++) {
-    //findEncoding(findEncoding, j - 1, -1);
-    //encode += '#';
-  //}
-  
   for (auto values : bijection[depth]) {
     vector<int> ordered_nodes;
     for (auto index : values) ordered_nodes.emplace_back(nodes[index]);
     sort(ordered_nodes.begin(), ordered_nodes.end());
-    //cout << "!" << '\n';
-    //for (auto node : ordered_nodes) cout << node << ' ';
-    //cout << '\n';
     encode += (subHyperGraph.validEdge(ordered_nodes) ? '1' : '0');
   }
   return encode;
@@ -103,7 +78,6 @@ void GTrie::insert(Hypergraph& subHyperGraph) {
         break;
       }
     }
-    //cout << encode << '\n';
     if (j == (int) node -> children.size() ) {
       node -> children.emplace_back(make_shared<Node>());
       node -> children.back() -> edgeLink = encode;
@@ -126,8 +100,8 @@ void GTrie::match(Hypergraph& h, shared_ptr<Node> gtrie, int len) {
     assert( (int) gtrie -> edgeLink.size() == (int) bijection[len + 1].size() );
     for (int i = 0; i < (int) gtrie -> edgeLink.size(); i++) {
       if (gtrie -> edgeLink[i] == '1') {
-        //assert( Vused.size() <= (int) bijection[len + 1][i].size() - 1 );
         for (int j = 0; j < (int) bijection[len + 1][i].size() - 1; j++) { // -1 because we don't consider the last node - it's not added yet
+          assert(bijection[len + 1][i][j] < (int) Vused.size());
           Vconn.emplace_back(Vused[ bijection[len + 1][i][j] ]);
         }
       }

@@ -48,7 +48,7 @@ void readHypergraph() {
   subgraph.readIncidenceMatrix();
   //Hypergraph h1;
   //h1.readIncidenceMatrix();
-  GTrie trie(2);
+  GTrie trie(4);
   trie.insert(subgraph);
   //Hypergraph h2;
   //h2.readIncidenceMatrix();

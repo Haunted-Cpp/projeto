@@ -29,9 +29,9 @@ GTrie::GTrie(int k) : K(k) { // Limit on MAX EDGE size
         perm.pop_back();
       }
     };
-    for (int j = 0; j < i; j++) {
-      vector<int> node = {j, i - 1};
-      bijection[i].emplace_back(node);
+    bijection[i].push_back({i - 1});
+    for (int j = 0; j < i - 1; j++) {
+      bijection[i].push_back({j, i - 1});
     }
     for (int j = 2; j <= k - 1; j++) Gen(Gen, j, -1); // For edge sizes greater than 2
   }
@@ -69,9 +69,9 @@ void GTrie::insert(Hypergraph& subHyperGraph) {
   assert(subHyperGraph.getEdgeMaxDeg() <= K);
   shared_ptr<Node> node = root;
   for (int i = 0; i < subHyperGraph.getNodeCount(); i++) {
-    vector<int> previousNodes(i + 1); 
-    iota(previousNodes.begin(), previousNodes.end(), 0);
-    string encode = getEncoding(subHyperGraph, previousNodes, i + 1);
+    vector<int> nodes(i + 1); 
+    iota(nodes.begin(), nodes.end(), 0);
+    string encode = getEncoding(subHyperGraph, nodes, i + 1);
     int j = 0;
     for (; j < (int) node -> children.size(); j++) {
       if (node -> children[j] -> edgeLink == encode) {

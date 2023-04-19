@@ -41,21 +41,27 @@ void testIsomorphism(int tt = 100'000'000) {
 }
 
 void readHypergraph() {
-  Hypergraph h1;
-  h1.readIncidenceMatrix();
-  GTrie trie(3) ;
+  Hypergraph h;
+  h.readIncidenceMatrix();
   
-  Hypergraph h2;
-  h2.readIncidenceMatrix();
+  Hypergraph subgraph;
+  subgraph.readIncidenceMatrix();
+  //Hypergraph h1;
+  //h1.readIncidenceMatrix();
+  GTrie trie(2);
+  trie.insert(subgraph);
+  //Hypergraph h2;
+  //h2.readIncidenceMatrix();
   
-  Hypergraph h3;
-  h3.readIncidenceMatrix();
+  //Hypergraph h3;
+  //h3.readIncidenceMatrix();
   
-  trie.insert(h1);
-  trie.insert(h2);
-  trie.insert(h3);
-  
-  trie.dfs();
+  //trie.insert(h1);
+  //trie.insert(h2);
+  //trie.insert(h3);
+  //trie.dfs();
+  //trie.dfs();
+  trie.search(h);
   //ESU::k4(h);
 }
 

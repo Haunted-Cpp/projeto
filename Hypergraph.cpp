@@ -16,6 +16,8 @@ int gen(int lo, int hi) { return uniform_int_distribution<int>(lo,hi)(rng); }
  * Simple Hypergraph Class
  * No empty hyperedge
  * No duplicate hyperedge
+ * Every edge vertex should be unique!!
+ * No sefl-loops
  */
 
 Hypergraph::Hypergraph() {
@@ -122,6 +124,25 @@ vector< vector<int> > Hypergraph::buildEdgeGraph() {
     }
   }
   return edgeGraph;
+}
+
+vector< vector<int> > Hypergraph::buildVertexGraph(int k) {
+  vector< vector<int> > nei( getNodeCount() );
+  for (auto& edge : incidenceMatrix) { // O (m * k ^ 2), but since k <= 10 ... ok
+    if ( (int) edge.size() <= k ) {
+      for (int i = 0; i < (int) edge.size(); i++) {
+        for (int j = i + 1; j < (int) edge.size(); j++) {
+          nei[ edge[i] ].emplace_back( edge[j] );
+          nei[ edge[j] ].emplace_back( edge[i] );
+        }
+      }
+    }
+  }
+  for (auto& node : nei) { // remove duplicates 
+    sort(node.begin(), node.end());
+    node.erase(unique(node.begin(), node.end()), node.end());
+  }
+  return nei;  
 }
 
 

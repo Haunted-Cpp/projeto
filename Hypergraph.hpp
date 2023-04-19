@@ -21,6 +21,7 @@ public:
   
   void readIncidenceMatrix();
   std::vector< std::vector<int> > buildEdgeGraph();
+  std::vector< std::vector<int> > buildVertexGraph(int);
   Hypergraph filterEdge(int);
   
   

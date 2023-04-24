@@ -57,7 +57,7 @@ void ESU::enumerateSubgraphs() {
       Hypergraph motif = h.induceSubgraph(nodes);
       if (motif.getEdgeMaxDeg() != 2) return;
       assert(visited.find(nodes) == visited.end());
-      assert(motif.getNodeCount() == 4);
+      //assert(motif.getNodeCount() == 4);
       counterHyper[Isomorphism::canonization(motif)]++;
       return;
     } else if (Search == CLASS_ONLY) {
@@ -174,12 +174,14 @@ int ESU::getNodeCount() {
 void ESU::k3(Hypergraph& inputGraph) {
   counterHyper.clear();
   visited.clear();
-  for (auto edge : inputGraph.getIncidenceMatrix()) {
+  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
     assert(is_sorted(edge.begin(), edge.end()));
     counterHyper[Isomorphism::canonization(motif)]++;
-    visited.insert(edge);
+    //visited.insert(edge);
+    //assert(visited.find(edge) == visited.end());
+    assert(motif.getEdgeMaxDeg() == 3);
   }
   vector< vector<int> > filter( inputGraph.getNodeCount() );
   for (auto& edge : inputGraph.filterEdge(2).getIncidenceMatrix()) {
@@ -189,10 +191,14 @@ void ESU::k3(Hypergraph& inputGraph) {
   h = inputGraph;
   Search = HYPERGRAPH;
   setupAndRun(filter, 3);
-  cout << counterHyper.size() << '\n';
+  cout << "Counter: " << counterHyper.size() << '\n';
+  vector<int> xx;
   for (auto [x, cnt] : counterHyper) {
-    cout << cnt << '\n';
+    //cout << cnt << '\n';
+    xx.emplace_back(cnt);
   }
+  sort(xx.rbegin(), xx.rend());
+  for (auto cnt : xx) cout << cnt << '\n';
 }
 
 // implementar o caso K = 4 do paper
@@ -201,12 +207,12 @@ void ESU::k3(Hypergraph& inputGraph) {
 void ESU::k4(Hypergraph& inputGraph) {
   counterHyper.clear();
   visited.clear();
-  for (auto edge : inputGraph.getIncidenceMatrix()) {
+  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 4) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
     assert(is_sorted(edge.begin(), edge.end()));
     counterHyper[Isomorphism::canonization(motif)]++;
-    assert(visited.find(edge) == visited.end()); // assuming no duplicate edges
+    //assert(visited.find(edge) == visited.end()); 
     //visited.insert(edge);
     assert(motif.getEdgeMaxDeg() == 4);
   }
@@ -223,13 +229,12 @@ void ESU::k4(Hypergraph& inputGraph) {
       sort(nodes.begin(), nodes.end());
       nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
       if ( (int) nodes.size() != 4) continue;
-      if (visited.find(ve1) != visited.end()) continue;
+      if (visited.find(nodes) != visited.end()) continue;
       Hypergraph motif = inputGraph.induceSubgraph(nodes);
       if (motif.getEdgeMaxDeg() != 3) continue;
-      assert(motif.getEdgeMaxDeg() == 3);
+      //assert(motif.getEdgeMaxDeg() == 3);
       counterHyper[Isomorphism::canonization(motif)]++;
-      visited.insert(ve);
-      assert(is_sorted(ve.begin(), ve.end()));
+      visited.insert(nodes);
     }
   }
   vector< vector<int> > filter(inputGraph.getNodeCount());
@@ -240,19 +245,128 @@ void ESU::k4(Hypergraph& inputGraph) {
   h = inputGraph;
   Search = HYPERGRAPH;
   setupAndRun(filter, 4);
-  cout << counterHyper.size() << '\n';
+  
+  
+  
+  
+  cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
   for (auto [x, cnt] : counterHyper) {
     //cout << cnt << '\n';
     xx.emplace_back(cnt);
   }
   sort(xx.rbegin(), xx.rend());
-  for (auto val : xx) cout << val << '\n';
+  for (auto cnt : xx) cout << cnt << '\n';
 }
 
+// This method is used just for debug only!
 
 
 
+
+
+
+/**
+ * Description: Disjoint Set Union
+ * Implementation Notes: 
+   * DSU w/ Union by size
+   * Find - O ( Log N )
+   * Union - O ( 1 )
+ * Verification: 
+   * https://open.kattis.com/problems/unionfind
+*/
+
+struct DisjointSet {
+  vector<int> parent, tamanho;
+  DisjointSet (int n) {
+    parent.clear(); parent.resize(n);
+    tamanho.clear(); tamanho.resize(n);
+    for (int i = 0; i < n; i++) {
+      parent[i] = i;
+      tamanho[i] = 1;
+    }
+  }
+  int root (int x) {
+    while (x != parent[x]) x = parent[x];
+    return x;
+  }
+  void join (int a, int b) {
+    a = root (a);
+    b = root (b);
+    if (a == b) return;
+    if (tamanho[a] < tamanho[b]) swap (a, b);
+    parent[b] = a;
+    tamanho[a] += tamanho[b];
+  }
+  bool is_connected (int a, int b) {
+    return root(a) == root(b);
+  }
+};
+
+void ESU::bruteForce3(Hypergraph& inputGraph) {
+  counterHyper.clear();
+  const int n = inputGraph.getNodeCount();
+  vector<int> nodes;
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      for (int z = j + 1; z < n; z++) {
+        nodes = {i, j, z};
+        Hypergraph motif = inputGraph.induceSubgraph(nodes);
+        DisjointSet dsu(3);
+        for (auto e : motif.getIncidenceMatrix()) {
+          for (int a = 0; a < (int) e.size(); a++) {
+            for (int b = a + 1; b < (int) e.size(); b++) {
+              dsu.join(e[a], e[b]);
+            }
+          }
+        }
+        if (dsu.tamanho[dsu.root(0)] != 3) continue;
+        counterHyper[Isomorphism::canonization(motif)]++;
+      }
+    }
+  }
+  cout << "Counter: " << counterHyper.size() << '\n';
+  vector<int> xx;
+  for (auto [x, cnt] : counterHyper) {
+    xx.emplace_back(cnt);
+  }
+  sort(xx.rbegin(), xx.rend());
+  for (auto cnt : xx) cout << cnt << '\n';
+}
+
+ //This method is used just for debug only!
+void ESU::bruteForce4(Hypergraph& inputGraph) {
+  counterHyper.clear();
+  const int n = inputGraph.getNodeCount();
+  vector<int> nodes;
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      for (int z = j + 1; z < n; z++) {
+        for (int x = z + 1; x < n; x++) {
+          nodes = {i, j, z, x};
+          Hypergraph motif = inputGraph.induceSubgraph(nodes);
+          DisjointSet dsu(4);
+          for (auto e : motif.getIncidenceMatrix()) {
+            for (int a = 0; a < (int) e.size(); a++) {
+              for (int b = a + 1; b < (int) e.size(); b++) {
+                dsu.join(e[a], e[b]);
+              }
+            }
+          }
+          if (dsu.tamanho[dsu.root(0)] != 4) continue;
+          counterHyper[Isomorphism::canonization(motif)]++;
+        }
+      }
+    }
+  }
+  cout << "Counter: " << counterHyper.size() << '\n';
+  vector<int> xx;
+  for (auto [x, cnt] : counterHyper) {
+    xx.emplace_back(cnt);
+  }
+  sort(xx.rbegin(), xx.rend());
+  for (auto cnt : xx) cout << cnt << '\n';
+}
 
 
 

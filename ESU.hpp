@@ -31,4 +31,6 @@ public:
   static std::vector< std::vector< std::pair<int, int> > > getAllSubgraphs(const std::vector< std::vector<int> >&, int);
   static void k3(Hypergraph&);
   static void k4(Hypergraph&);
+  static void bruteForce3(Hypergraph& inputGraph);
+  static void bruteForce4(Hypergraph& inputGraph);
 };

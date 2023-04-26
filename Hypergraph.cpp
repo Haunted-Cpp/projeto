@@ -202,10 +202,47 @@ void Hypergraph::printEdgeSubgraph(vector< pair<int, int> >& edgeList) {
 Hypergraph Hypergraph::filterEdge(int maximumSize) {
   Hypergraph h;
   vector< vector<int> > adj;
-  for (auto edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
+  for (auto& edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
   h.setN(getNodeCount());
   h.setIncidenceMatrix(adj);
   return h;
+}
+
+
+// Returns graph with ONLY order 2 links
+vector< vector<int> > Hypergraph::getGraph() {
+  vector< vector<int> > graph(getNodeCount());
+  vector< vector<int> > adj = (this -> filterEdge(2)).getIncidenceMatrix();
+  for (auto& edge : adj) {
+    graph[ edge[0] ].emplace_back( edge[1] );
+    graph[ edge[1] ].emplace_back( edge[0] );
+  }
+  return graph;
+}
+
+bool Hypergraph::is_two_connected() {
+  vector< vector<int> > graph = getGraph();
+  vector<int> vis(getNodeCount());
+  vis[0] = 1;
+  queue<int> q;
+  q.emplace(0);
+  while (!q.empty()) {
+    int node = q.front();
+    q.pop();
+    for (auto& to : graph[node]) {
+      if (to >= getNodeCount()) {
+        cout << "WTF:" << '\n';
+        cout << getNodeCount() << ' ' << to << '\n';
+        exit(0);
+      }
+      assert(to < getNodeCount());
+      if (!vis[to]) {
+        vis[to] = 1;
+        q.emplace(to);
+      }
+    }
+  }
+  return count(vis.begin(), vis.end(), 1) == getNodeCount();
 }
 
 void Hypergraph::setN(int n) {
@@ -258,8 +295,50 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   return h;
 }
 
+
+
+
+Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph) {
+  const int nodes = (int) subgraph.size();
+  assert(nodes <= 4); // only for motifs of size 3 and 4!
+  Hypergraph h;
+  h.setN(nodes);
+  vector< vector<int> > adj;
+  for (int mask = 0; mask < (1 << nodes); mask++) {
+    vector<int> edge;
+    for (int i = 0; i < nodes; i++) {
+      if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed
+    }
+    sort(edge.begin(), edge.end());
+    if (hashEdge.find(edge) != hashEdge.end()) {
+      adj.emplace_back(edge);
+    }
+  }
+  h.setIncidenceMatrix(adj);
+  //h.compress();
+  return h;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool Hypergraph::validEdge(std::vector<int> edge) { // it MUST be sorted
   assert(is_sorted(edge.begin(), edge.end()));
+  assert(edge.size() <= MAX_HYPER_MOTIF_SIZE) ;
   return hashEdge.find(edge) != hashEdge.end();
 }
 

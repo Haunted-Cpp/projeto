@@ -29,6 +29,10 @@ public:
   int getNodeCount();
   int getEdgeCount();
   int getEdgeMaxDeg();
+  
+  bool is_two_connected();
+  std::vector< std::vector<int> > getGraph();
+
   bool validEdge(std::vector<int>); 
   void printIncidenceMatrix();
   void printEdgeSubgraph(std::vector< std::pair<int, int> >&); 
@@ -42,4 +46,5 @@ public:
   std::vector<int> getEdge(int);
   
   Hypergraph induceSubgraph(const std::vector<int>&);
+  Hypergraph induceSubgraphNoComp(const std::vector<int>&);
 };

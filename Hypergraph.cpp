@@ -22,16 +22,21 @@ int gen(int lo, int hi) { return uniform_int_distribution<int>(lo,hi)(rng); }
 
 Hypergraph::Hypergraph() {
   //readIncidenceMatrix();
-  randomHypergraph();
+  //randomHypergraph();
+  // Don't call here - Otherwise when a small, empty Hypergraph is created this methods will be called
 }
 
-void Hypergraph::randomHypergraph() {
-  N = gen(1, 8);
-  M = min( (1 << N) - 1, gen(1, 5));
+void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
+  N = n;
+  M = m;
+  
   vector<int> subset;
   for (int mask = 1; mask < (1 << N); mask++) {
+    if (__builtin_popcount(mask) > maxDegree) continue;
+    if (__builtin_popcount(mask) < 2) continue;
     subset.emplace_back(mask);
   }
+  assert( (int) subset.size() >= M );
   shuffle(subset.begin(), subset.end(), rng);
   
   
@@ -39,6 +44,7 @@ void Hypergraph::randomHypergraph() {
   iota(perm.begin(), perm.end(), 0);
   shuffle(perm.begin(), perm.end(), rng);
   
+  incidenceMatrix.clear();
   for (int i = 0; i < M; i++) {
     vector<int> edge;
     for (int j = 0; j < N; j++) {
@@ -51,7 +57,7 @@ void Hypergraph::randomHypergraph() {
   sortAndCheck(incidenceMatrix);
 }
 
-void Hypergraph::readIncidenceMatrix() {
+void Hypergraph::readIncidenceMatrix(istream& in) {
   /*
    * Format:
    * n # number of hypernodes
@@ -60,23 +66,20 @@ void Hypergraph::readIncidenceMatrix() {
    * k_2 b1, b2, ..., bk_2
    * ...
    */
-   cin >> N >> M;
+   in >> N >> M;
    assert(N <= MAX_INPUT_N);
    incidenceMatrix.clear();
    for (int i = 0; i < M; i++) {
      int k;
-     cin >> k;
-     //k = 2;
+     in >> k;
      vector<int> edge(k);
      for (int j = 0; j < k; j++) {
        int node;
-       cin >> node; // number from 0 to n - 1
+       in >> node; // number from 0 to n - 1
        edge[j] = node - 1;
        // Check that each node is numbered from 0 to n - 1
        assert(node >= 1 && node <= N);
      }
-     //int trash;
-     //cin >> trash;
      incidenceMatrix.emplace_back(edge);
    }
    sortAndCheck(incidenceMatrix);
@@ -168,11 +171,13 @@ vector<int> Hypergraph::getEdge(int n) {
   return incidenceMatrix[n];
 }
 
-void Hypergraph::printIncidenceMatrix()  {
+void Hypergraph::printIncidenceMatrix(ostream& out)  {
+  out << getNodeCount() << '\n';
+  out << getEdgeCount() << '\n';
   for (int i = 0; i < M; i++) {
-    cout << "Hyperedge " << i + 1 << ": " << '\n';
-    for (auto& node : incidenceMatrix[i]) cout << node + 1 << ' ';
-    cout << '\n';
+    out << incidenceMatrix[i].size() << ' ';
+    for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
+    out << '\n';
   }
 }
 
@@ -214,6 +219,7 @@ vector< vector<int> > Hypergraph::getGraph() {
   vector< vector<int> > graph(getNodeCount());
   vector< vector<int> > adj = (this -> filterEdge(2)).getIncidenceMatrix();
   for (auto& edge : adj) {
+    if ( (int) edge.size() != 2 ) continue; // we are ignoring self-loops
     graph[ edge[0] ].emplace_back( edge[1] );
     graph[ edge[1] ].emplace_back( edge[0] );
   }
@@ -230,11 +236,6 @@ bool Hypergraph::is_two_connected() {
     int node = q.front();
     q.pop();
     for (auto& to : graph[node]) {
-      if (to >= getNodeCount()) {
-        cout << "WTF:" << '\n';
-        cout << getNodeCount() << ' ' << to << '\n';
-        exit(0);
-      }
       assert(to < getNodeCount());
       if (!vis[to]) {
         vis[to] = 1;
@@ -274,13 +275,23 @@ void Hypergraph::compress() {
 
 // 0 indexeddddddddddddddd !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // we assume subgraph is 0-indexed!!!
-Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
+Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph, int lim) {
   const int nodes = (int) subgraph.size();
   assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
   for (int mask = 0; mask < (1 << nodes); mask++) {
+    
+    // TEMPORARY CONDITION
+    //
+    //
+    if (__builtin_popcount(mask) > lim) {
+      assert(lim != 4);
+      continue;
+    }
+    //
+    
     vector<int> edge;
     for (int i = 0; i < nodes; i++) {
       if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed
@@ -320,21 +331,35 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph) {
 }
 
 
+void Hypergraph::printIncidenceMatrix() {
+  printIncidenceMatrix(cout);
+}
 
+void Hypergraph::saveToFile(string filename) {
+  ofstream fout;
+  fout.open(filename);
+  if (fout.fail()) {
+    cout << filename << " could not be opened" << '\n';
+    exit(EXIT_FAILURE);
+  };
+  printIncidenceMatrix(fout);
+  fout.close();
+}
 
+void Hypergraph::readFromFile(string filename) {
+  ifstream fin;
+  fin.open(filename);
+  if (fin.fail()) {
+    cout << filename << " could not be opened" << '\n';
+    exit(EXIT_FAILURE);
+  };
+  readIncidenceMatrix(fin);
+  fin.close();
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+void Hypergraph::readFromStdin() {
+  readIncidenceMatrix(cin);
+}
 
 bool Hypergraph::validEdge(std::vector<int> edge) { // it MUST be sorted
   assert(is_sorted(edge.begin(), edge.end()));

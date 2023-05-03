@@ -24,6 +24,8 @@ private:
   static void setupAndRun(const std::vector< std::vector<int> >& , int);
   static Hypergraph h;
   static std::map< std::vector<graph>, int> counterHyper;
+  static std::map< std::vector<graph>, int> counterHyperK4;
+  static std::map< std::vector<graph>, int> counterHyperBF4;
   static std::set< std::vector<int> > visited;
 public:
   static std::vector< std::vector< std::pair<int, int> > > startEdgeGraphSubgraphs(Hypergraph&, int);
@@ -33,4 +35,6 @@ public:
   static void k4(Hypergraph&);
   static void bruteForce3(Hypergraph& inputGraph);
   static void bruteForce4(Hypergraph& inputGraph);
+  
+  static void k3Modified(Hypergraph& inputGraph);
 };

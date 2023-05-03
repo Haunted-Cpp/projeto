@@ -35,7 +35,13 @@ Hypergraph ESU::h;
 map< vector<graph>, int> ESU::counterHyper;
 std::set< vector<int> > ESU::visited;
 option Search;
+
+int search_lim;
 //
+
+// Debug only
+map< vector<graph>, int> ESU::counterHyperK4;
+map< vector<graph>, int> ESU::counterHyperBF4;
 
 //8
 //4327
@@ -54,7 +60,7 @@ void ESU::enumerateSubgraphs() {
       vector<int> nodes;
       nodes.assign(subgraph.begin(), subgraph.end());
       assert(is_sorted(nodes.begin(), nodes.end()));
-      Hypergraph motif = h.induceSubgraph(nodes);
+      Hypergraph motif = h.induceSubgraph(nodes, search_lim);
       //if (motif.getEdgeMaxDeg() != 2) return;
       //assert(visited.find(nodes) == visited.end());
       //assert(motif.getNodeCount() == 4);
@@ -172,6 +178,7 @@ int ESU::getNodeCount() {
 // https://arxiv.org/pdf/2209.10241.pdf
 
 void ESU::k3(Hypergraph& inputGraph) {
+  search_lim = 4;
   counterHyper.clear();
   visited.clear();
   for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
@@ -189,6 +196,7 @@ void ESU::k3(Hypergraph& inputGraph) {
   setupAndRun(h.getGraph(), 3);
   cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
+  counterHyperK4 = counterHyper;
   for (auto [x, cnt] : counterHyper) {
     //cout << cnt << '\n';
     xx.emplace_back(cnt);
@@ -204,7 +212,7 @@ void ESU::k3(Hypergraph& inputGraph) {
 void ESU::k4(Hypergraph& inputGraph) {
   counterHyper.clear();
   visited.clear();
-  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 4) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
     assert(is_sorted(edge.begin(), edge.end()));
@@ -216,11 +224,11 @@ void ESU::k4(Hypergraph& inputGraph) {
   }
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
   vector< vector<int> > nei = reducedGraph.buildVertexGraph(3);
-  for (auto edge : reducedGraph.getIncidenceMatrix()) {
+  for (auto& edge : reducedGraph.getIncidenceMatrix()) {
     if (edge.size() != 3) continue;
     assert(is_sorted(edge.begin(), edge.end()));
-    for (auto node : edge) { // at most 3
-      for (auto add : nei[node]) { // can be many ... "node" to add 
+    for (auto& node : edge) { // at most 3
+      for (auto& add : nei[node]) { // can be many ... "node" to add 
         if (find(edge.begin(), edge.end(), add) != edge.end()) continue; // it must be a new node
         for (int mask = 1; mask < (1 << 3) - 1; mask++) { // all subsets of current edge
           if ( (mask >> node) & 1 == 0 ) continue; // must include the "node"
@@ -258,6 +266,8 @@ void ESU::k4(Hypergraph& inputGraph) {
   setupAndRun(h.getGraph(), 4);
   cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
+  
+  counterHyperK4 = counterHyper;
   for (auto [x, cnt] : counterHyper) {
     //cout << cnt << '\n';
     xx.emplace_back(cnt);
@@ -368,18 +378,72 @@ void ESU::bruteForce4(Hypergraph& inputGraph) {
   }
   cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
+  counterHyperBF4 = counterHyper;
   for (auto [x, cnt] : counterHyper) {
     xx.emplace_back(cnt);
   }
   sort(xx.rbegin(), xx.rend());
   for (auto cnt : xx) cout << cnt << '\n';
+  
+  
+  assert(counterHyperK4 == counterHyperBF4);
 }
 
 
 
 
 
+// Highly EXPERIMENTAL code
 
+
+// implementar o caso K = 3 do paper
+// https://github.com/HGX-Team/hypergraphx
+// https://arxiv.org/pdf/2209.10241.pdf
+
+void ESU::k3Modified(Hypergraph& inputGraph) {
+  search_lim = 2;
+  counterHyper.clear();
+  visited.clear();
+  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+    if (edge.size() != 3) continue;
+    Hypergraph motif = inputGraph.induceSubgraph(edge);
+    if (motif.is_two_connected()) {
+      Hypergraph simpleMotif = motif.filterEdge(2);
+      --counterHyper[Isomorphism::canonization(simpleMotif)];
+      //continue; // this occurence will be found by ESU!
+    }
+    assert(is_sorted(edge.begin(), edge.end()));
+    counterHyper[Isomorphism::canonization(motif)]++;
+    assert(motif.getEdgeMaxDeg() == 3);
+  }
+  h = inputGraph;
+  Search = HYPERGRAPH;
+  setupAndRun(h.getGraph(), 3);
+  cout << "Counter: " << counterHyper.size() << '\n';
+  vector<int> xx;
+  
+  // Remove keys with value 0
+  
+  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
+        if(it->second == 0)
+            it = counterHyper.erase(it);
+        else
+            ++it;
+  }
+  
+  counterHyperBF4 = counterHyper;
+  for (auto [x, cnt] : counterHyper) {
+    //cout << cnt << '\n';
+    xx.emplace_back(cnt);
+  }
+  sort(xx.rbegin(), xx.rend());
+  for (auto cnt : xx) cout << cnt << '\n';
+  
+  if (counterHyperBF4 != counterHyperK4) cout << "no" << '\n';
+  else cout << "yes" << '\n';
+  
+  assert(counterHyperK4 == counterHyperBF4);
+}
 
 // Experimental code, ESU with GTRIE
 // implementar o caso K = 3 do paper

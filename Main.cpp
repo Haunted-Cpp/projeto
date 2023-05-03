@@ -40,16 +40,41 @@ void testIsomorphism(int tt = 100'000'000) {
   cout << same << ' ' << diff << '\n';
 }
 
+//Counter: 5
+//885
+//363
+//187
+//83
+//10
+
 void readHypergraph() {
   Hypergraph h;
-  h.readIncidenceMatrix();
+  //h.readFromStdin();
+  for (int i = 0; i < 10000; i++) {
+    string filename = "test_input" + to_string(i) + ".in";
+    h.randomHypergraph(20, 5000, 6);
+    //h.saveToFile(filename);
+    
+    
+    ESU::k3(h);
+    ESU::k3Modified(h);
+    //ESU::bruteForce4(h);
+  }
+  //ESU::k3Modified(h);
+  //h.readFromFile("test_input.in");
+  //h.saveToFile("test_output.out");
+  //cout << h.getEdgeCount() << '\n';
+  //h.randomHypergraph();
+  //h.saveToFile("gen_hypergraph.txt");
+  //h.printIncidenceMatrix();
+  //h.readIncidenceMatrix();
   
-  Hypergraph subgraph;
-  subgraph.readIncidenceMatrix();
+  //Hypergraph subgraph;
+  //subgraph.readIncidenceMatrix();
   //Hypergraph h1;
   //h1.readIncidenceMatrix();
-  GTrie trie(4);
-  trie.insert(subgraph);
+  //GTrie trie(4);
+  //trie.insert(subgraph);
   //Hypergraph h2;
   //h2.readIncidenceMatrix();
   
@@ -61,7 +86,7 @@ void readHypergraph() {
   //trie.insert(h3);
   //trie.dfs();
   //trie.dfs();
-  trie.search(h);
+  //trie.search(h);
   //ESU::k4(h);
 }
 

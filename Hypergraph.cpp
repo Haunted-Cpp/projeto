@@ -212,26 +212,7 @@ Hypergraph Hypergraph::filterEdge(int maximumSize) {
   for (auto& edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
   h.setN(getNodeCount());
   h.setIncidenceMatrix(adj);
-  //int was = h.getEdgeCount();
-  
-  //int is = h.getEdgeCount();
-  //assert(is == was);
-  //cout << "WAS: " << (int) adj.size() << '\n';
-  //h.printIncidenceMatrix();
-  
-  
-  //h.compress(); // from 0 to n - 1 // For some reason this bugs K3 ....
-  
-  
-  
-  
-  
-  
-  
-  //vector< vector<int> > adj_f = h.getIncidenceMatrix();
-  //h.setIncidenceMatrix(adj_f);
-  //cout << "IS: " << '\n';
-  //h.printIncidenceMatrix();
+  //h.compress(); // from 0 to n - 1 // This bugs K3 -> Notice how we need the vertices with the correct label to induce the subgraph properly!
   return h;
 }
 
@@ -251,7 +232,7 @@ vector< vector<int> > Hypergraph::getGraph() {
 bool Hypergraph::is_two_connected() {
   vector< vector<int> > graph = getGraph();
   vector<int> vis(getNodeCount());
-  vis[0] = 1;
+  vis[0] = 1; // Notice how nodes should be numbered from 0 to n - 1 here ...
   queue<int> q;
   q.emplace(0);
   while (!q.empty()) {
@@ -288,15 +269,12 @@ void Hypergraph::compress() {
   }
   sort(nodes.begin(), nodes.end());
   nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
-  //for (auto to : nodes) cout << to << ' ';
-  //cout << '\n';
-  
   for (auto& edge : incidenceMatrix) {
     for (auto& vertex : edge) {
       vertex = lower_bound(nodes.begin(), nodes.end(), vertex) - nodes.begin();
     }
   }
-  //sortAndCheck(incidenceMatrix);
+  sortAndCheck(incidenceMatrix);
 }
 
 // 0 indexeddddddddddddddd !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -308,8 +286,6 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   h.setN(nodes);
   vector< vector<int> > adj;
   for (int mask = 0; mask < (1 << nodes); mask++) {
-    
-    
     vector<int> edge;
     for (int i = 0; i < nodes; i++) {
       if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed

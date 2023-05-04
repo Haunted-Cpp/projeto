@@ -7,6 +7,7 @@
 #include <stack>
 #include <map>
 #include <memory>
+#include <chrono>
 
 #include "nauty.h"
 
@@ -16,6 +17,7 @@
 #include "ESU.hpp"
 
 using namespace std;
+using namespace std::chrono;
 
 void testIsomorphism(int tt = 100'000'000) {
   int diff = 0;
@@ -49,18 +51,30 @@ void testIsomorphism(int tt = 100'000'000) {
 
 void readHypergraph() {
   Hypergraph h;
+  h.readFromFile("history.in");
   //h.readFromStdin();
-  for (int i = 0; i < 100; i++) {
+  //for (int i = 0; i < 10000; i++) {
     //string filename = "test_input" + to_string(i) + ".in";
-    h.randomHypergraph(25, 7500, 6);
-    //h.saveToFile(filename);
+    //h.randomHypergraph(15, 1000, 6);
+    //h.saveToFile("buggy");
     
-    cout << i << endl;
+    //cout << i << endl;
     
-    ESU::bruteForce3(h);
+    //ESU::bruteForce3(h);
+  {
+    auto startTime = steady_clock::now();
     ESU::k3(h);
-    //ESU::bruteForce4(h);
+    auto endTime = steady_clock::now();
+    cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   }
+  {
+    auto startTime = steady_clock::now();
+    ESU::k3Modified(h);
+    auto endTime = steady_clock::now();
+    cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+  }
+    //ESU::bruteForce4(h);
+  //}
   //ESU::k3(h);
   //h.readFromFile("test_input.in");
   //h.saveToFile("test_output.out");

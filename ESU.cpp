@@ -68,7 +68,7 @@ void ESU::enumerateSubgraphs() {
       //assert(visited.find(nodes) == visited.end());
       //assert(motif.getNodeCount() == 4);
       counterHyper[Isomorphism::canonization(motif)]++;
-      return;
+      //return;
     } else if (Search == CLASS_ONLY) {
       // Join all topological equivalent subgraphs into a single class
       string mat = Isomorphism::canonStr(edgeList, K);
@@ -212,8 +212,10 @@ void ESU::k3(Hypergraph& inputGraph) {
   }
   sort(xx.rbegin(), xx.rend());
   for (auto cnt : xx) cout << cnt << '\n';
-  exit(0);
-  assert(counterHyperK3 == counterHyperBF3);
+  
+  
+  //assert(counterHyperK3 == counterHyperBF3);
+  
 }
 
 
@@ -306,7 +308,7 @@ void ESU::k4(Hypergraph& inputGraph) {
   }
   h = inputGraph;
   Search = HYPERGRAPH;
-  setupAndRun(inputGraph.filterEdge(2).getGraph(), 4);
+  setupAndRun(h.getGraph(), 4);
   //cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
   
@@ -500,7 +502,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
     return find(g[a].begin(), g[a].end(), b) != g[a].end();
   };
 
-  
+  return;
   
   int triangle = 0;
   int line = 0;
@@ -576,7 +578,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   //cout << counterHyperK3D.size() << ' ' << counterHyperBF3.size() << '\n';
   //assert( !counterHyperK3D.empty() );
   //assert( !counterHyperBF3.empty() );
-  assert(counterHyperK3D == counterHyperBF3);
+  //assert(counterHyperK3D == counterHyperBF3);
 }
 
 // Experimental code, ESU with GTRIE

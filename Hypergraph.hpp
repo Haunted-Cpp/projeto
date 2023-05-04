@@ -40,6 +40,6 @@ public:
   void readFromFile(std::string); // read from file
   
   
-  Hypergraph induceSubgraph(const std::vector<int>&, int = 4);
+  Hypergraph induceSubgraph(const std::vector<int>&);
   Hypergraph induceSubgraphNoComp(const std::vector<int>&);
 };

@@ -61,6 +61,54 @@ string Isomorphism::canonStr( vector< pair<int, int> >& edgeList, int n) {
   return canonStrCache[edgeList] = adjMat;
 }
 
+
+vector<graph> Isomorphism::canonization(vector< vector<int> >& adj) {
+  // CAREFUL ! CACHE CANNOT BE USED DIRECTLY
+  //if (canonCache.find(adj) != canonCache.end()) return canonCache[adj];
+  static DEFAULTOPTIONS_GRAPH(options);
+  statsblk stats;
+  
+  int n = (int) adj.size(); // number of nodes in our modified graph # node + # edges
+  int deg = 0;
+  for (auto edge : adj) deg += (int) edge.size();
+  deg /= 2;
+  n += deg;
+  
+  /* Select option for canonical labelling */
+  options.getcanon = TRUE;
+  /* Select option to use node colours */
+  options.defaultptn = FALSE;
+  int m = SETWORDSNEEDED(n);
+  EMPTYGRAPH(g,m,n);
+  
+  vector< vector<int> > incidenceMatrix;
+  for (int i = 0; i < (int) adj.size(); i++) {
+    for (auto& nei : adj[i]) {
+      assert(i != nei); // no self-loop
+      if (i < nei) {
+        incidenceMatrix.push_back({i, nei});
+      }
+    }
+  }
+  assert( (int) incidenceMatrix.size() == deg );
+  for (int i = 0; i < incidenceMatrix.size(); i++) {
+    for (auto& node : incidenceMatrix[i]) {
+      ADDONEEDGE(g, node, (int) adj.size() + i, m); // --- nodes SHOULD be numbered from 0 to n - 1 !!!
+    }
+  }
+  /* Add Colors */
+  for (int i = 0; i < n; i++) {
+    lab[i] = i;
+    ptn[i] = 1;
+  }
+  ptn[(int) adj.size() - 1] = 0;
+  ///* Create canonical graph */
+  densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
+  vector<graph> labels;
+  for (int i = 0; i < n; i++) labels.emplace_back(cg[i]);
+  return labels;
+}
+
 vector<graph> Isomorphism::canonization(Hypergraph& h) {
   if (canonCache.find(h.getIncidenceMatrix()) != canonCache.end()) return canonCache[h.getIncidenceMatrix()];
   static DEFAULTOPTIONS_GRAPH(options);

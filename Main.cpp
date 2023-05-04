@@ -50,17 +50,18 @@ void testIsomorphism(int tt = 100'000'000) {
 void readHypergraph() {
   Hypergraph h;
   //h.readFromStdin();
-  for (int i = 0; i < 10000; i++) {
-    string filename = "test_input" + to_string(i) + ".in";
-    h.randomHypergraph(20, 5000, 6);
+  for (int i = 0; i < 100; i++) {
+    //string filename = "test_input" + to_string(i) + ".in";
+    h.randomHypergraph(25, 7500, 6);
     //h.saveToFile(filename);
     
+    cout << i << endl;
     
+    ESU::bruteForce3(h);
     ESU::k3(h);
-    ESU::k3Modified(h);
     //ESU::bruteForce4(h);
   }
-  //ESU::k3Modified(h);
+  //ESU::k3(h);
   //h.readFromFile("test_input.in");
   //h.saveToFile("test_output.out");
   //cout << h.getEdgeCount() << '\n';

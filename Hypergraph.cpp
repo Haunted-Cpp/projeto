@@ -172,6 +172,7 @@ vector<int> Hypergraph::getEdge(int n) {
 }
 
 void Hypergraph::printIncidenceMatrix(ostream& out)  {
+  out << "---------" << '\n';
   out << getNodeCount() << '\n';
   out << getEdgeCount() << '\n';
   for (int i = 0; i < M; i++) {
@@ -179,6 +180,7 @@ void Hypergraph::printIncidenceMatrix(ostream& out)  {
     for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
     out << '\n';
   }
+  out << "---------" << '\n';
 }
 
 /*
@@ -210,6 +212,19 @@ Hypergraph Hypergraph::filterEdge(int maximumSize) {
   for (auto& edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
   h.setN(getNodeCount());
   h.setIncidenceMatrix(adj);
+  //int was = h.getEdgeCount();
+  
+  //int is = h.getEdgeCount();
+  //assert(is == was);
+  //cout << "WAS: " << (int) adj.size() << '\n';
+  //h.printIncidenceMatrix();
+  
+  
+  h.compress(); // from 0 to n - 1
+  //vector< vector<int> > adj_f = h.getIncidenceMatrix();
+  //h.setIncidenceMatrix(adj_f);
+  //cout << "IS: " << '\n';
+  //h.printIncidenceMatrix();
   return h;
 }
 
@@ -266,16 +281,20 @@ void Hypergraph::compress() {
   }
   sort(nodes.begin(), nodes.end());
   nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
+  //for (auto to : nodes) cout << to << ' ';
+  //cout << '\n';
+  
   for (auto& edge : incidenceMatrix) {
     for (auto& vertex : edge) {
       vertex = lower_bound(nodes.begin(), nodes.end(), vertex) - nodes.begin();
     }
   }
+  //sortAndCheck(incidenceMatrix);
 }
 
 // 0 indexeddddddddddddddd !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // we assume subgraph is 0-indexed!!!
-Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph, int lim) {
+Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   const int nodes = (int) subgraph.size();
   assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
@@ -283,14 +302,6 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph, int lim) {
   vector< vector<int> > adj;
   for (int mask = 0; mask < (1 << nodes); mask++) {
     
-    // TEMPORARY CONDITION
-    //
-    //
-    if (__builtin_popcount(mask) > lim) {
-      assert(lim != 4);
-      continue;
-    }
-    //
     
     vector<int> edge;
     for (int i = 0; i < nodes; i++) {

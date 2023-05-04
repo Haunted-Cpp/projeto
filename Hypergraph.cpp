@@ -72,6 +72,7 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
    for (int i = 0; i < M; i++) {
      int k;
      in >> k;
+     //k = 2;
      vector<int> edge(k);
      for (int j = 0; j < k; j++) {
        int node;
@@ -80,8 +81,11 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
        // Check that each node is numbered from 0 to n - 1
        assert(node >= 1 && node <= N);
      }
+     //int trash;
+     //in >> trash;
      incidenceMatrix.emplace_back(edge);
    }
+   compress();
    sortAndCheck(incidenceMatrix);
 }
 void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {

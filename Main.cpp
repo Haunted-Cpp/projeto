@@ -51,16 +51,22 @@ void testIsomorphism(int tt = 100'000'000) {
 
 void readHypergraph() {
   Hypergraph h;
-  h.readFromFile("history.in");
-  //h.readFromStdin();
+  //h.readFromFile("bug.in");
+  //h.printIncidenceMatrix();
+  //exit(0);
+  //h.readFromFile("test_bug_hyper.in");
+  h.readFromStdin();
   //for (int i = 0; i < 10000; i++) {
     //string filename = "test_input" + to_string(i) + ".in";
-    //h.randomHypergraph(15, 1000, 6);
+    //h.randomHypergraph(25, 10000, 6);
     //h.saveToFile("buggy");
     
     //cout << i << endl;
     
     //ESU::bruteForce3(h);
+    //ESU::k3Modified(h);
+    //ESU::k3(h);
+  //}
   {
     auto startTime = steady_clock::now();
     ESU::k3(h);
@@ -109,15 +115,23 @@ void readNormal() {
   int n, m;
   cin >> n >> m;
   vector< vector<int> > g(n);
+  
+  std::set< pair<int, int> > vis;
   for (int i = 0; i < m; i++) {
     int st, et, w;
     cin >> st >> et >> w;
     --st; --et;
+    if (vis.find({st, et}) == vis.end()) {
+      vis.insert({st, et});
+      vis.insert({et, st});
+    } else {
+      assert(false);
+    }
     g[st].emplace_back(et);
     g[et].emplace_back(st);
   }
   
-  for (auto [a, b] : ESU::getEquivalenceClass(g, 6)) {
+  for (auto [a, b] : ESU::getEquivalenceClass(g, 3)) {
     cout << a << ' ' << b << '\n';
   }
 }

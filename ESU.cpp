@@ -465,6 +465,14 @@ void ESU::bruteForce4(Hypergraph& inputGraph) {
 //}
 
 
+//3883887
+//360367
+//240888
+//62507
+//10203
+//3526
+//3
+
 
 
 
@@ -484,7 +492,15 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
     counterHyper[Isomorphism::canonization(motif)]++;
     assert(motif.getEdgeMaxDeg() == 3);
   }
+  
+  
+  
+  //inputGraph.printIncidenceMatrix();
+  
   h = inputGraph.filterEdge(2);
+  
+  //h.printIncidenceMatrix();
+  
   Search = HYPERGRAPH;
   //setupAndRun(h.getGraph(), 3);
   
@@ -492,21 +508,62 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   
   vector< vector<int> > g = h.getGraph();
   int n = (int) g.size();
-  int res = 0;
+  long long res = 0;
   for (int i = 0; i < n; i++) {
     const int sz = g[i].size();
-    res += sz * (sz - 1) / 2 ;
+    res += 1LL * sz * (sz - 1) / 2 ;
   }
   
-  auto j = [&](int a, int b) {
+  auto jj = [&](int a, int b) -> bool {
     return find(g[a].begin(), g[a].end(), b) != g[a].end();
   };
-
-  return;
   
   int triangle = 0;
   int line = 0;
   
+  int count = 0;
+  
+  vector<int> deg(n);
+  for (int i = 0; i < n; i++) {
+    deg[i] = (int) g[i].size();
+  }
+  //int rem = 0;
+  vector< tuple<int, int, int> > tt;
+  
+  
+  
+  for (int i = 0; i < n; i++) {
+    vector<int> bigger;
+    for (auto& to : g[i]) {
+      //bigger.emplace_back(to);
+      if ( make_pair(deg[to], to) > make_pair(deg[i], i) ) bigger.emplace_back(to);
+      
+    }
+    for (int j = 0; j < (int) bigger.size(); j++) {
+      for (int z = j + 1; z < (int) bigger.size(); z++) {
+        //if (bigger[i] == bigger[z]) continue;
+        if (jj(bigger[j], bigger[z])) {
+          
+          ++triangle;
+        }
+      }
+    }
+  }
+  
+  //sort(tt.begin(), tt.end());
+  //tt.erase(unique(tt.begin(), tt.end()), tt.end());
+  
+  //for (auto& [a, b, c] : tt) {
+    //cout << a << ' ' << b << ' ' << c << '\n';
+    //assert(jj(a, b) && jj(b, c) && jj(c, a));
+  //}
+  
+  //cout << "HERE: " << triangle << ' ' << (int) tt.size() << '\n';
+  //triangle = tt.size();
+  //cout << "HERE: " << triangle << ' ' << (int) tt.size() << '\n';
+  
+  //exit(0);
+  //exit(0);
   
   //for (int i = 0; i < n; i++) {
     //cout << "S: " << i << ": ";
@@ -517,29 +574,10 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   //}
   
   //cout << "HERE:" << '\n';
-  for (int a = 0; a < n; a++) {
-    for (int b = a + 1; b < n; b++) {
-      for (int c = b + 1; c < n; c++) {
-        
-        if ((j(a, b) + j(a, c) + j(b, c)) < 2) continue;
-        vector<int> edge = {a, b, c};
-        //cout << a + 1 << ' ' << b + 1 << ' ' << c + 1 << '\n';
-        if (j(a, b) && j(a, c) && j(b, c)) {
-          triangle++;
-          //Hypergraph motif = h.induceSubgraph(edge);
-          //counterHyper[Isomorphism::canonization(motif)]++;
-          
-          //motif.printIncidenceMatrix();
-        } else {
-          line++;
-        }
-      }
-    }
-  }
   //cout << "T: " << triangle << '\n';
   //cout << "L: " << line << '\n';
   
-  assert( line == res - 3 * triangle);
+  //assert( line == res - 3 * triangle);
   
   vector< vector<int> > g_line = { {1}, {0, 2}, {1} };
   vector< vector<int> > g_trig = { {1, 2}, {0, 2}, {1, 0} };
@@ -568,7 +606,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
     xx.emplace_back(cnt);
   }
   sort(xx.rbegin(), xx.rend());
-  //for (auto cnt : xx) cout << cnt << '\n';
+  for (auto cnt : xx) cout << cnt << '\n';
   
   
   //exit(0);

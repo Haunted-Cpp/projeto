@@ -220,7 +220,14 @@ Hypergraph Hypergraph::filterEdge(int maximumSize) {
   //h.printIncidenceMatrix();
   
   
-  h.compress(); // from 0 to n - 1
+  //h.compress(); // from 0 to n - 1 // For some reason this bugs K3 ....
+  
+  
+  
+  
+  
+  
+  
   //vector< vector<int> > adj_f = h.getIncidenceMatrix();
   //h.setIncidenceMatrix(adj_f);
   //cout << "IS: " << '\n';

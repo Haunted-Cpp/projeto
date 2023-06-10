@@ -56,6 +56,29 @@ void readHypergraph() {
   //exit(0);
   //h.readFromFile("test_bug_hyper.in");
   h.readFromStdin();
+  //h.printIncidenceMatrix();
+  //{
+    vector< vector<int> > deg1 = h.getDegreeSequence();
+    //for (auto e : deg1) {
+      //for (auto to : e) {
+        //cout << to << ' ';
+      //}
+      //cout << '\n';
+    //}
+  //}
+  h.printIncidenceMatrix();
+  h.shuffleHypergraph(1000);
+  //{
+    vector< vector<int> > deg2 = h.getDegreeSequence();
+    //for (auto e : deg2) {
+      //for (auto to : e) {
+        //cout << to << ' ';
+      //}
+      //cout << '\n';
+    //}
+  h.printIncidenceMatrix();
+  assert(deg1 == deg2);
+  //}
   //for (int i = 0; i < 10000; i++) {
     //string filename = "test_input" + to_string(i) + ".in";
     //h.randomHypergraph(25, 10000, 6);
@@ -67,18 +90,18 @@ void readHypergraph() {
     //ESU::k3Modified(h);
     //ESU::k3(h);
   //}
-  {
-    auto startTime = steady_clock::now();
-    ESU::k3(h);
-    auto endTime = steady_clock::now();
-    cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  }
-  {
-    auto startTime = steady_clock::now();
-    ESU::k3Modified(h);
-    auto endTime = steady_clock::now();
-    cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  }
+  //{
+    //auto startTime = steady_clock::now();
+    //ESU::k3(h);
+    //auto endTime = steady_clock::now();
+    //cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+  //}
+  //{
+    //auto startTime = steady_clock::now();
+    //ESU::k3Modified(h);
+    //auto endTime = steady_clock::now();
+    //cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+  //}
     //ESU::bruteForce4(h);
   //}
   //ESU::k3(h);
@@ -143,4 +166,7 @@ int main() {
   //readNormal();
   return 0; 
 }
+
+
+
 

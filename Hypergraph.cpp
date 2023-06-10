@@ -21,6 +21,9 @@ int gen(int lo, int hi) { return uniform_int_distribution<int>(lo,hi)(rng); }
  */
 
 Hypergraph::Hypergraph() {
+  K = 0; // initially the max. degree is 0
+  edgeBySize.resize(MAX_EDGE_SIZE + 1);
+  assert(MAX_HYPER_MOTIF_SIZE <= MAX_EDGE_SIZE);
   //readIncidenceMatrix();
   //randomHypergraph();
   // Don't call here - Otherwise when a small, empty Hypergraph is created this methods will be called
@@ -72,7 +75,8 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
    for (int i = 0; i < M; i++) {
      int k;
      in >> k;
-     //k = 2;
+     K = max(K, k); // update the max degree
+     assert(k <= MAX_EDGE_SIZE); // The max degree should not be bigger than 4.
      vector<int> edge(k);
      for (int j = 0; j < k; j++) {
        int node;
@@ -92,12 +96,23 @@ void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
   hashEdge.clear();
   for (int i = 0; i < M; i++) {
     sort(edge[i].begin(), edge[i].end());
-    if ((int) edge[i].size() <= MAX_HYPER_MOTIF_SIZE) hashEdge.insert(edge[i]); // insert into hash table
+    if ((int) edge[i].size() <= MAX_EDGE_SIZE) hashEdge.insert(edge[i]); // insert into hash table
   }
   sort(edge.begin(), edge.end());
   edge.erase(unique(edge.begin(), edge.end()), edge.end());
   // Each edge should be unique => List size without duplicates MUST be M
   assert ( (int) edge.size() == M );
+  //if (edge.size() != M) {
+    //cout << "F" << '\n';
+    //exit(0);
+  //}
+  //edgeBySize.clear();
+  for (int i = 0; i < MAX_EDGE_SIZE; i++) {
+    edgeBySize[i].clear();
+  } 
+  for (int i = 0; i < M; i++) {
+    edgeBySize[ (int) edge[i].size() ].emplace_back(i); 
+  }
 }
 
 vector< vector<int> > Hypergraph::applyFunction(const vector<int>& permutation) {
@@ -369,4 +384,77 @@ int Hypergraph::getEdgeMaxDeg() {
   int mx = 0;
   for (auto edge : incidenceMatrix) mx = max(mx, (int) edge.size());
   return mx;
+}
+
+/*
+ * Get Degree Seq.
+ * For each node we store (e_2, e_3, e_n) ... edges of size n
+ */ 
+ 
+vector< vector<int> > Hypergraph::getDegreeSequence() {
+  vector< vector<int> > deg;
+  for (int i = 0; i < N; i++) {
+    deg.emplace_back(vector<int>());
+    for (int j = 2; j <= K; j++) {
+      int counter = 0;
+      for (auto& e : incidenceMatrix) {
+        if ( (int) e.size() != j ) continue;
+        counter += find(e.begin(), e.end(), i) != e.end();
+      }
+      deg.back().emplace_back(counter);
+    }
+  }
+  return deg;
+}
+
+/*
+ * Creates a "random similar" hypergraph"
+ */
+
+bool Hypergraph::shuffleEdges(int e1, int e2) {
+  assert( incidenceMatrix[e1].size() == incidenceMatrix[e2].size() );
+  vector<int> nodes;
+  for (auto node : incidenceMatrix[e1]) nodes.emplace_back(node); 
+  for (auto node : incidenceMatrix[e2]) nodes.emplace_back(node); 
+  shuffle(nodes.begin(), nodes.end(), rng);
+  vector<int> n1;
+  for (int i = 0; i < (int) nodes.size() / 2; i++) {
+    n1.emplace_back(nodes[i]);
+  }
+  sort(n1.begin(), n1.end());
+  n1.erase(unique(n1.begin(), n1.end()), n1.end()); // if there are duplicates, skip
+  if ( (int) n1.size() != (int) incidenceMatrix[e1].size() ) return false;
+  vector<int> n2;
+  for (int i = (int) nodes.size() / 2; i < (int) nodes.size(); i++) {
+    n2.emplace_back(nodes[i]);
+  }
+  sort(n2.begin(), n2.end());
+  n2.erase(unique(n2.begin(), n2.end()), n2.end()); // if there are duplicates, skip
+  if ( (int) n2.size() != (int) incidenceMatrix[e2].size() ) return false;
+  // no overlaping edges ...
+  if ( hashEdge.find(n1) != hashEdge.end() ) return false;
+  if ( hashEdge.find(n2) != hashEdge.end() ) return false;
+  assert( (int) n1.size() == (int) n2.size() );
+  hashEdge.erase(incidenceMatrix[e1]);
+  hashEdge.erase(incidenceMatrix[e2]);
+  incidenceMatrix[e1] = n1;
+  incidenceMatrix[e2] = n2;
+  hashEdge.insert(incidenceMatrix[e1]);
+  hashEdge.insert(incidenceMatrix[e2]);
+  return true;
+}
+
+void Hypergraph::shuffleHypergraph (int iterations) {
+  while (iterations > 0) {
+    int edgeSize = gen(2, K); // select a random edge size
+    if ( (int) edgeBySize[edgeSize].size() <= 1) continue; // we must have at least two edges two be able to shuffle
+    int e1 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
+    int e2 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
+    if (edgeBySize[edgeSize][e1] == edgeBySize[edgeSize][e2]) continue; // we must shuffle two distinct edges ...
+    if (!shuffleEdges(edgeBySize[edgeSize][e1], edgeBySize[edgeSize][e2])) continue;
+    --iterations;
+    //cout << "OK" << '\n';
+    
+  }
+  sortAndCheck(incidenceMatrix); // convert graph to "standard" form
 }

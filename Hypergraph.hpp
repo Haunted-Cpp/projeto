@@ -1,15 +1,20 @@
 #pragma once
 
+#include "Settings.hpp"
+
 class Hypergraph {
 private:
   int N; // number of vertices
   int M; // number of hyperedges
+  int K; // max. degree of a given edge
   std::set< std::vector<int> > hashEdge;
   std::vector< std::vector<int> > incidenceMatrix; // "sparse" edge-vertex incidence matrix
+  std::vector< std::vector<int> > edgeBySize; 
   void sortAndCheck(std::vector< std::vector<int> >&);
   void compress();
   void readIncidenceMatrix(std::istream&);
   void printIncidenceMatrix(std::ostream&);
+  bool shuffleEdges(int, int);
 public:
   Hypergraph();
   void randomHypergraph(int, int, int);
@@ -38,6 +43,10 @@ public:
   
   void readFromStdin(); // read from stdin
   void readFromFile(std::string); // read from file
+  
+  
+  std::vector<std::vector<int>> getDegreeSequence();
+  void shuffleHypergraph (int);
   
   
   Hypergraph induceSubgraph(const std::vector<int>&);

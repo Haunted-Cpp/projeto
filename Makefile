@@ -1,37 +1,37 @@
-COMPILER = g++
-FLAGS = -Wall -Wextra -Wno-unused-result -Wno-char-subscripts -Wshadow -Wfloat-equal -Wconversion -Wformat-signedness -Wvla -Wduplicated-cond -Wlogical-op -Wredundant-decls -ggdb3 -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=undefined,address,float-divide-by-zero,float-cast-overflow -fno-omit-frame-pointer -fno-optimize-sibling-calls -fstack-protector-all -fno-sanitize-recover=all -O2 
-#FLAGS = -Wall -Wextra -Wshadow -Ofast
+EXEC_NAME=Main
+CC=g++
 
-FLAGS = -O3
+CFLAGS = -O3 -std=c++17
+#FLAGS = -Wall -Wextra -Wno-unused-result -Wno-char-subscripts -Wshadow -Wfloat-equal -Wconversion -Wformat-signedness -Wvla -Wduplicated-cond -Wlogical-op -Wredundant-decls -ggdb3 -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=undefined,address,float-divide-by-zero,float-cast-overflow -fno-omit-frame-pointer -fno-optimize-sibling-calls -fstack-protector-all -fno-sanitize-recover=all -O2 
 
-VERSION = -std=c++17
-
-NAUTY_SRC =                   \
+SRC =                         \
 	nauty/nauty.h	              \
 	nauty/nauty.c	              \
 	nauty/nautil.c	            \
 	nauty/naugraph.c	     	    \
 	nauty/schreier.c	          \
-	nauty/naurng.c
+	nauty/naurng.c              \
+	ESU.cpp                     \
+	GTrie.cpp                   \
+	Hypergraph.cpp              \
+	Isomorphism.cpp             \
+	Main.cpp
 
-output: Main.o Isomorphism.o Hypergraph.o ESU.o GTrie.o
-	$(COMPILER) -o main Main.o ESU.o Isomorphism.o Hypergraph.o GTrie.o $(NAUTY_SRC) $(FLAGS) $(VERSION)
+OBJ =  ${SRC:.cpp=.o}
 
-Main.o: Main.cpp
-	$(COMPILER) -c Main.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
+#------------------------------------------------------------
 
-Isomorphism.o: Isomorphism.cpp Isomorphism.hpp
-	$(COMPILER) -c Isomorphism.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
+all: ${EXEC_NAME}
 
-ESU.o: ESU.cpp ESU.hpp
-	$(COMPILER) -c ESU.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
+${EXEC_NAME}: ${OBJ}
+	${CC} ${CFLAGS} ${CLIBS} -o ${EXEC_NAME} ${OBJ}
 
-Hypergraph.o: Hypergraph.cpp Hypergraph.hpp
-	$(COMPILER) -c Hypergraph.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
-
-GTrie.o: GTrie.cpp GTrie.hpp
-	$(COMPILER) -c GTrie.cpp $(NAUTY_SRC) $(FLAGS) $(VERSION)
-
+%.o: %.cpp
+	${CC} ${CFLAGS} -c -o $@ $+
 
 clean:
-	rm -f *.o main
+	rm ${EXEC_NAME} *.o *~ *# -rf
+
+
+
+

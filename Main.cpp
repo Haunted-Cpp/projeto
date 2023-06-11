@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <chrono>
+#include <cmath>
 
 #include "nauty.h"
 
@@ -47,7 +48,43 @@ void testIsomorphism(int tt = 100'000'000) {
 //363
 //187
 //83
-//10
+// 10
+
+void findMotifs3() {
+  Hypergraph h;
+  h.readFromStdin();
+  auto census = ESU::bruteForce3(h);
+  map< vector<graph>, vector<int> > sample;
+  const int NUMBER_NETWORKS = 100;
+  //for (auto [a, b] : census) {
+    //cout << b << '\n';
+  //}
+  //exit(0);
+  for (int i = 0; i < NUMBER_NETWORKS; i++) {
+    h.shuffleHypergraph(20);
+    auto count = ESU::bruteForce3(h);
+    //exit(0);
+    for (auto [a, b] : census) {
+      //cout << b << '\n';
+      sample[a].emplace_back(count[a]);
+    }
+  }
+  for (auto [a, b] : census) {
+    double mean = 0;
+    for (auto value : sample[a]) {
+      mean += value;
+    }
+    mean /= NUMBER_NETWORKS;
+    double std = 0;
+    for (auto value : sample[a]) {
+      std += (value - mean) * (value - mean);
+    }
+    std /= NUMBER_NETWORKS - 1;
+    std = sqrt(std);
+    //cout << mean << ' ' << std << '\n';
+    cout << b << ' ' << (b - mean) / std << '\n';
+  }
+}
 
 void readHypergraph() {
   Hypergraph h;
@@ -58,7 +95,7 @@ void readHypergraph() {
   h.readFromStdin();
   //h.printIncidenceMatrix();
   //{
-    vector< vector<int> > deg1 = h.getDegreeSequence();
+    //vector< vector<int> > deg1 = h.getDegreeSequence();
     //for (auto e : deg1) {
       //for (auto to : e) {
         //cout << to << ' ';
@@ -66,18 +103,20 @@ void readHypergraph() {
       //cout << '\n';
     //}
   //}
-  h.printIncidenceMatrix();
-  h.shuffleHypergraph(1000);
+  //h.saveToFile("diff1.out");
+  //h.shuffleHypergraph(1000);
+  //h.saveToFile("diff2.out");
   //{
-    vector< vector<int> > deg2 = h.getDegreeSequence();
+    //vector< vector<int> > deg2 = h.getDegreeSequence();
     //for (auto e : deg2) {
       //for (auto to : e) {
         //cout << to << ' ';
       //}
       //cout << '\n';
     //}
-  h.printIncidenceMatrix();
-  assert(deg1 == deg2);
+    //h.
+  //h.();
+  //assert(deg1 == deg2);
   //}
   //for (int i = 0; i < 10000; i++) {
     //string filename = "test_input" + to_string(i) + ".in";
@@ -96,12 +135,12 @@ void readHypergraph() {
     //auto endTime = steady_clock::now();
     //cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   //}
-  //{
-    //auto startTime = steady_clock::now();
-    //ESU::k3Modified(h);
-    //auto endTime = steady_clock::now();
-    //cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  //}
+  {
+    auto startTime = steady_clock::now();
+    ESU::k3Modified(h);
+    auto endTime = steady_clock::now();
+    cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+  }
     //ESU::bruteForce4(h);
   //}
   //ESU::k3(h);
@@ -141,14 +180,16 @@ void readNormal() {
   
   std::set< pair<int, int> > vis;
   for (int i = 0; i < m; i++) {
-    int st, et, w;
-    cin >> st >> et >> w;
+    int st, et;
+    cin >> st >> et;
     --st; --et;
+    if (st == et) continue;
+    //assert(st != et);
     if (vis.find({st, et}) == vis.end()) {
       vis.insert({st, et});
       vis.insert({et, st});
     } else {
-      assert(false);
+      continue;
     }
     g[st].emplace_back(et);
     g[et].emplace_back(st);
@@ -162,8 +203,10 @@ void readNormal() {
 int main() {
   ios::sync_with_stdio(0);
   cin.tie(0);
+  //findMotifs3();
   readHypergraph();
   //readNormal();
+  
   return 0; 
 }
 

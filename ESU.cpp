@@ -59,8 +59,10 @@ map< vector<graph>, int> ESU::counterHyperBF3;
 
 void ESU::enumerateSubgraphs() {
   if ((int) subgraph.size() == K) {
+    //cout << "YES" << '\n';
     if (Search == HYPERGRAPH) {
       vector<int> nodes;
+      
       nodes.assign(subgraph.begin(), subgraph.end());
       assert(is_sorted(nodes.begin(), nodes.end()));
       Hypergraph motif = h.induceSubgraph(nodes);
@@ -71,6 +73,10 @@ void ESU::enumerateSubgraphs() {
       //return;
     } else if (Search == CLASS_ONLY) {
       // Join all topological equivalent subgraphs into a single class
+      //cout << "YES" << '\n';
+      //for (auto to : subgraph) cout << to << ' ';
+      //cout << '\n';
+      
       string mat = Isomorphism::canonStr(edgeList, K);
       ++counter[mat]; // we could use a trie like structure here
     } else {
@@ -186,7 +192,7 @@ int ESU::getNodeCount() {
 
 
 
-void ESU::k3(Hypergraph& inputGraph) {
+std::map< std::vector<graph>, int> ESU::k3(Hypergraph& inputGraph) {
   //search_lim = 4;
   counterHyper.clear();
   visited.clear();
@@ -213,7 +219,7 @@ void ESU::k3(Hypergraph& inputGraph) {
   sort(xx.rbegin(), xx.rend());
   for (auto cnt : xx) cout << cnt << '\n';
   
-  
+  return counterHyper;
   //assert(counterHyperK3 == counterHyperBF3);
   
 }
@@ -254,7 +260,7 @@ void ESU::k3(Hypergraph& inputGraph) {
 // https://github.com/HGX-Team/hypergraphx
 // https://arxiv.org/pdf/2209.10241.pdf
 
-void ESU::k4(Hypergraph& inputGraph) {
+std::map< std::vector<graph>, int> ESU::k4(Hypergraph& inputGraph) {
   counterHyper.clear();
   visited.clear();
   for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
@@ -319,7 +325,9 @@ void ESU::k4(Hypergraph& inputGraph) {
   }
   sort(xx.rbegin(), xx.rend());
   //for (auto cnt : xx) cout << cnt << '\n';
-  assert(counterHyperK4 == counterHyperBF4);
+  //assert(counterHyperK4 == counterHyperBF4);
+  
+  return counterHyper;
 }
 
 // This method is used just for debug only!
@@ -366,7 +374,8 @@ struct DisjointSet {
   }
 };
 
-void ESU::bruteForce3(Hypergraph& inputGraph) {
+std::map< std::vector<graph>, int> ESU::bruteForce3(Hypergraph& inputGraph) {
+  
   counterHyper.clear();
   const int n = inputGraph.getNodeCount();
   vector<int> nodes;
@@ -389,18 +398,22 @@ void ESU::bruteForce3(Hypergraph& inputGraph) {
       }
     }
   }
-  cout << "Counter: " << counterHyper.size() << '\n';
+  
+  //cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
   counterHyperBF3 = counterHyper;
   for (auto [x, cnt] : counterHyper) {
     xx.emplace_back(cnt);
   }
-  sort(xx.rbegin(), xx.rend());
-  for (auto cnt : xx) cout << cnt << '\n';
+  //cout << "YES" << endl;
+  //exit(0);
+  return counterHyper;
+  //sort(xx.rbegin(), xx.rend());
+  //for (auto cnt : xx) cout << cnt << '\n';
 }
 
  //This method is used just for debug only!
-void ESU::bruteForce4(Hypergraph& inputGraph) {
+std::map< std::vector<graph>, int> ESU::bruteForce4(Hypergraph& inputGraph) {
   counterHyper.clear();
   const int n = inputGraph.getNodeCount();
   vector<int> nodes;
@@ -432,6 +445,7 @@ void ESU::bruteForce4(Hypergraph& inputGraph) {
   }
   sort(xx.rbegin(), xx.rend());
   //for (auto cnt : xx) cout << cnt << '\n';
+  return counterHyper;
 }
 
 
@@ -476,8 +490,7 @@ void ESU::bruteForce4(Hypergraph& inputGraph) {
 
 
 
-void ESU::k3Modified(Hypergraph& inputGraph) {
-  //search_lim = 2;
+std::map< std::vector<graph>, int> ESU::k3Modified(Hypergraph& inputGraph) {
   counterHyper.clear();
   visited.clear();
   for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
@@ -492,19 +505,16 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
     counterHyper[Isomorphism::canonization(motif)]++;
     assert(motif.getEdgeMaxDeg() == 3);
   }
-  
-  
-  
-  //inputGraph.printIncidenceMatrix();
-  
   h = inputGraph.filterEdge(2);
-  
+  //h.printIncidenceMatrix()
   //h.printIncidenceMatrix();
   
   Search = HYPERGRAPH;
   //setupAndRun(h.getGraph(), 3);
   
   // We must count the number of things
+  
+  
   
   vector< vector<int> > g = h.getGraph();
   int n = (int) g.size();
@@ -513,6 +523,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
     const int sz = g[i].size();
     res += 1LL * sz * (sz - 1) / 2 ;
   }
+  
   
   auto jj = [&](int a, int b) -> bool {
     return find(g[a].begin(), g[a].end(), b) != g[a].end();
@@ -529,6 +540,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   }
   //int rem = 0;
   vector< tuple<int, int, int> > tt;
+  
   
   
   
@@ -579,6 +591,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   
   //assert( line == res - 3 * triangle);
   
+  
   vector< vector<int> > g_line = { {1}, {0, 2}, {1} };
   vector< vector<int> > g_trig = { {1, 2}, {0, 2}, {1, 0} };
   
@@ -588,18 +601,15 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   
   
   
-  //cout << "Counter: " << counterHyper.size() << '\n';
+  cout << "Counter: " << counterHyper.size() << '\n';
   vector<int> xx;
   
-  // Remove keys with value 0
-  
+  // Remove keys with value 0 (only useful for display only)
   for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-        if(it->second == 0)
-            it = counterHyper.erase(it);
-        else
-            ++it;
+      if(it->second == 0) it = counterHyper.erase(it);
+      else ++it;
   }
-  
+  //return counterHyper;
   counterHyperK3D = counterHyper;
   for (auto [x, cnt] : counterHyper) {
     //cout << cnt << '\n';
@@ -608,6 +618,7 @@ void ESU::k3Modified(Hypergraph& inputGraph) {
   sort(xx.rbegin(), xx.rend());
   for (auto cnt : xx) cout << cnt << '\n';
   
+  return counterHyper;
   
   //exit(0);
   

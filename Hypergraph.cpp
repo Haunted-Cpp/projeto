@@ -444,6 +444,8 @@ bool Hypergraph::shuffleEdges(int e1, int e2) {
   return true;
 }
 
+
+// careful - in very small graphs some shuffles might not be possible!!!
 void Hypergraph::shuffleHypergraph (int iterations) {
   while (iterations > 0) {
     int edgeSize = gen(2, K); // select a random edge size

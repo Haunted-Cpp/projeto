@@ -27,6 +27,7 @@ int main() {
   vector<int> counter(10);
   vector< vector<int> > edges;
   set< vector<int> > is_unique;
+  
   while (getline(cin, line)) {
     auto edge = parse_str(line);
     int size = (int) edge.size(); 
@@ -45,9 +46,16 @@ int main() {
   cout << (int) nodes.size() << '\n';
   cout << (int) edges.size() << '\n';
   assert( (int) edges.size() == accumulate(counter.begin(), counter.end(), 0) );
+  map<int, int> number;
+  int current_number = 0;
   for (auto edge : edges) {
     cout << (int) edge.size() << ' ';
-    for (auto e : edge) cout << e << ' ';
+    for (auto e : edge) {
+      if (number.find(e) == number.end()) {
+        number[e] = ++current_number;
+      }
+      cout << number[e] << ' ';
+    }
     cout << '\n';
   }
   #ifdef DISPLAY_STATS

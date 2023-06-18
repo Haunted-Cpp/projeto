@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <unordered_set>
 #include <set>
 #include <stack>
 #include <map>
@@ -88,89 +89,55 @@ void findMotifs3() {
 
 void readHypergraph() {
   Hypergraph h;
-  //h.readFromFile("bug.in");
-  //h.printIncidenceMatrix();
+  h.readFromFile("Dataset/ps.in");
+  
+  //auto g = Isomorphism::canonization(h);
+  //for (auto value : g) {
+    //cout << value << '\n';
+  //}
+  //cout << h.getNodeCount() << ' ' << g.size() << '\n';
   //exit(0);
-  //h.readFromFile("test_bug_hyper.in");
-  h.readFromStdin();
-  //h.printIncidenceMatrix();
-  //{
-    //vector< vector<int> > deg1 = h.getDegreeSequence();
-    //for (auto e : deg1) {
-      //for (auto to : e) {
-        //cout << to << ' ';
-      //}
-      //cout << '\n';
-    //}
-  //}
-  //h.saveToFile("diff1.out");
-  //h.shuffleHypergraph(1000);
-  //h.saveToFile("diff2.out");
-  //{
-    //vector< vector<int> > deg2 = h.getDegreeSequence();
-    //for (auto e : deg2) {
-      //for (auto to : e) {
-        //cout << to << ' ';
-      //}
-      //cout << '\n';
-    //}
-    //h.
-  //h.();
-  //assert(deg1 == deg2);
-  //}
-  //for (int i = 0; i < 10000; i++) {
-    //string filename = "test_input" + to_string(i) + ".in";
-    //h.randomHypergraph(25, 10000, 6);
-    //h.saveToFile("buggy");
-    
-    //cout << i << endl;
-    
-    //ESU::bruteForce3(h);
-    //ESU::k3Modified(h);
-    //ESU::k3(h);
-  //}
-  //{
-    //auto startTime = steady_clock::now();
-    //ESU::k3(h);
-    //auto endTime = steady_clock::now();
-    //cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  //}
+  
   {
+    ESU::clearDataStruct();
     auto startTime = steady_clock::now();
-    ESU::k3Modified(h);
+    auto subgraph_count = ESU::k3Modified(h);
+    auto endTime = steady_clock::now();
+    cout << "-----------------------------------------------" << '\n';
+    cout << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+    cout << subgraph_count.size() << " types of hyper-subgraphs found" << '\n';
+    cout << "-----------------------------------------------" << '\n';
+    int counter = 0;
+    for (auto [a, b] : subgraph_count) {
+      cout << "Type #" << ++counter << ": " << b << '\n';
+    }
+    cout << "-----------------------------------------------" << '\n';
+    counter = 0;
+    for (auto [a, b] : subgraph_count) {
+      auto adj = Isomorphism::getHypergraph(a);
+      Hypergraph h;
+      h.setIncidenceMatrix(adj);
+      cout << "Hyper-subgraph #" << ++counter << '\n';
+      h.printIncidenceMatrix();
+      cout << "Number of occurences: " << b << '\n';
+      cout << "-----------------------------------------------" << '\n';
+    }
+    
+    
+  }
+  
+  exit(0);
+  
+  {
+    ESU::clearDataStruct();
+    auto startTime = steady_clock::now();
+    ESU::k3(h);
     auto endTime = steady_clock::now();
     cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   }
-    //ESU::bruteForce4(h);
-  //}
-  //ESU::k3(h);
-  //h.readFromFile("test_input.in");
-  //h.saveToFile("test_output.out");
-  //cout << h.getEdgeCount() << '\n';
-  //h.randomHypergraph();
-  //h.saveToFile("gen_hypergraph.txt");
-  //h.printIncidenceMatrix();
-  //h.readIncidenceMatrix();
+  //cout << "----" << '\n';
+  //exit(0);
   
-  //Hypergraph subgraph;
-  //subgraph.readIncidenceMatrix();
-  //Hypergraph h1;
-  //h1.readIncidenceMatrix();
-  //GTrie trie(4);
-  //trie.insert(subgraph);
-  //Hypergraph h2;
-  //h2.readIncidenceMatrix();
-  
-  //Hypergraph h3;
-  //h3.readIncidenceMatrix();
-  
-  //trie.insert(h1);
-  //trie.insert(h2);
-  //trie.insert(h3);
-  //trie.dfs();
-  //trie.dfs();
-  //trie.search(h);
-  //ESU::k4(h);
 }
 
 void readNormal() {
@@ -180,11 +147,11 @@ void readNormal() {
   
   std::set< pair<int, int> > vis;
   for (int i = 0; i < m; i++) {
-    int st, et;
-    cin >> st >> et;
+    int st, et, w;
+    cin >> st >> et >> w;
     --st; --et;
     if (st == et) continue;
-    //assert(st != et);
+    assert(st != et);
     if (vis.find({st, et}) == vis.end()) {
       vis.insert({st, et});
       vis.insert({et, st});
@@ -194,22 +161,50 @@ void readNormal() {
     g[st].emplace_back(et);
     g[et].emplace_back(st);
   }
+  //exit(0);
+  //cout << "YES" << '\n';
   
   for (auto [a, b] : ESU::getEquivalenceClass(g, 3)) {
     cout << a << ' ' << b << '\n';
   }
+  
+  //for (auto [a, b] : ESU::getEquivalenceClass(g, 3)) {
+    //cout << a << ' ' << b << '\n';
+  //}
 }
 
 int main() {
   ios::sync_with_stdio(0);
   cin.tie(0);
   //findMotifs3();
-  readHypergraph();
   //readNormal();
+  readHypergraph();
+  //readHypergraph();
   
   return 0; 
 }
 
+//55574541
+
+//55574537
+//duarte@duarte-pc:~/Desktop/Projeto/Código$ ./Main
+//55574537
+//16659790
+//12
+//4
+//VISITED: 16659802
+//Time: 247.627 seconds
+//----
+//duarte@duarte-pc:~/Desktop/Projeto/Código$ make
+//g++ -O3 -std=c++17 -c -o Main.o Main.cpp
+//g++ -O3 -std=c++17  -o Main nauty/nauty.h nauty/nauty.c nauty/nautil.c nauty/naugraph.c nauty/schreier.c nauty/naurng.c ESU.o GTrie.o Hypergraph.o Isomorphism.o Main.o
+//duarte@duarte-pc:~/Desktop/Projeto/Código$ ./Main
+//Counter: 4
+//55574537
+//16659790
+//12
+//4
+//Time: 79.7647 seconds
 
 
 

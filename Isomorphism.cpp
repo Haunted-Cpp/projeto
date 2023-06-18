@@ -8,6 +8,7 @@ using std::string;
 using std::vector;
 using std::pair;
 using std::map;
+using std::vector;
 
 /* 
  * Initialize static variables
@@ -19,8 +20,11 @@ int Isomorphism::orbits[MAX_INPUT_N];
 graph Isomorphism::g[MAX_INPUT_N * MAX_M];
 graph Isomorphism::cg[MAX_INPUT_N * MAX_M];
 set* Isomorphism::gv;
+
 map< vector< pair<int, int> >, string> Isomorphism::canonStrCache; // could maybe be replaced by hashing or pre-calc
+
 map< vector< vector<int> >, vector<graph> > Isomorphism::canonCache;
+map< vector<graph>, vector< vector<int> > > Isomorphism::canonCacheReverse;
 
 
 bool Isomorphism::isomorphismSlow(Hypergraph& h1, Hypergraph& h2) {
@@ -42,10 +46,7 @@ bool Isomorphism::isomorphismNauty(Hypergraph& h1, Hypergraph& h2) {
 }
 
 string Isomorphism::canonStr( vector< pair<int, int> >& edgeList, int n) {
-  if (canonStrCache.find(edgeList) != canonStrCache.end()) {
-    // this step can be done also with a tree like structure ...
-    return canonStrCache[edgeList];
-  }
+  if (canonStrCache.find(edgeList) != canonStrCache.end()) return canonStrCache[edgeList];
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
   options.getcanon = TRUE;
@@ -136,5 +137,12 @@ vector<graph> Isomorphism::canonization(Hypergraph& h) {
   densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
   vector<graph> labels;
   for (int i = 0; i < n; i++) labels.emplace_back(cg[i]);
+  
+  canonCacheReverse[labels] = h.getIncidenceMatrix();
   return canonCache[h.getIncidenceMatrix()] = labels;
+}
+
+vector< vector<int> > Isomorphism::getHypergraph(const vector<graph>& label) {
+  assert(canonCacheReverse.find(label) != canonCacheReverse.end());
+  return canonCacheReverse[label];
 }

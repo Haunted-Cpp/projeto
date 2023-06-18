@@ -71,6 +71,8 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
    */
    in >> N >> M;
    assert(N <= MAX_INPUT_N);
+   //hashEdge.reserve(M);
+   int size = 0;
    incidenceMatrix.clear();
    for (int i = 0; i < M; i++) {
      int k;
@@ -83,7 +85,9 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
        in >> node; // number from 0 to n - 1
        edge[j] = node - 1;
        // Check that each node is numbered from 0 to n - 1
-       assert(node >= 1 && node <= N);
+       assert(node >= 1);
+       assert(node <= N);
+       //assert(node >= 1 && node <= N);
      }
      //int trash;
      //in >> trash;
@@ -191,15 +195,15 @@ vector<int> Hypergraph::getEdge(int n) {
 }
 
 void Hypergraph::printIncidenceMatrix(ostream& out)  {
-  out << "---------" << '\n';
-  out << getNodeCount() << '\n';
-  out << getEdgeCount() << '\n';
+  out << "------------------------------------" << '\n';
+  out << "Nodes: " << getNodeCount() << '\n';
+  out << "Hyperedges:" << getEdgeCount() << '\n';
   for (int i = 0; i < M; i++) {
     out << incidenceMatrix[i].size() << ' ';
     for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
     out << '\n';
   }
-  out << "---------" << '\n';
+  out << "------------------------------------" << '\n';
 }
 
 /*
@@ -315,6 +319,7 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
     }
   }
   h.setIncidenceMatrix(adj);
+  
   h.compress();
   return h;
 }
@@ -322,7 +327,7 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
 
 
 
-Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph) {
+Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const std::vector<int>& subgraph_compressed)  {
   const int nodes = (int) subgraph.size();
   assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
@@ -330,16 +335,22 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph) {
   vector< vector<int> > adj;
   for (int mask = 0; mask < (1 << nodes); mask++) {
     vector<int> edge;
+    vector<int> edgeComp;
     for (int i = 0; i < nodes; i++) {
-      if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed
+      if ((mask >> i) & 1) {
+        edge.emplace_back(subgraph[i]); // convert to 0-indexed
+        edgeComp.emplace_back(subgraph_compressed[i]); // convert to 0-indexed
+      }
     }
     sort(edge.begin(), edge.end());
     if (hashEdge.find(edge) != hashEdge.end()) {
-      adj.emplace_back(edge);
+      adj.emplace_back(edgeComp);
     }
   }
   h.setIncidenceMatrix(adj);
-  //h.compress();
+  for (auto edge : adj) {
+    for (auto n : edge) assert(n >= 0 && n <= 2);
+  }
   return h;
 }
 

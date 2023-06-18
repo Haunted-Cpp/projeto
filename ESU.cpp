@@ -11,9 +11,17 @@ using namespace std;
  * Initialize static variables
  */
 
+
+int ESU::f[MAX_INPUT_N];
+//int ESU::ESU_FIXED_extension[MAX_INPUT_N];
+//int ESU::ptr = 0;
+
 int ESU::pos[MAX_INPUT_N];
 vector< std::pair<int, int> > ESU::edgeList;
-std::set<int> ESU::subgraph;
+
+std::vector<int> ESU::subgraph;
+std::vector<int> ESU::subgraph_compressed;
+
 std::set<int> ESU::extension;
 std::set<int> ESU::neiSubgraph;
 stack< std::set<int> > ESU::saveExtension;
@@ -56,27 +64,22 @@ map< vector<graph>, int> ESU::counterHyperBF3;
 //8
 //18
 
+int res = 0;
 
-void ESU::enumerateSubgraphs() {
-  if ((int) subgraph.size() == K) {
-    //cout << "YES" << '\n';
+vector<int> next_extension;
+
+void ESU::enumerateSubgraphs(vector<int> extension) {
+  if ( (int) subgraph.size() == K) {
     if (Search == HYPERGRAPH) {
-      vector<int> nodes;
-      
-      nodes.assign(subgraph.begin(), subgraph.end());
-      assert(is_sorted(nodes.begin(), nodes.end()));
-      Hypergraph motif = h.induceSubgraph(nodes);
-      //if (motif.getEdgeMaxDeg() != 2) return;
-      //assert(visited.find(nodes) == visited.end());
-      //assert(motif.getNodeCount() == 4);
+      vector<int> subgraph_ordered = subgraph;
+      sort(subgraph_ordered.begin(), subgraph_ordered.end());
+      if (visited.find(subgraph_ordered) != visited.end()) {
+        return;
+      }
+      Hypergraph motif = h.induceSubgraphNoComp(subgraph_ordered, subgraph_compressed);
+      //Hypergraph motif = h.induceSubgraph(subgraph_ordered);
       counterHyper[Isomorphism::canonization(motif)]++;
-      //return;
     } else if (Search == CLASS_ONLY) {
-      // Join all topological equivalent subgraphs into a single class
-      //cout << "YES" << '\n';
-      //for (auto to : subgraph) cout << to << ' ';
-      //cout << '\n';
-      
       string mat = Isomorphism::canonStr(edgeList, K);
       ++counter[mat]; // we could use a trie like structure here
     } else {
@@ -85,39 +88,32 @@ void ESU::enumerateSubgraphs() {
     }
     return;
   }
-  saveExtension.push(extension);
   while (!extension.empty()) {
-    int w = *extension.begin();
-    extension.erase(extension.begin());
-    pos[w] = (int) subgraph.size();
-    int added = 0;
-    for (int i = 0; i < (int) g[w].size(); i++) {
-      int u = g[w][i];
-      if (subgraph.find(u) != subgraph.end()) {
-        if (Search == CLASS_ONLY) edgeList.emplace_back(pos[w], pos[u]);
-        else edgeList.emplace_back(w, u);
-        ++added;
-      } else if (u > V && neiSubgraph.find(u) == neiSubgraph.end()) {
-         extension.insert(u);
-         removeExt[w][i] = 1;
-      } 
-      if (neiSubgraph.find(u) == neiSubgraph.end()) {
-        neiSubgraph.insert(u);
-        removeNei[w][i] = 1;
+    int current_node = extension.back();
+    extension.pop_back();
+    next_extension = extension;
+    pos[current_node] = (int) subgraph.size();
+    int added_nodes = 0;
+    for (auto& to : g[current_node]) {
+      if (to > V) {
+        if (find(subgraph.begin(), subgraph.end(), to) != subgraph.end()) {
+          ++added_nodes;
+          if (Search != HYPERGRAPH) {
+            if (Search == CLASS_ONLY) edgeList.emplace_back(pos[current_node], pos[to]);
+            else edgeList.emplace_back(current_node, to);
+          }
+        } else if (f[to] == 0) next_extension.emplace_back(to);
+        f[to]++;
       }
     }
-    subgraph.insert(w);
-    enumerateSubgraphs(); // recursively add more nodes
-    subgraph.erase(w); // restore data struct state
-    while (added--) edgeList.pop_back();
-    for (int i = 0; i < (int) g[w].size(); i++) {
-      if (removeNei[w][i]) neiSubgraph.erase(g[w][i]);
-      if (removeExt[w][i]) extension.erase(g[w][i]);
-      removeExt[w][i] = removeNei[w][i] = 0;
-    }
+    subgraph.emplace_back(current_node);
+    subgraph_compressed.emplace_back(pos[current_node]);
+    enumerateSubgraphs(next_extension);
+    subgraph.pop_back();
+    subgraph_compressed.pop_back();
+    while (added_nodes--) edgeList.pop_back();
+    for (auto& to : g[current_node]) if (to > V) --f[to];
   }
-  extension = saveExtension.top();
-  saveExtension.pop();
 };
 
 void ESU::clearDataStruct() {
@@ -127,23 +123,20 @@ void ESU::clearDataStruct() {
   neiSubgraph.clear();
 }
 
-void ESU::setupAndRun(const vector< vector<int> >& g, int k) {
+void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
   subgraphs.clear();
   //computeEquivalenceClass = merge;
   counter.clear();
-  setGraph(g);
   clearDataStruct();
   K = k;
-  for (int i = 0; i < getNodeCount(); i++) {
-    clearDataStruct();
+  g = inputGraph;
+  vector<int> extension;
+  for (int i = 0; i < inputGraph.size(); i++) {
     V = i;
-    pos[V] = 0;
-    for (auto& u : g[i]) {
-      if (u > V) extension.insert(u);
-      neiSubgraph.insert(u);
-    }
-    subgraph.insert(V);
-    enumerateSubgraphs();
+    clearDataStruct();
+    extension = {i};
+    enumerateSubgraphs(extension);
+    //break;
   }
 }
 
@@ -166,62 +159,44 @@ vector< vector< pair<int, int> > > ESU::startEdgeGraphSubgraphs(Hypergraph& h, c
   return getAllSubgraphs(h.buildEdgeGraph(), k);
 }
 
-void ESU::setGraph(const vector< vector<int> >& inputGraph) {
-  g = inputGraph;
-  removeExt.resize(getNodeCount());
-  removeNei.resize(getNodeCount());
-  for (int i = 0; i < getNodeCount(); i++) {
-    removeExt[i].resize((int)g[i].size());
-    removeNei[i].resize((int)g[i].size());
-    fill(removeExt[i].begin(), removeExt[i].end(), 0);
-    fill(removeNei[i].begin(), removeNei[i].end(), 0);
-  }
-}
+//void ESU::setGraph(const vector< vector<int> >& inputGraph) {
+  //g = vector< vector<int> > (inputGraph.size());
+  //for (int i = 0; i < inputGraph.size(); i++) {
+    //for (auto to : inputGraph[i]) if (to >= v) g[i].emplace_back(to);
+  //}
+//}
 
-int ESU::getNodeCount() {
-  return (int) g.size();
-}
+//int ESU::getNodeCount() {
+  //return (int) g.size();
+//}
 
 // implementar o caso K = 3 do paper
 // https://github.com/HGX-Team/hypergraphx
 // https://arxiv.org/pdf/2209.10241.pdf
 
-
-
-
-
-
-
 std::map< std::vector<graph>, int> ESU::k3(Hypergraph& inputGraph) {
-  //search_lim = 4;
   counterHyper.clear();
   visited.clear();
   for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
-    if (motif.is_two_connected()) {
-      continue; // this occurence will be found by ESU!
-    }
     assert(is_sorted(edge.begin(), edge.end()));
+    visited.insert(edge); // it will insert the 3 nodes just visited
     counterHyper[Isomorphism::canonization(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 3);
   }
   h = inputGraph;
   Search = HYPERGRAPH;
   setupAndRun(h.getGraph(), 3);
-  cout << "Counter: " << counterHyper.size() << '\n';
-  vector<int> xx;
-  counterHyperK3 = counterHyper;
+  vector< pair<int, vector<graph> > > xx;
   for (auto [x, cnt] : counterHyper) {
-    //cout << cnt << '\n';
-    xx.emplace_back(cnt);
+    xx.emplace_back(cnt, x);
   }
   sort(xx.rbegin(), xx.rend());
-  for (auto cnt : xx) cout << cnt << '\n';
-  
+  for (auto [a, b] : xx) {
+    cout << a << '\n';
+  }
+  cout << "VISITED: " << visited.size() << '\n';
   return counterHyper;
-  //assert(counterHyperK3 == counterHyperBF3);
-  
 }
 
 
@@ -591,6 +566,7 @@ std::map< std::vector<graph>, int> ESU::k3Modified(Hypergraph& inputGraph) {
   
   //assert( line == res - 3 * triangle);
   
+  //exit(0);
   
   vector< vector<int> > g_line = { {1}, {0, 2}, {1} };
   vector< vector<int> > g_trig = { {1, 2}, {0, 2}, {1, 0} };
@@ -601,22 +577,22 @@ std::map< std::vector<graph>, int> ESU::k3Modified(Hypergraph& inputGraph) {
   
   
   
-  cout << "Counter: " << counterHyper.size() << '\n';
-  vector<int> xx;
+  //cout << "Counter: " << counterHyper.size() << '\n';
+  //vector<int> xx;
   
   // Remove keys with value 0 (only useful for display only)
   for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-      if(it->second == 0) it = counterHyper.erase(it);
-      else ++it;
+    if(it->second == 0) it = counterHyper.erase(it);
+    else ++it;
   }
   //return counterHyper;
-  counterHyperK3D = counterHyper;
-  for (auto [x, cnt] : counterHyper) {
+  //counterHyperK3D = counterHyper;
+  //for (auto [x, cnt] : counterHyper) {
     //cout << cnt << '\n';
-    xx.emplace_back(cnt);
-  }
-  sort(xx.rbegin(), xx.rend());
-  for (auto cnt : xx) cout << cnt << '\n';
+    //xx.emplace_back(cnt);
+  //}
+  //sort(xx.rbegin(), xx.rend());
+  //for (auto cnt : xx) cout << cnt << '\n';
   
   return counterHyper;
   

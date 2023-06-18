@@ -7,5 +7,5 @@
 
 
 
-#define MAX_INPUT_N 10000000
+#define MAX_INPUT_N 10'000'005
 

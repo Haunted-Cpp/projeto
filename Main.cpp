@@ -95,39 +95,48 @@ int printDetail = 0 ) {
 
 void readHypergraph() {
   Hypergraph h;
-  //h.readFromFile("Dataset/geology.in");
-  //h.readFromFile("Dataset/clique_hyper.in");
-  //h.readFromFile("Dataset/EU.in");
-  //h.readFromFile("Dataset/dblp.in");
-  //h.readFromFile("Dataset/hs.in");
-  //h.readFromFile("Dataset/ps.in");
-  //h.readFromFile("Dataset/EU.in");
-  h.readFromFile("Dataset/random.in");
-  //h.readFromFile("1.in");
   int k = 4;
-  {
-    auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k4FaSEOld(h);
-    auto endTime = steady_clock::now();
-    printResults(startTime, endTime, subgraph_count, k);
-  }
-   //{
+  
+  h.readFromFile("Dataset/EU.in");
+  //h.readFromFile("Dataset/test.dat");
+  //h.readFromFile("Dataset/EU.in");
+  //h.readFromFile("Dataset/ps.in");
+  //h.readFromFile("Dataset/hs.in");
+  //h.readFromFile("Dataset/dblp.in");
+  //h.readFromFile("Dataset/EU.in");
+  //h.readFromFile("Dataset/random.in");
+  //h.readFromFile("1.in");
+  //int k = 4;
+  //{
     //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::k3FaSE(h);
+    //auto subgraph_count = ESU::k4Fast(h);
+    //auto endTime = steady_clock::now();
+    //printResults(startTime, endTime, subgraph_count, k);
+  //}
+  //{
+    //auto startTime = steady_clock::now();
+    //auto subgraph_count = ESU::k4(h);
     //auto endTime = steady_clock::now();
     //printResults(startTime, endTime, subgraph_count, 3);
     
   //}
   {
     auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k4FaSE(h);
+    auto subgraph_count = ESU::k4ESU(h);
     auto endTime = steady_clock::now();
-    printResults(startTime, endTime, subgraph_count, k);
+    printResults(startTime, endTime, subgraph_count, 3);
     
   }
   //{
     //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::bruteForce3(h);
+    //auto subgraph_count = ESU::k3(h);
+    //auto endTime = steady_clock::now();
+    //printResults(startTime, endTime, subgraph_count, k);
+    
+  //}
+  //{
+    //auto startTime = steady_clock::now();
+    //auto subgraph_count = ESU::bruteForce4(h);
     //auto endTime = steady_clock::now();
     //printResults(startTime, endTime, subgraph_count, 3);
     

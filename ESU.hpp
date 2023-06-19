@@ -19,7 +19,7 @@ private:
   static Hypergraph h;
   static std::map< std::vector<graph>, long long> counterHyper;
   static std::unordered_set< std::vector<int>, HashFunction > visited;
-  static std::map<std::string, int> FaSE(const std::vector<std::pair<int, int> > edges, int k);
+  static std::map<std::string, long long> FaSE(const std::vector<std::pair<int, int> > edges, int k);
 public:
   static void clearDataStruct();
   static std::vector< std::vector< std::pair<int, int> > > startEdgeGraphSubgraphs(Hypergraph&, int);
@@ -33,6 +33,9 @@ public:
   static std::map< std::vector<graph>, long long> k4(Hypergraph&);
   static std::map< std::vector<graph>, long long> k4FaSE(Hypergraph&);
   static std::map< std::vector<graph>, long long> k4FaSEOld(Hypergraph&);
+  static std::map< std::vector<graph>, long long> k4Fast(Hypergraph&);
+  
+  static std::map< std::vector<graph>, long long> k4ESU(Hypergraph& inputGraph);
   
   static std::map< std::vector<graph>, long long> bruteForce3(Hypergraph& inputGraph);
   static std::map< std::vector<graph>, long long> bruteForce4(Hypergraph& inputGraph);

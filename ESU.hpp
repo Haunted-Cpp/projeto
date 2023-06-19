@@ -25,10 +25,15 @@ public:
   static std::vector< std::vector< std::pair<int, int> > > startEdgeGraphSubgraphs(Hypergraph&, int);
   static std::vector< std::pair<long long, std::string> > getEquivalenceClass(const std::vector< std::vector<int> >&, int);
   static std::vector< std::vector< std::pair<int, int> > > getAllSubgraphs(const std::vector< std::vector<int> >&, int);
+  
   static std::map< std::vector<graph>, long long> k3(Hypergraph&);
   static std::map< std::vector<graph>, long long> k3FaSE(Hypergraph&);
+  static std::map< std::vector<graph>, long long> k3Modified(Hypergraph& inputGraph);
+  
   static std::map< std::vector<graph>, long long> k4(Hypergraph&);
+  static std::map< std::vector<graph>, long long> k4FaSE(Hypergraph&);
+  
   static std::map< std::vector<graph>, long long> bruteForce3(Hypergraph& inputGraph);
   static std::map< std::vector<graph>, long long> bruteForce4(Hypergraph& inputGraph);
-  static std::map< std::vector<graph>, long long> k3Modified(Hypergraph& inputGraph);
+  
 };

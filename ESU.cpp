@@ -462,26 +462,121 @@ std::map< std::vector<graph>, long long> ESU::k3FaSE(Hypergraph& inputGraph) {
   for (auto edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
-  //auto x = FaSE(edges, 3);
-  //for (auto& [a, b] : x) {
-    //vector< vector<int> > adj;
-    //for (int i = 0; i < 3; i++) {
-      //for (int j = 0; j < i; j++) {
-        //if (a[i * 3 + j] == '1') {
-          //adj.push_back({min(i, j), max(i, j)});
-        //}
-      //}
-    //}
-    //Hypergraph h;
-    //h.setIncidenceMatrix(adj);
-    //h.setN(3);
-    //counterHyper[IsomorphismHyper::canonization(h)] += b;
-  //}
+  auto x = FaSE(edges, 3);
+  for (auto& [a, b] : x) {
+    vector< vector<int> > adj;
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < i; j++) {
+        if (a[i * 3 + j] == '1') {
+          adj.push_back({min(i, j), max(i, j)});
+        }
+      }
+    }
+    Hypergraph h;
+    h.setIncidenceMatrix(adj);
+    h.setN(3);
+    counterHyper[IsomorphismHyper::canonization(h)] += b;
+  }
+  
+  // Remove keys with value 0 (only useful for display only)
+  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
+    if(it -> second == 0) it = counterHyper.erase(it);
+    else ++it;
+  }
+  
   return counterHyper;
 }
 
 
 
+
+std::map< std::vector<graph>, long long> ESU::k4FaSE(Hypergraph& inputGraph) {
+  counterHyper.clear();
+  visited.clear();
+  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+    if (edge.size() != 4) continue;
+    Hypergraph motif = inputGraph.induceSubgraph(edge);
+    assert(is_sorted(edge.begin(), edge.end()));
+    if (motif.is_two_connected()) {
+      Hypergraph simpleMotif = motif.filterEdge(2);
+      --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
+      // this occurence will be found by ESU!
+    }
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
+    assert(motif.getEdgeMaxDeg() == 4);
+  }
+  Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
+  vector< vector<int> > nei = reducedGraph.buildVertexGraph(3);
+  for (auto& edge : reducedGraph.getIncidenceMatrix()) {
+    if (edge.size() != 3) continue;
+    assert(is_sorted(edge.begin(), edge.end()));
+    for (auto& node : edge) { // at most 3
+      for (auto& add : nei[node]) { // can be many ... "node" to add 
+        if (find(edge.begin(), edge.end(), add) != edge.end()) continue; // it must be a new node
+        for (int mask = 1; mask < (1 << 3) - 1; mask++) { // all subsets of current edge
+          if ( (mask >> node) & 1 == 0 ) continue; // must include the "node"
+          vector<int> new_edge;
+          for (int i = 0; i < 3; i++) {
+            if ((mask >> i) & 1) {
+              new_edge.emplace_back(edge[i]);
+            }
+          }
+          new_edge.emplace_back(add);
+          sort(new_edge.begin(), new_edge.end());
+          if (! reducedGraph.validEdge(new_edge) ) continue;
+          vector<int> nodes = edge;
+          nodes.emplace_back(add);
+          sort(nodes.begin(), nodes.end());
+          if ( (int) nodes.size() != 4) continue;
+          Hypergraph motif = inputGraph.induceSubgraph(nodes);
+          if (motif.getEdgeMaxDeg() != 3) continue;
+          if (visited.find(nodes) != visited.end()) {
+            continue;
+          }
+          assert(motif.getEdgeMaxDeg() == 3);
+          if (motif.is_two_connected()) {
+            Hypergraph simpleMotif = motif.filterEdge(2);
+            --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
+            // this occurence will be found by ESU!
+          }
+          assert(is_sorted(nodes.begin(), nodes.end()));
+          counterHyper[IsomorphismHyper::canonization(motif)]++;
+          visited.insert(nodes); // quadratic memory ... i don't like it
+        }
+      }
+    }
+  }
+  
+  
+  h = inputGraph.filterEdge(2);
+  vector< pair<int, int> > edges;
+  for (auto edge : h.getIncidenceMatrix()) {
+    if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
+  }
+  auto x = FaSE(edges, 4);
+  for (auto& [a, b] : x) {
+    vector< vector<int> > adj;
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < i; j++) {
+        if (a[i * 4 + j] == '1') {
+          adj.push_back({min(i, j), max(i, j)});
+        }
+      }
+    }
+    Hypergraph h;
+    h.setIncidenceMatrix(adj);
+    h.setN(4);
+    counterHyper[IsomorphismHyper::canonization(h)] += b;
+  }
+  
+  // Remove keys with value 0 (only useful for display only)
+  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
+    if(it -> second == 0) it = counterHyper.erase(it);
+    else ++it;
+  }
+  
+  return counterHyper;
+}
 
 
 

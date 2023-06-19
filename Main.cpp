@@ -62,20 +62,24 @@ std::chrono::time_point<std::chrono::steady_clock> startTime,
 std::chrono::time_point<std::chrono::steady_clock> endTime, 
 map< vector<graph>, long long> subgraph_count, 
 int k,
-int printDetail = 0
-) {
+int printDetail = 0 ) {
   cout << "-----------------------------------------------" << '\n';
   cout << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+  long long total_subgraph = 0;
+  for (auto& [a, b] : subgraph_count) {
+    total_subgraph += b;
+  }
+  cout << total_subgraph << " hyper-subgraphs found" << '\n';
   cout << subgraph_count.size() << " types of hyper-subgraphs found" << '\n';
   cout << "-----------------------------------------------" << '\n';
   int counter = 0;
-  for (auto [a, b] : subgraph_count) {
+  for (auto& [a, b] : subgraph_count) {
     cout << "Type #" << ++counter << ": " << b << '\n';
   }
   cout << "-----------------------------------------------" << '\n';
   if (printDetail) {
     counter = 0;
-    for (auto [a, b] : subgraph_count) {
+    for (auto& [a, b] : subgraph_count) {
       auto adj = IsomorphismHyper::getHypergraph(a);
       Hypergraph h;
       h.setIncidenceMatrix(adj);
@@ -92,32 +96,32 @@ int printDetail = 0
 void readHypergraph() {
   Hypergraph h;
   //h.readFromFile("Dataset/geology.in");
-  //h.readFromFile("Dataset/history.in");
-  //h.readFromFile("Dataset/dblp.in");
+  //h.readFromFile("Dataset/EU.in");
+  h.readFromFile("Dataset/dblp.in");
   //h.readFromFile("Dataset/hs.in");
   //h.readFromFile("Dataset/ps.in");
   //h.readFromFile("Dataset/EU.in");
-  h.readFromFile("Dataset/random.in");
+  //h.readFromFile("Dataset/random.in");
   //h.readFromFile("1.in");
-  int k = 3;
-  {
-    auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k3Modified(h);
-    auto endTime = steady_clock::now();
-    printResults(startTime, endTime, subgraph_count, 3);
-  }
-   {
-    auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k3FaSE(h);
-    auto endTime = steady_clock::now();
-    printResults(startTime, endTime, subgraph_count, 3);
+  int k = 4;
+  //{
+    //auto startTime = steady_clock::now();
+    //auto subgraph_count = ESU::k4(h);
+    //auto endTime = steady_clock::now();
+    //printResults(startTime, endTime, subgraph_count, k);
+  //}
+   //{
+    //auto startTime = steady_clock::now();
+    //auto subgraph_count = ESU::k3FaSE(h);
+    //auto endTime = steady_clock::now();
+    //printResults(startTime, endTime, subgraph_count, 3);
     
-  }
+  //}
   {
     auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k3(h);
+    auto subgraph_count = ESU::k4FaSE(h);
     auto endTime = steady_clock::now();
-    printResults(startTime, endTime, subgraph_count, 3);
+    printResults(startTime, endTime, subgraph_count, k);
     
   }
   //{

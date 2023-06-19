@@ -3,7 +3,7 @@
 #include "Settings.hpp"
 #include "nauty.h"
 #include "Hypergraph.hpp"
-#include "Isomorphism.hpp"
+#include "IsomorphismHyper.hpp"
 
 
 std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());

@@ -1,10 +1,19 @@
 #include <bits/stdc++.h>
 
+
+
 #include "Hypergraph.hpp"
 #include "nauty.h"
 #include "ESU.hpp"
-#include "Isomorphism.hpp"
+#include "IsomorphismHyper.hpp"
 #include "Settings.hpp"
+
+#include "FaSE/Fase.h"
+#include "FaSE/DynamicGraph.h"
+#include "FaSE/GraphMatrix.h"
+#include "FaSE/GraphUtils.h"
+
+
 
 /* 
  * Initialize static variables
@@ -49,9 +58,9 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
       }
       Hypergraph motif = h.induceSubgraphNoComp(subgraph_ordered, subgraph_compressed);
       //Hypergraph motif = h.induceSubgraph(subgraph_ordered);
-      counterHyper[Isomorphism::canonization(motif)]++;
+      counterHyper[IsomorphismHyper::canonization(motif)]++;
     } else if (Search == CLASS_ONLY) {
-      string mat = Isomorphism::canonStr(edgeList, K);
+      string mat = IsomorphismHyper::canonStr(edgeList, K);
       ++counter[mat]; // we could use a trie like structure here
     } else {
       // Just add the subgraph created
@@ -139,7 +148,7 @@ std::map< std::vector<graph>, long long> ESU::k3(Hypergraph& inputGraph) {
     Hypergraph motif = inputGraph.induceSubgraph(edge);
     assert(is_sorted(edge.begin(), edge.end()));
     visited.insert(edge); // it will insert the 3 nodes just visited
-    counterHyper[Isomorphism::canonization(motif)]++;
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
   }
   h = inputGraph;
   Search = HYPERGRAPH;
@@ -161,7 +170,7 @@ std::map< std::vector<graph>, long long> ESU::k4(Hypergraph& inputGraph) {
     if (motif.is_two_connected()) {
       continue; // this occurence will be found by ESU!
     }
-    counterHyper[Isomorphism::canonization(motif)]++;
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
     assert(motif.getEdgeMaxDeg() == 4);
   }
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
@@ -197,7 +206,7 @@ std::map< std::vector<graph>, long long> ESU::k4(Hypergraph& inputGraph) {
             continue; // this occurence will be found later by ESU!
           }
           assert(is_sorted(nodes.begin(), nodes.end()));
-          counterHyper[Isomorphism::canonization(motif)]++;
+          counterHyper[IsomorphismHyper::canonization(motif)]++;
           visited.insert(nodes); // quadratic memory ... i don't like it
         }
       }
@@ -273,7 +282,7 @@ std::map< std::vector<graph>, long long> ESU::bruteForce3(Hypergraph& inputGraph
           }
         }
         if (dsu.tamanho[dsu.root(0)] != 3) continue;
-        counterHyper[Isomorphism::canonization(motif)]++;
+        counterHyper[IsomorphismHyper::canonization(motif)]++;
       }
     }
   }
@@ -300,7 +309,7 @@ std::map< std::vector<graph>, long long> ESU::bruteForce4(Hypergraph& inputGraph
             }
           }
           if (dsu.tamanho[dsu.root(0)] != 4) continue;
-          counterHyper[Isomorphism::canonization(motif)]++;
+          counterHyper[IsomorphismHyper::canonization(motif)]++;
         }
       }
     }
@@ -324,10 +333,10 @@ std::map< std::vector<graph>, long long> ESU::k3Modified(Hypergraph& inputGraph)
     Hypergraph motif = inputGraph.induceSubgraph(edge);
     if (motif.is_two_connected()) {
       Hypergraph simpleMotif = motif.filterEdge(2);
-      --counterHyper[Isomorphism::canonization(simpleMotif)];
+      --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
     }
     assert(is_sorted(edge.begin(), edge.end()));
-    counterHyper[Isomorphism::canonization(motif)]++;
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
     assert(motif.getEdgeMaxDeg() == 3);
   }
   h = inputGraph.filterEdge(2);
@@ -376,8 +385,8 @@ std::map< std::vector<graph>, long long> ESU::k3Modified(Hypergraph& inputGraph)
   h_trig.setIncidenceMatrix(g_trig);
   h_trig.setN(3);
 
-  counterHyper[Isomorphism::canonization(h_trig)] += triangle;
-  counterHyper[Isomorphism::canonization(h_line)] += res - 3 * triangle;
+  counterHyper[IsomorphismHyper::canonization(h_trig)] += triangle;
+  counterHyper[IsomorphismHyper::canonization(h_line)] += res - 3 * triangle;
   
   // Remove keys with value 0 (only useful for display only)
   for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
@@ -387,3 +396,36 @@ std::map< std::vector<graph>, long long> ESU::k3Modified(Hypergraph& inputGraph)
   
   return counterHyper;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

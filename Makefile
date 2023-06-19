@@ -14,7 +14,16 @@ SRC =                         \
 	ESU.cpp                     \
 	GTrie.cpp                   \
 	Hypergraph.cpp              \
-	Isomorphism.cpp             \
+	IsomorphismHyper.cpp             \
+	FaSE/Fase.cpp 	\
+	FaSE/Label.cpp	\
+	FaSE/IGtrie.cpp	\
+	FaSE/Isomorphism.cpp	\
+	FaSE/Timer.cpp	\
+	FaSE/DynamicGraph.cpp\
+	FaSE/GraphMatrix.cpp	\
+	FaSE/GraphUtils.cpp	\
+	FaSE/Random.cpp	\
 	Main.cpp
 
 OBJ =  ${SRC:.cpp=.o}

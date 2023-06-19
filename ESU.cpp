@@ -334,6 +334,7 @@ std::map< std::vector<graph>, long long> ESU::k3Modified(Hypergraph& inputGraph)
     if (motif.is_two_connected()) {
       Hypergraph simpleMotif = motif.filterEdge(2);
       --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
+      // this occurence will be found by ESU!
     }
     assert(is_sorted(edge.begin(), edge.end()));
     counterHyper[IsomorphismHyper::canonization(motif)]++;
@@ -398,9 +399,86 @@ std::map< std::vector<graph>, long long> ESU::k3Modified(Hypergraph& inputGraph)
 }
 
 
+map<string, int> ESU::FaSE(const vector<pair<int, int> > edges, int k) {
+  
+  // Set up FaSE usage
+  Graph *G = new DynamicGraph(); // Assuming large scale ...
+  bool zeroBased = false;
+  GraphUtils::readFile(G, edges, false, false, zeroBased);
+  G->sortNeighbours();
+  G->makeArrayNeighbours();
+  Random::init(time(NULL));
+  Fase* fase = new Fase(G, false);
+  // Network-census
+  fase->runCensus(k);
+  // Prepare output format
+  map<string, int> output;
+  for (auto element : fase->subgraphCount()) {
+    output[element.second] = element.first;
+  }
+  // Delete allocated memory
+  delete fase;
+  delete G;
+  
+  return output;
+}
 
 
+//std::map< std::vector<graph>, int> ESU::k3Modified(Hypergraph& inputGraph) {
+  //counterHyper.clear();
+  //visited.clear();
+  //for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+    //if (edge.size() != 3) continue;
+    //Hypergraph motif = inputGraph.induceSubgraph(edge);
+    //if (motif.is_two_connected()) {
+      //Hypergraph simpleMotif = motif.filterEdge(2);
+      //--counterHyper[Isomorphism::canonization(simpleMotif)];
+      //continue; // this occurence will be found by ESU!
+    //}
+    //assert(is_sorted(edge.begin(), edge.end()));
+    //counterHyper[Isomorphism::canonization(motif)]++;
+    //assert(motif.getEdgeMaxDeg() == 3);
+  //}
+  //h = inputGraph.filterEdge(2);
 
+
+std::map< std::vector<graph>, long long> ESU::k3FaSE(Hypergraph& inputGraph) {
+  counterHyper.clear();
+  visited.clear();
+  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+    if (edge.size() != 3) continue;
+    Hypergraph motif = inputGraph.induceSubgraph(edge);
+    if (motif.is_two_connected()) {
+      Hypergraph simpleMotif = motif.filterEdge(2);
+      --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
+      // this occurence will be found by ESU!
+    }
+    assert(is_sorted(edge.begin(), edge.end()));
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
+    assert(motif.getEdgeMaxDeg() == 3);
+  }
+  h = inputGraph.filterEdge(2);
+  vector< pair<int, int> > edges;
+  for (auto edge : h.getIncidenceMatrix()) {
+    if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
+  }
+  //auto x = FaSE(edges, 3);
+  //for (auto& [a, b] : x) {
+    //vector< vector<int> > adj;
+    //for (int i = 0; i < 3; i++) {
+      //for (int j = 0; j < i; j++) {
+        //if (a[i * 3 + j] == '1') {
+          //adj.push_back({min(i, j), max(i, j)});
+        //}
+      //}
+    //}
+    //Hypergraph h;
+    //h.setIncidenceMatrix(adj);
+    //h.setN(3);
+    //counterHyper[IsomorphismHyper::canonization(h)] += b;
+  //}
+  return counterHyper;
+}
 
 
 

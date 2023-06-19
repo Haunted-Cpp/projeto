@@ -91,13 +91,27 @@ int printDetail = 0
 
 void readHypergraph() {
   Hypergraph h;
-  h.readFromFile("Dataset/dblp.in");
+  //h.readFromFile("Dataset/geology.in");
+  //h.readFromFile("Dataset/history.in");
+  //h.readFromFile("Dataset/dblp.in");
+  //h.readFromFile("Dataset/hs.in");
+  //h.readFromFile("Dataset/ps.in");
+  //h.readFromFile("Dataset/EU.in");
+  h.readFromFile("Dataset/random.in");
+  //h.readFromFile("1.in");
   int k = 3;
   {
     auto startTime = steady_clock::now();
     auto subgraph_count = ESU::k3Modified(h);
     auto endTime = steady_clock::now();
     printResults(startTime, endTime, subgraph_count, 3);
+  }
+   {
+    auto startTime = steady_clock::now();
+    auto subgraph_count = ESU::k3FaSE(h);
+    auto endTime = steady_clock::now();
+    printResults(startTime, endTime, subgraph_count, 3);
+    
   }
   {
     auto startTime = steady_clock::now();
@@ -141,74 +155,25 @@ void readNormal() {
   }
 }
 
-//int main() {
-  //std::ios::sync_with_stdio(0);
-  //std::cin.tie(0);
-  //readHypergraph();
-  //return 0; 
-//}
 
-Graph *G;
-int K = 0;
-bool dir = false, largeScale = true;
 
-void read()
-{
-  largeScale = true;
-  if (largeScale) G = new DynamicGraph();
-  else G = new GraphMatrix();
-
-  bool zeroBased = false;
-  
-  vector<pair<int, int> > edges;
-  
-  int a, b;
-  while (cin >> a >> b) {
-    edges.emplace_back(a, b);
-  }
-  
-  GraphUtils::readFile(G, edges, dir, false, zeroBased);
-  G->sortNeighbours();
-  G->makeArrayNeighbours();
-
-  // Subgraph Size
-  K = 3;
+int main() {
+  std::ios::sync_with_stdio(0);
+  std::cin.tie(0);
+  readHypergraph();
+  //vector<pair<int, int> > edges;
+  //int a, b;
+  //while (cin >> a >> b) {
+    //edges.emplace_back(a, b);
+  //}
+  //auto o = FaSE(edges, 3);
+  return 0; 
 }
 
-void output(Fase* fase)
-{
-  //printf("Finished Calculating\n");
-  FILE *f = stdout;
-  
-  
-  //if (largeScale) fprintf(f, "Graph Representation: Large Scale\n");
-  //else fprintf(f, "Graph Representation: Adjacency Matrix\n");
-  //fprintf(f, "\nExact Enumeration, no Sampling done\n");
-  //fprintf(f, "\n\tDetailed Output:\n");
-  for (auto element : fase->subgraphCount()) {
-    fprintf(f, "%s: %d occurrences\n", element.second.c_str(), element.first);
-  }
-}
 
-void finish(Fase* fase)
-{
-  delete fase;
-  delete G;
-}
 
-int main(int argc, char **argv)
-{
-  read();
-  Random::init(time(NULL));
-  Fase* fase = new Fase(G, dir);
-  auto startTime = steady_clock::now();
-  fase->runCensus(K);
-  auto endTime = steady_clock::now();
-  cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  output(fase);
-  finish(fase);
-  return 0;
-}
+
+
 
 
 

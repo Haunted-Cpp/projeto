@@ -71,7 +71,8 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
    incidenceMatrix.clear();
    for (int i = 0; i < M; i++) {
      int k;
-     in >> k;
+     //in >> k;
+     k = 2;
      K = max(K, k); // update the max degree
      assert(k <= MAX_EDGE_SIZE); // The max degree should not be bigger than 4.
      vector<int> edge(k);
@@ -83,8 +84,11 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
        assert(node >= 1);
        assert(node <= N);
      }
+     int trash;
+     in >> trash;
      incidenceMatrix.emplace_back(edge);
    }
+   //cout << "YES" << endl;
    compress();
    sortAndCheck(incidenceMatrix);
 }

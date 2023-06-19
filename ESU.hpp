@@ -32,6 +32,7 @@ public:
   
   static std::map< std::vector<graph>, long long> k4(Hypergraph&);
   static std::map< std::vector<graph>, long long> k4FaSE(Hypergraph&);
+  static std::map< std::vector<graph>, long long> k4FaSEOld(Hypergraph&);
   
   static std::map< std::vector<graph>, long long> bruteForce3(Hypergraph& inputGraph);
   static std::map< std::vector<graph>, long long> bruteForce4(Hypergraph& inputGraph);

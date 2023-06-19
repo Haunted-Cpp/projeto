@@ -510,6 +510,129 @@ std::map< std::vector<graph>, long long> ESU::k4FaSE(Hypergraph& inputGraph) {
   for (auto& edge : reducedGraph.getIncidenceMatrix()) {
     if (edge.size() != 3) continue;
     assert(is_sorted(edge.begin(), edge.end()));
+    //vector<int> unique_nei;
+    //for (auto& node : edge) { // at most 3
+      //for (auto& add : nei[node]) {
+        //unique_nei.emplace_back(add);
+      //}
+    //}
+    //sort(unique_nei.begin(), unique_nei.end());
+    //unique_nei.erase(unique(unique_nei.begin(), unique_nei.end()), unique_nei.end());
+    //for (auto& node : unique_nei) { // can be many ... "node" to add 
+    for (auto& edge_node : edge) {
+      for (auto& node : nei[edge_node]) {
+      if (find(edge.begin(), edge.end(), node) != edge.end()) continue; // it must be a new node
+      for (int mask = 1; mask < (1 << 3) - 1; mask++) { // all subsets of current edge
+        vector<int> new_edge;
+        for (int i = 0; i < 3; i++) {
+          if ((mask >> i) & 1) {
+            new_edge.emplace_back(edge[i]);
+          }
+        }
+        new_edge.emplace_back(node);
+        sort(new_edge.begin(), new_edge.end());
+        if (! reducedGraph.validEdge(new_edge) ) continue;
+        vector<int> nodes = edge;
+        nodes.emplace_back(node);
+        sort(nodes.begin(), nodes.end());
+        if ( (int) nodes.size() != 4) continue;
+        Hypergraph motif = inputGraph.induceSubgraph(nodes);
+        Hypergraph motif1 = inputGraph.induceSubgraphSkipComp(nodes);
+        if (motif.getEdgeMaxDeg() != 3) continue;
+        int skip = 0;
+        for (auto motif_edge : motif1.getIncidenceMatrix()) {
+          if (motif_edge.size() != 3) continue;
+          if (motif_edge <= edge) continue;
+          int missing = -1;
+          for (auto n : nodes) {
+            if (find(motif_edge.begin(), motif_edge.end(), n) == motif_edge.end()) {
+              missing = n;
+              break;
+            }
+          }
+          assert(missing != -1);
+          for (int mask1 = 1; mask1 < (1 << 3) - 1; mask1++) { // all subsets of current edge
+            vector<int> new_edge1;
+            for (int x = 0; x < 3; x++) {
+              if ((mask1 >> x) & 1) {
+                new_edge1.emplace_back(motif_edge[x]);
+              }
+            }
+            new_edge1.emplace_back(missing);
+            sort(new_edge1.begin(), new_edge1.end());
+            if (! reducedGraph.validEdge(new_edge1) ) continue;
+            skip = 1;
+            break;
+          }
+        }
+        if (skip) break; 
+        assert(motif.getEdgeMaxDeg() == 3);
+        if (motif.is_two_connected()) {
+          Hypergraph simpleMotif = motif.filterEdge(2);
+          --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
+          // this occurence will be found by ESU!
+        }
+        assert(is_sorted(nodes.begin(), nodes.end()));
+        counterHyper[IsomorphismHyper::canonization(motif)]++;
+        //visited.insert(nodes);
+        break;
+      }
+    }
+   }
+  }
+  return counterHyper;
+  
+  h = inputGraph.filterEdge(2);
+  vector< pair<int, int> > edges;
+  for (auto edge : h.getIncidenceMatrix()) {
+    if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
+  }
+  auto x = FaSE(edges, 4);
+  for (auto& [a, b] : x) {
+    vector< vector<int> > adj;
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < i; j++) {
+        if (a[i * 4 + j] == '1') {
+          adj.push_back({min(i, j), max(i, j)});
+        }
+      }
+    }
+    Hypergraph h;
+    h.setIncidenceMatrix(adj);
+    h.setN(4);
+    counterHyper[IsomorphismHyper::canonization(h)] += b;
+  }
+  
+  // Remove keys with value 0 (only useful for display only)
+  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
+    if(it -> second == 0) it = counterHyper.erase(it);
+    else ++it;
+  }
+  
+  return counterHyper;
+}
+
+
+std::map< std::vector<graph>, long long> ESU::k4FaSEOld(Hypergraph& inputGraph) {
+  counterHyper.clear();
+  visited.clear();
+  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+    if (edge.size() != 4) continue;
+    Hypergraph motif = inputGraph.induceSubgraph(edge);
+    assert(is_sorted(edge.begin(), edge.end()));
+    if (motif.is_two_connected()) {
+      Hypergraph simpleMotif = motif.filterEdge(2);
+      --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
+      // this occurence will be found by ESU!
+    }
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
+    assert(motif.getEdgeMaxDeg() == 4);
+  }
+  Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
+  vector< vector<int> > nei = reducedGraph.buildVertexGraph(3);
+  for (auto& edge : reducedGraph.getIncidenceMatrix()) {
+    if (edge.size() != 3) continue;
+    assert(is_sorted(edge.begin(), edge.end()));
     for (auto& node : edge) { // at most 3
       for (auto& add : nei[node]) { // can be many ... "node" to add 
         if (find(edge.begin(), edge.end(), add) != edge.end()) continue; // it must be a new node
@@ -546,7 +669,7 @@ std::map< std::vector<graph>, long long> ESU::k4FaSE(Hypergraph& inputGraph) {
       }
     }
   }
-  
+  return counterHyper;
   
   h = inputGraph.filterEdge(2);
   vector< pair<int, int> > edges;
@@ -577,6 +700,7 @@ std::map< std::vector<graph>, long long> ESU::k4FaSE(Hypergraph& inputGraph) {
   
   return counterHyper;
 }
+
 
 
 

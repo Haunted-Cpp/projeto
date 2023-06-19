@@ -69,7 +69,7 @@ int printDetail = 0 ) {
   for (auto& [a, b] : subgraph_count) {
     total_subgraph += b;
   }
-  cout << total_subgraph << " hyper-subgraphs found" << '\n';
+  cout << total_subgraph << " hyper-subgraphs extracted" << '\n';
   cout << subgraph_count.size() << " types of hyper-subgraphs found" << '\n';
   cout << "-----------------------------------------------" << '\n';
   int counter = 0;
@@ -96,20 +96,21 @@ int printDetail = 0 ) {
 void readHypergraph() {
   Hypergraph h;
   //h.readFromFile("Dataset/geology.in");
+  //h.readFromFile("Dataset/clique_hyper.in");
   //h.readFromFile("Dataset/EU.in");
-  h.readFromFile("Dataset/dblp.in");
+  //h.readFromFile("Dataset/dblp.in");
   //h.readFromFile("Dataset/hs.in");
   //h.readFromFile("Dataset/ps.in");
   //h.readFromFile("Dataset/EU.in");
-  //h.readFromFile("Dataset/random.in");
+  h.readFromFile("Dataset/random.in");
   //h.readFromFile("1.in");
   int k = 4;
-  //{
-    //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::k4(h);
-    //auto endTime = steady_clock::now();
-    //printResults(startTime, endTime, subgraph_count, k);
-  //}
+  {
+    auto startTime = steady_clock::now();
+    auto subgraph_count = ESU::k4FaSEOld(h);
+    auto endTime = steady_clock::now();
+    printResults(startTime, endTime, subgraph_count, k);
+  }
    //{
     //auto startTime = steady_clock::now();
     //auto subgraph_count = ESU::k3FaSE(h);

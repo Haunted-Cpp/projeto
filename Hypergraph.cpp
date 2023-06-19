@@ -351,6 +351,27 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const s
   return h;
 }
 
+Hypergraph Hypergraph::induceSubgraphSkipComp(const vector<int>& subgraph) {
+  const int nodes = (int) subgraph.size();
+  assert(nodes <= 4); // only for motifs of size 3 and 4!
+  Hypergraph h;
+  h.setN(nodes);
+  vector< vector<int> > adj;
+  for (int mask = 0; mask < (1 << nodes); mask++) {
+    vector<int> edge;
+    for (int i = 0; i < nodes; i++) {
+      if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed
+    }
+    sort(edge.begin(), edge.end());
+    if (hashEdge.find(edge) != hashEdge.end()) {
+      adj.emplace_back(edge);
+    }
+  }
+  h.setIncidenceMatrix(adj);
+  //h.compress();
+  return h;
+}
+
 
 void Hypergraph::printIncidenceMatrix() {
   printIncidenceMatrix(cout);

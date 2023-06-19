@@ -42,5 +42,6 @@ public:
   std::vector<std::vector<int>> getDegreeSequence();
   void shuffleHypergraph (int);
   Hypergraph induceSubgraph(const std::vector<int>&);
+  Hypergraph induceSubgraphSkipComp(const std::vector<int>&);
   Hypergraph induceSubgraphNoComp(const std::vector<int>&, const std::vector<int>&);
 };

@@ -138,6 +138,7 @@ vector<graph> Isomorphism::canonization(Hypergraph& h) {
   vector<graph> labels;
   for (int i = 0; i < n; i++) labels.emplace_back(cg[i]);
   
+  
   canonCacheReverse[labels] = h.getIncidenceMatrix();
   return canonCache[h.getIncidenceMatrix()] = labels;
 }

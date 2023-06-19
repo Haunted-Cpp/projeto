@@ -17,8 +17,6 @@ struct HashFunction {
   }
 };
 
-
-
 class Hypergraph {
 private:
   int N; // number of vertices
@@ -47,25 +45,17 @@ public:
   bool is_two_connected();
   std::vector< std::vector<int> > getGraph();
   bool validEdge(std::vector<int>); 
-  
   void printEdgeSubgraph(std::vector< std::pair<int, int> >&); 
   void setN(int);
   void setM(int);
   void setIncidenceMatrix(std::vector< std::vector<int> >& );
   std::vector<int> getEdge(int);
-  
-  
   void printIncidenceMatrix(); // print to stdout
   void saveToFile(std::string); // print to file in specified format
-  
   void readFromStdin(); // read from stdin
   void readFromFile(std::string); // read from file
-  
-  
   std::vector<std::vector<int>> getDegreeSequence();
   void shuffleHypergraph (int);
-  
-  
   Hypergraph induceSubgraph(const std::vector<int>&);
   Hypergraph induceSubgraphNoComp(const std::vector<int>&, const std::vector<int>&);
 };

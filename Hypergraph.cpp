@@ -14,18 +14,15 @@ int gen(int lo, int hi) { return uniform_int_distribution<int>(lo,hi)(rng); }
 
 /*
  * Simple Hypergraph Class
- * No empty hyperedge
+ * |Hyperedge| >= 2
  * No duplicate hyperedge
- * Every edge vertex should be unique!!
- * No sefl-loops
+ * Every vertex in an edge should be unique!!
  */
 
 Hypergraph::Hypergraph() {
   K = 0; // initially the max. degree is 0
   edgeBySize.resize(MAX_EDGE_SIZE + 1);
   assert(MAX_HYPER_MOTIF_SIZE <= MAX_EDGE_SIZE);
-  //readIncidenceMatrix();
-  //randomHypergraph();
   // Don't call here - Otherwise when a small, empty Hypergraph is created this methods will be called
 }
 
@@ -87,10 +84,7 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
        // Check that each node is numbered from 0 to n - 1
        assert(node >= 1);
        assert(node <= N);
-       //assert(node >= 1 && node <= N);
      }
-     //int trash;
-     //in >> trash;
      incidenceMatrix.emplace_back(edge);
    }
    compress();
@@ -195,7 +189,7 @@ vector<int> Hypergraph::getEdge(int n) {
 }
 
 void Hypergraph::printIncidenceMatrix(ostream& out)  {
-  out << "------------------------------------" << '\n';
+  out << "-----------------------------------------------" << '\n';
   out << "Nodes: " << getNodeCount() << '\n';
   out << "Hyperedges:" << getEdgeCount() << '\n';
   for (int i = 0; i < M; i++) {
@@ -203,7 +197,7 @@ void Hypergraph::printIncidenceMatrix(ostream& out)  {
     for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
     out << '\n';
   }
-  out << "------------------------------------" << '\n';
+  out << "-----------------------------------------------" << '\n';
 }
 
 /*
@@ -348,6 +342,7 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const s
     }
   }
   h.setIncidenceMatrix(adj);
+  h.setN(nodes);
   for (auto edge : adj) {
     for (auto n : edge) assert(n >= 0 && n <= 2);
   }
@@ -466,8 +461,6 @@ void Hypergraph::shuffleHypergraph (int iterations) {
     if (edgeBySize[edgeSize][e1] == edgeBySize[edgeSize][e2]) continue; // we must shuffle two distinct edges ...
     if (!shuffleEdges(edgeBySize[edgeSize][e1], edgeBySize[edgeSize][e2])) continue;
     --iterations;
-    //cout << "OK" << '\n';
-    
   }
   sortAndCheck(incidenceMatrix); // convert graph to "standard" form
 }

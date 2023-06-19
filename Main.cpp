@@ -10,6 +10,7 @@
 #include <memory>
 #include <chrono>
 #include <cmath>
+#include <queue>
 
 #include "nauty.h"
 
@@ -17,9 +18,6 @@
 #include "GTrie.hpp"
 #include "Isomorphism.hpp"
 #include "ESU.hpp"
-
-using namespace std;
-using namespace std::chrono;
 
 
 void findMotifs3() {
@@ -51,7 +49,14 @@ void findMotifs3() {
   }
 }
 
-void prettyPrint(std::chrono::time_point<std::chrono::steady_clock> startTime, std::chrono::time_point<std::chrono::steady_clock> endTime, map< vector<graph>, long long> subgraph_count, int k) {
+void printResults
+(
+std::chrono::time_point<std::chrono::steady_clock> startTime, 
+std::chrono::time_point<std::chrono::steady_clock> endTime, 
+map< vector<graph>, long long> subgraph_count, 
+int k,
+int printDetail = 0
+) {
   cout << "-----------------------------------------------" << '\n';
   cout << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   cout << subgraph_count.size() << " types of hyper-subgraphs found" << '\n';
@@ -61,17 +66,20 @@ void prettyPrint(std::chrono::time_point<std::chrono::steady_clock> startTime, s
     cout << "Type #" << ++counter << ": " << b << '\n';
   }
   cout << "-----------------------------------------------" << '\n';
-  counter = 0;
-  for (auto [a, b] : subgraph_count) {
-    auto adj = Isomorphism::getHypergraph(a);
-    Hypergraph h;
-    h.setIncidenceMatrix(adj);
-    h.setN(k);
-    cout << "Hyper-subgraph #" << ++counter << '\n';
-    h.printIncidenceMatrix();
-    cout << "Number of occurences: " << b << '\n';
-    cout << "-----------------------------------------------" << '\n';
+  if (printDetail) {
+    counter = 0;
+    for (auto [a, b] : subgraph_count) {
+      auto adj = Isomorphism::getHypergraph(a);
+      Hypergraph h;
+      h.setIncidenceMatrix(adj);
+      h.setN(k);
+      cout << "Hyper-subgraph #" << ++counter << '\n';
+      h.printIncidenceMatrix();
+      cout << "Number of occurences: " << b << '\n';
+      cout << "-----------------------------------------------" << '\n';
+    }
   }
+  cout << flush;
 }
 
 void readHypergraph() {
@@ -82,19 +90,22 @@ void readHypergraph() {
     auto startTime = steady_clock::now();
     auto subgraph_count = ESU::k3Modified(h);
     auto endTime = steady_clock::now();
-    prettyPrint(startTime, endTime, subgraph_count, 3);
+    printResults(startTime, endTime, subgraph_count, 3);
+  }
+  {
+    auto startTime = steady_clock::now();
+    auto subgraph_count = ESU::k3(h);
+    auto endTime = steady_clock::now();
+    printResults(startTime, endTime, subgraph_count, 3);
     
   }
-  //exit(0);
-  
   //{
-    //ESU::clearDataStruct();
     //auto startTime = steady_clock::now();
-    //ESU::k3(h);
+    //auto subgraph_count = ESU::bruteForce3(h);
     //auto endTime = steady_clock::now();
-    //cout << "Time: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+    //printResults(startTime, endTime, subgraph_count, 3);
+    
   //}
-  
 }
 
 void readNormal() {
@@ -118,18 +129,15 @@ void readNormal() {
     g[st].emplace_back(et);
     g[et].emplace_back(st);
   }
-  
   for (auto [a, b] : ESU::getEquivalenceClass(g, 3)) {
     cout << a << ' ' << b << '\n';
   }
-  
 }
 
 int main() {
-  ios::sync_with_stdio(0);
-  cin.tie(0);
+  std::ios::sync_with_stdio(0);
+  std::cin.tie(0);
   readHypergraph();
-  
   return 0; 
 }
 

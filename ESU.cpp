@@ -4,8 +4,7 @@
 #include "nauty.h"
 #include "ESU.hpp"
 #include "Isomorphism.hpp"
-
-using namespace std;
+#include "Settings.hpp"
 
 /* 
  * Initialize static variables
@@ -34,7 +33,7 @@ vector< vector< pair<int, int> > > ESU::subgraphs;
 // Used in Hypergraph
 Hypergraph ESU::h;
 map< vector<graph>, long long> ESU::counterHyper;
-std::set< vector<int> > ESU::visited;
+std::unordered_set< vector<int>, HashFunction> ESU::visited;
 option Search;
 
 

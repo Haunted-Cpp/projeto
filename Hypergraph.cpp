@@ -6,11 +6,9 @@
 #include "Isomorphism.hpp"
 
 
-using namespace std;
+std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
-mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-
-int gen(int lo, int hi) { return uniform_int_distribution<int>(lo,hi)(rng); }
+int gen(int lo, int hi) { return std::uniform_int_distribution<int>(lo,hi)(rng); }
 
 /*
  * Simple Hypergraph Class

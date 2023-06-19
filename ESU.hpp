@@ -18,7 +18,7 @@ private:
   static void setupAndRun(const std::vector< std::vector<int> >& , int);
   static Hypergraph h;
   static std::map< std::vector<graph>, long long> counterHyper;
-  static std::set< std::vector<int> > visited;
+  static std::unordered_set< std::vector<int>, HashFunction > visited;
 public:
   static void clearDataStruct();
   static std::vector< std::vector< std::pair<int, int> > > startEdgeGraphSubgraphs(Hypergraph&, int);

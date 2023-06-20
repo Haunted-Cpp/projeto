@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <numeric>
 #include <unordered_set>
-//#include <set>
 #include <stack>
 #include <map>
 #include <memory>
@@ -13,174 +12,98 @@
 #include <queue>
 
 #include "nauty.h"
-
 #include "Hypergraph.hpp"
 #include "GTrie.hpp"
 #include "IsomorphismHyper.hpp"
 #include "ESU.hpp"
-
-
-
 #include "FaSE/Fase.h"
 #include "FaSE/DynamicGraph.h"
 #include "FaSE/GraphMatrix.h"
 #include "FaSE/GraphUtils.h"
 
-
-void findMotifs3() {
-  Hypergraph h;
-  h.readFromStdin();
-  auto census = ESU::bruteForce3(h);
-  map< vector<graph>, vector<int> > sample;
-  const int NUMBER_NETWORKS = 100;
-  for (int i = 0; i < NUMBER_NETWORKS; i++) {
-    h.shuffleHypergraph(20);
-    auto count = ESU::bruteForce3(h);
-    for (auto [a, b] : census) {
-      sample[a].emplace_back(count[a]);
-    }
-  }
-  for (auto [a, b] : census) {
-    double mean = 0;
-    for (auto value : sample[a]) {
-      mean += value;
-    }
-    mean /= NUMBER_NETWORKS;
-    double std = 0;
-    for (auto value : sample[a]) {
-      std += (value - mean) * (value - mean);
-    }
-    std /= NUMBER_NETWORKS - 1;
-    std = sqrt(std);
-    cout << b << ' ' << (b - mean) / std << '\n';
-  }
-}
-
-void printResults
-(
-std::chrono::time_point<std::chrono::steady_clock> startTime, 
-std::chrono::time_point<std::chrono::steady_clock> endTime, 
-map< vector<graph>, long long> subgraph_count, 
-int k,
-int printDetail = 0 ) {
-  cout << "-----------------------------------------------" << '\n';
-  cout << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  long long total_subgraph = 0;
-  for (auto& [a, b] : subgraph_count) {
-    total_subgraph += b;
-  }
-  cout << total_subgraph << " hyper-subgraphs extracted" << '\n';
-  cout << subgraph_count.size() << " types of hyper-subgraphs found" << '\n';
-  cout << "-----------------------------------------------" << '\n';
-  int counter = 0;
-  for (auto& [a, b] : subgraph_count) {
-    cout << "Type #" << ++counter << ": " << b << '\n';
-  }
-  cout << "-----------------------------------------------" << '\n';
-  if (printDetail) {
-    counter = 0;
-    for (auto& [a, b] : subgraph_count) {
-      auto adj = IsomorphismHyper::getHypergraph(a);
-      Hypergraph h;
-      h.setIncidenceMatrix(adj);
-      h.setN(k);
-      cout << "Hyper-subgraph #" << ++counter << '\n';
-      h.printIncidenceMatrix();
-      cout << "Number of occurences: " << b << '\n';
-      cout << "-----------------------------------------------" << '\n';
-    }
-  }
-  cout << flush;
-}
-
-void readHypergraph() {
-  Hypergraph h;
-  int k = 4;
-  
-  h.readFromFile("Dataset/history.in");
-  //h.readFromFile("Dataset/test.dat");
-  //h.readFromFile("Dataset/EU.in");
-  //h.readFromFile("Dataset/ps.in");
-  //h.readFromFile("Dataset/hs.in");
-  //h.readFromFile("Dataset/dblp.in");
-  //h.readFromFile("Dataset/EU.in");
-  //h.readFromFile("Dataset/random.in");
-  //h.readFromFile("1.in");
-  //int k = 4;
-  //{
-    //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::k4Fast(h);
-    //auto endTime = steady_clock::now();
-    //printResults(startTime, endTime, subgraph_count, k);
-  //}
-  //{
-    //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::k4(h);
-    //auto endTime = steady_clock::now();
-    //printResults(startTime, endTime, subgraph_count, 3);
-    
-  //}
-  {
-    auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k4(h);
-    auto endTime = steady_clock::now();
-    printResults(startTime, endTime, subgraph_count, 3);
-    
-  }
-  //{
-    //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::k3(h);
-    //auto endTime = steady_clock::now();
-    //printResults(startTime, endTime, subgraph_count, k);
-    
-  //}
-  //{
-    //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::bruteForce4(h);
-    //auto endTime = steady_clock::now();
-    //printResults(startTime, endTime, subgraph_count, 3);
-    
-  //}
-}
-
-void readNormal() {
-  int n, m;
-  cin >> n >> m;
-  vector< vector<int> > g(n);
-  
-  //std::set< pair<int, int> > vis;
-  for (int i = 0; i < m; i++) {
-    int st, et, w;
-    cin >> st >> et >> w;
-    --st; --et;
-    if (st == et) continue;
-    assert(st != et);
-    //if (vis.find({st, et}) == vis.end()) {
-      //vis.insert({st, et});
-      //vis.insert({et, st});
-    //} else {
-      //continue;
-    //}
-    g[st].emplace_back(et);
-    g[et].emplace_back(st);
-  }
-  for (auto [a, b] : ESU::getEquivalenceClass(g, 3)) {
-    cout << a << ' ' << b << '\n';
-  }
-}
-
-
-
-int main() {
+int main(int argc, char* argv[]) {
   std::ios::sync_with_stdio(0);
   std::cin.tie(0);
-  readHypergraph();
-  //vector<pair<int, int> > edges;
-  //int a, b;
-  //while (cin >> a >> b) {
-    //edges.emplace_back(a, b);
-  //}
-  //auto o = FaSE(edges, 3);
+  
+  
+  int motifSize = -1;
+  string inputFile, outputFile, task;
+  bool detailedOutput = false;
+  
+  vector<string> args;
+  for (int i = 1; i < argc; i++) {
+    string arg = string(argv[i]);
+    if (arg == "-d") detailedOutput = true;
+    else args.emplace_back(arg);
+  }
+  
+  if ( args.size() & 1 ) { // If number of arguments is odd, then a pair is missing
+    cout << "Invalid number of arguments provided." << '\n';
+    cout << "Each flag must be followed by an argument" << '\n';
+    cout << "Use the format: -flag argument" << '\n';
+    cout << "More information provide in the readme file" << '\n';
+    return 0;
+  }
+  
+  for (int i = 0; i < (int) args.size() - 1; i += 2) {
+    if (args[i] == "-s") {
+      string number = args[i + 1];
+      if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
+        cout << "No valid motifSize provided with -s flag" << '\n';
+        cout << "Use \"-s k\", where 3 <= k <= 4" << '\n';
+        return 0;
+      }
+      motifSize = std::stoi(args[i + 1]);
+    } else if (args[i] == "-i") {
+      inputFile = args[i + 1];
+    } else if (args[i] == "-o") {
+      outputFile = args[i + 1];
+    } else if (args[i] == "-m") {
+      task = args[i + 1];
+    } else if (args[i] == "-d") {
+      detailedOutput = true;
+    } else {
+      cout << "Invalid argument flag provided." << '\n';
+      cout << "More information in the readme provided" << '\n';
+      return 0;
+    }
+  }
+  
+  // -s **size**, is mandatory
+  if (motifSize == -1 || motifSize < 3 || motifSize > 4) {
+    cout << "No valid motifSize provided with -s flag" << '\n';
+    cout << "Use \"-s k\", where 3 <= k <= 4" << '\n';
+    return 0; 
+  } 
+  
+  // -i **inputFile**, is mandatory
+  if (inputFile.empty()) {
+    cout << "No input file provided with -i flag" << '\n';
+    return 0; 
+  }
+  
+  // -m **method**, is mandatory
+  if (task != "count" && task != "motif") {
+    cout << "No valid method provided with -m flag." << '\n';
+    cout << "Valid options are: \"count\", \"motif\"" << '\n'; 
+    return 0; 
+  }
+  
+  //cout << motifSize << '\n';
+  //cout << inputFile << '\n';
+  //cout << outputFile << '\n';
+  //cout << task << '\n';
+  
+  Hypergraph h; 
+  h.readFromFile(inputFile);
+  
+  
+  if (task == "count") { // network-census of whole network
+    ESU::networkCensus(h, motifSize, outputFile, detailedOutput);
+  } else { // find significance profile of each subgraph
+    //ESU::findMotifs(h, motifSize, outputFile, detailedOutput);
+  }
+  
   return 0; 
 }
 

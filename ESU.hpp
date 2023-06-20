@@ -20,24 +20,35 @@ private:
   static std::map< std::vector<graph>, long long> counterHyper;
   static std::unordered_set< std::vector<int>, HashFunction > visited;
   static std::map<std::string, long long> FaSE(const std::vector<std::pair<int, int> > edges, int k);
-public:
+  
+  
+  
+  
+  
   static void clearDataStruct();
   static std::vector< std::vector< std::pair<int, int> > > startEdgeGraphSubgraphs(Hypergraph&, int);
   static std::vector< std::pair<long long, std::string> > getEquivalenceClass(const std::vector< std::vector<int> >&, int);
   static std::vector< std::vector< std::pair<int, int> > > getAllSubgraphs(const std::vector< std::vector<int> >&, int);
   
   static std::map< std::vector<graph>, long long> k3(Hypergraph&);
-  static std::map< std::vector<graph>, long long> k3FaSE(Hypergraph&);
-  static std::map< std::vector<graph>, long long> k3Modified(Hypergraph& inputGraph);
+  static std::map< std::vector<graph>, long long> k3Fase(Hypergraph&);
+  static std::map< std::vector<graph>, long long> k3Triangle(Hypergraph& inputGraph);
   
   static std::map< std::vector<graph>, long long> k4(Hypergraph&);
-  static std::map< std::vector<graph>, long long> k4FaSE(Hypergraph&);
-  static std::map< std::vector<graph>, long long> k4FaSEOld(Hypergraph&);
-  static std::map< std::vector<graph>, long long> k4Fast(Hypergraph&);
+  static std::map< std::vector<graph>, long long> k4Fase(Hypergraph&);
   
   static std::map< std::vector<graph>, long long> k4ESU(Hypergraph& inputGraph);
   
   static std::map< std::vector<graph>, long long> bruteForce3(Hypergraph& inputGraph);
   static std::map< std::vector<graph>, long long> bruteForce4(Hypergraph& inputGraph);
+  
+  static void printResults(std::chrono::time_point<std::chrono::steady_clock>, std::chrono::time_point<std::chrono::steady_clock>, std::map< std::vector<graph>, long long>, int, int);
+  
+public:
+
+  
+  static void networkCensus(Hypergraph& , int, string, bool);
+  
+  static void findMotifs(Hypergraph&, int, string, bool);
   
 };

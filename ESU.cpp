@@ -49,28 +49,38 @@ option Search;
 vector<int> next_extension;
 
 void ESU::enumerateSubgraphs(vector<int> extension) {
+  
+  assert(K == 4);
   if ( (int) subgraph.size() == K) {
+    //return;
     if (Search == HYPERGRAPH) {
+      //cout << res << '\n';
       vector<int> subgraph_ordered = subgraph;
       sort(subgraph_ordered.begin(), subgraph_ordered.end());
+      //assert(subgraph_ordered[0] == 0);
+      //for (int i = 1; i < (int) subgraph_ordered.size(); i++) {
+        //assert(subgraph_ordered[i] != subgraph_ordered[i - 1]);
+      //}
       if (visited.find(subgraph_ordered) != visited.end()) {
         return;
       }
       Hypergraph motif = h.induceSubgraphNoComp(subgraph_ordered, subgraph_compressed);
       //Hypergraph motif = h.induceSubgraph(subgraph_ordered);
       counterHyper[IsomorphismHyper::canonization(motif)]++;
+      
     } else if (Search == CLASS_ONLY) {
-      //string mat = IsomorphismHyper::canonStr(edgeList, K);
-      //++counter[mat]; // we could use a trie like structure here
+      string mat = IsomorphismHyper::canonStr(edgeList, K);
+      ++counter[mat]; // we could use a trie like structure here
+     
+      //assert(false);
+      //vector< vector<int> > edgeList1;
+      //for (auto&[a, b]: edgeList) edgeList1.emplace_back(a, b);
       
-      vector< vector<int> > edgeList1;
-      for (auto&[a, b]: edgeList) edgeList1.emplace_back(a, b);
+      //Hypergraph h;
+      //h.setIncidenceMatrix(edgeList1);
+//e      h.setN(4);
       
-      Hypergraph h;
-      h.setIncidenceMatrix(edgeList1);
-      h.setN(4);
-      
-      counterHyper[IsomorphismHyper::canonization(h)]++;
+      //counterHyper[IsomorphismHyper::canonization(h)]++;
     } else {
       // Just add the subgraph created
       subgraphs.emplace_back(edgeList);
@@ -85,13 +95,14 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
     int added_nodes = 0;
     for (auto& to : g[current_node]) {
       if (to > V) {
-        if (find(subgraph.begin(), subgraph.end(), to) != subgraph.end()) {
-          ++added_nodes;
-          if (Search != HYPERGRAPH) {
-            if (Search == CLASS_ONLY) edgeList.emplace_back(pos[current_node], pos[to]);
-            else edgeList.emplace_back(current_node, to);
-          }
-        } else if (f[to] == 0) next_extension.emplace_back(to);
+        //if (find(subgraph.begin(), subgraph.end(), to) != subgraph.end()) {
+          //assert(f[to] > 0);
+          //++added_nodes;
+          //if (Search != HYPERGRAPH) {
+            //if (Search == CLASS_ONLY) edgeList.emplace_back(pos[current_node], pos[to]);
+            //else edgeList.emplace_back(current_node, to);
+          //}
+        if (f[to] == 0) next_extension.emplace_back(to);
         f[to]++;
       }
     }
@@ -100,7 +111,7 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
     enumerateSubgraphs(next_extension);
     subgraph.pop_back();
     subgraph_compressed.pop_back();
-    while (added_nodes--) edgeList.pop_back();
+    //while (added_nodes--) edgeList.pop_back();
     for (auto& to : g[current_node]) if (to > V) --f[to];
   }
 };
@@ -123,7 +134,9 @@ void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
     clearDataStruct();
     extension = {i};
     enumerateSubgraphs(extension);
+    //break;
   }
+  //cout << "F:" << res << '\n';
 }
 
 vector< pair<long long, string> > ESU::getEquivalenceClass(const vector< vector<int> >& g, int k) {

@@ -97,7 +97,7 @@ void readHypergraph() {
   Hypergraph h;
   int k = 4;
   
-  h.readFromFile("Dataset/EU.in");
+  h.readFromFile("Dataset/history.in");
   //h.readFromFile("Dataset/test.dat");
   //h.readFromFile("Dataset/EU.in");
   //h.readFromFile("Dataset/ps.in");
@@ -122,7 +122,7 @@ void readHypergraph() {
   //}
   {
     auto startTime = steady_clock::now();
-    auto subgraph_count = ESU::k4ESU(h);
+    auto subgraph_count = ESU::k4(h);
     auto endTime = steady_clock::now();
     printResults(startTime, endTime, subgraph_count, 3);
     

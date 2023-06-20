@@ -298,13 +298,43 @@ void Hypergraph::compress() {
 
 // 0 indexeddddddddddddddd !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // we assume subgraph is 0-indexed!!!
+
+
+
+//k = 3
+//3
+//5
+//6
+//7
+
+// k = 4
+//3
+//5
+//6
+//7
+//9
+//10
+//11
+//12
+//13
+//14
+//15
+
+// lim = 4, if k = 3
+// lim = 11 (whole vector), if k = 4
+
+vector<int> subsets = {3,5,6,7,9,10,11,12,13,14,15};
+
+
 Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   const int nodes = (int) subgraph.size();
   assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
-  for (int mask = 0; mask < (1 << nodes); mask++) {
+  int lim = (nodes == 3 ? 4 : 11);
+  for (int x = 0; x < lim; x++) {
+    const int mask = subsets[x];
     vector<int> edge;
     for (int i = 0; i < nodes; i++) {
       if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed
@@ -315,13 +345,9 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
     }
   }
   h.setIncidenceMatrix(adj);
-  
   h.compress();
   return h;
 }
-
-
-
 
 Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const std::vector<int>& subgraph_compressed)  {
   const int nodes = (int) subgraph.size();
@@ -329,7 +355,9 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const s
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
-  for (int mask = 0; mask < (1 << nodes); mask++) {
+  int lim = (nodes == 3 ? 4 : 11);
+  for (int x = 0; x < lim; x++) {
+    const int mask = subsets[x];
     vector<int> edge;
     vector<int> edgeComp;
     for (int i = 0; i < nodes; i++) {
@@ -345,9 +373,9 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const s
   }
   h.setIncidenceMatrix(adj);
   h.setN(nodes);
-  for (auto edge : adj) { // REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ME
-    for (auto n : edge) assert(n >= 0 && n <= 3);
-  }
+  //for (auto edge : adj) { // REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ME
+    //for (auto n : edge) assert(n >= 0 && n <= 3);
+  //}
   return h;
 }
 
@@ -357,7 +385,9 @@ Hypergraph Hypergraph::induceSubgraphSkipComp(const vector<int>& subgraph) {
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
-  for (int mask = 0; mask < (1 << nodes); mask++) {
+  int lim = (nodes == 3 ? 4 : 11);
+  for (int x = 0; x < lim; x++) {
+    const int mask = subsets[x];
     vector<int> edge;
     for (int i = 0; i < nodes; i++) {
       if ((mask >> i) & 1) edge.emplace_back(subgraph[i]); // convert to 0-indexed

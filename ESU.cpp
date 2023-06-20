@@ -235,6 +235,21 @@ map<string, long long> ESU::FaSE(const vector<pair<int, int> > edges, int k) {
   return output;
 }
 
+Hypergraph ESU::binaryToHyper(string str, int k) {
+  vector< vector<int> > adj;
+  for (int i = 0; i < k; i++) {
+    for (int j = 0; j < i; j++) {
+      if (str[i * k + j] == '1') {
+        adj.push_back({min(i, j), max(i, j)});
+      }
+    }
+  }
+  Hypergraph h;
+  h.setIncidenceMatrix(adj);
+  h.setN(k);
+  return h;
+}
+
 /*
  * Baseline method for K_3
  */
@@ -339,23 +354,11 @@ std::map< std::vector<graph>, long long> ESU::k3Fase(Hypergraph& inputGraph) {
   for (auto edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
-  auto x = FaSE(edges, 3);
-  for (auto& [a, b] : x) {
-    vector< vector<int> > adj;
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < i; j++) {
-        if (a[i * 3 + j] == '1') {
-          adj.push_back({min(i, j), max(i, j)});
-        }
-      }
-    }
-    Hypergraph h;
-    h.setIncidenceMatrix(adj);
-    h.setN(3);
-    counterHyper[IsomorphismHyper::canonization(h)] += b;
+  auto census = FaSE(edges, 3);
+  for (auto& [str, cnt] : census) {
+    Hypergraph hyper = binaryToHyper(str, 3);
+    counterHyper[IsomorphismHyper::canonization(hyper)] += cnt;
   }
-  
-  
   return counterHyper;
 }
 
@@ -540,28 +543,11 @@ std::map< std::vector<graph>, long long> ESU::k4Fase(Hypergraph& inputGraph) {
   for (auto edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
-  auto x = FaSE(edges, 4);
-  for (auto& [a, b] : x) {
-    vector< vector<int> > adj;
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < i; j++) {
-        if (a[i * 4 + j] == '1') {
-          adj.push_back({min(i, j), max(i, j)});
-        }
-      }
-    }
-    Hypergraph h;
-    h.setIncidenceMatrix(adj);
-    h.setN(4);
-    counterHyper[IsomorphismHyper::canonization(h)] += b;
+  auto census = FaSE(edges, 4);
+  for (auto& [str, cnt] : census) {
+    Hypergraph hyper = binaryToHyper(str, 4);
+    counterHyper[IsomorphismHyper::canonization(hyper)] += cnt;
   }
-  
-  // Remove keys with value 0 (only useful for display only)
-  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-    if(it -> second == 0) it = counterHyper.erase(it);
-    else ++it;
-  }
-  
   return counterHyper;
   
   
@@ -639,10 +625,12 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, string outputFile, bool de
   if (motifSize == 3) { // Execute our fastest method K = 3, TRIANGLE
     k = 3;
     k3Triangle(h);
+    //k3Fase(h);
+    //k3(h);
   } else { // Execute our fastest method K=4, FASE
     k = 4;
-    k4ESU(h);
-    //k4Fase(h);
+    //k4ESU(h);
+    k4Fase(h);
   }
   auto endTime = steady_clock::now();
   printResults(startTime, endTime, counterHyper, k, detailedOutput);
@@ -702,5 +690,15 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, string outputFile, bool detai
 
 
 
+void Hypergraph::saveToFile(string filename) {
+  ofstream fout;
+  fout.open(filename);
+  if (fout.fail()) {
+    cout << filename << " could not be opened" << '\n';
+    exit(EXIT_FAILURE);
+  };
+  printIncidenceMatrix(fout);
+  fout.close();
+}
 
 

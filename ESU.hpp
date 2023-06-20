@@ -22,7 +22,7 @@ private:
   static std::map<std::string, long long> FaSE(const std::vector<std::pair<int, int> > edges, int k);
   
   
-  
+  static Hypergraph binaryToHyper(std::string str, int k);
   
   
   static void clearDataStruct();

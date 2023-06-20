@@ -33,14 +33,16 @@ private:
   static std::map< std::vector<graph>, long long> k3(Hypergraph&);
   static std::map< std::vector<graph>, long long> k3Fase(Hypergraph&);
   static std::map< std::vector<graph>, long long> k3Triangle(Hypergraph& inputGraph);
-  
+  static std::map< std::vector<graph>, long long> k3ESU(Hypergraph& inputGraph);
+  static std::map< std::vector<graph>, long long> bruteForce3(Hypergraph& inputGraph);
+
   static std::map< std::vector<graph>, long long> k4(Hypergraph&);
   static std::map< std::vector<graph>, long long> k4Fase(Hypergraph&);
-  
   static std::map< std::vector<graph>, long long> k4ESU(Hypergraph& inputGraph);
-  
-  static std::map< std::vector<graph>, long long> bruteForce3(Hypergraph& inputGraph);
   static std::map< std::vector<graph>, long long> bruteForce4(Hypergraph& inputGraph);
+  
+  static void k3IntermediateForm(Hypergraph& inputGraph);
+  static void k4IntermediateForm(Hypergraph& inputGraph);
   
   static void printResults(std::chrono::time_point<std::chrono::steady_clock>, std::chrono::time_point<std::chrono::steady_clock>, std::map< std::vector<graph>, long long>, int, int);
   

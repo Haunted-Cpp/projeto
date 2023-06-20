@@ -58,11 +58,11 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
       //Hypergraph motif = h.induceSubgraph(subgraph_ordered);
       counterHyper[IsomorphismHyper::canonization(motif)]++;
     } else if (Search == CLASS_ONLY) {
-      //string mat = IsomorphismHyper::canonStr(edgeList, K);
-      //++counter[mat]; // we could use a trie like structure here
+      string mat = IsomorphismHyper::canonStr(edgeList, K);
+      ++counter[mat]; // we could use a trie like structure here
     } else {
       // Just add the subgraph created
-      subgraphs.emplace_back(edgeList);
+      //subgraphs.emplace_back(edgeList);
     }
     return;
   }
@@ -94,7 +94,10 @@ void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
   vector<int> extension;
   for (int i = 0; i < inputGraph.size(); i++) {
     V = i;
-    clearDataStruct();
+    assert(subgraph.empty());
+    assert(subgraph_compressed.empty());
+    assert(edgeList.empty());
+    
     extension = {i};
     enumerateSubgraphs(extension);
   }
@@ -152,6 +155,7 @@ struct DisjointSet {
 };
 
 std::map< std::vector<graph>, long long> ESU::bruteForce3(Hypergraph& inputGraph) {
+  clearDataStruct();
   const int n = inputGraph.getNodeCount();
   vector<int> nodes;
   for (int i = 0; i < n; i++) {
@@ -178,6 +182,7 @@ std::map< std::vector<graph>, long long> ESU::bruteForce3(Hypergraph& inputGraph
 
  //This method is used just for debug only!
 std::map< std::vector<graph>, long long> ESU::bruteForce4(Hypergraph& inputGraph) {
+  clearDataStruct();
   const int n = inputGraph.getNodeCount();
   vector<int> nodes;
   for (int i = 0; i < n; i++) {
@@ -208,7 +213,6 @@ std::map< std::vector<graph>, long long> ESU::bruteForce4(Hypergraph& inputGraph
  */
  
 map<string, long long> ESU::FaSE(const vector<pair<int, int> > edges, int k) {
-  
   // Set up FaSE usage
   Graph *G = new DynamicGraph(); // Assuming large scale ...
   bool zeroBased = false;
@@ -232,10 +236,8 @@ map<string, long long> ESU::FaSE(const vector<pair<int, int> > edges, int k) {
 }
 
 /*
- * The following are a series of proposed methods for K_3
+ * Baseline method for K_3
  */
-
-
 
 // https://github.com/HGX-Team/hypergraphx
 // https://arxiv.org/pdf/2209.10241.pdf
@@ -245,6 +247,7 @@ map<string, long long> ESU::FaSE(const vector<pair<int, int> > edges, int k) {
 // https://arxiv.org/pdf/2209.10241.pdf
 
 std::map< std::vector<graph>, long long> ESU::k3(Hypergraph& inputGraph) {
+  clearDataStruct();
   for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
@@ -259,9 +262,13 @@ std::map< std::vector<graph>, long long> ESU::k3(Hypergraph& inputGraph) {
 }
 
 
-// TRIANGLE method
+/*
+ * The following are a series of proposed methods for K_3
+ */
 
-std::map< std::vector<graph>, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
+// Auxiliary method to compute intermediate form
+
+void ESU::k3IntermediateForm(Hypergraph& inputGraph) {
   for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
@@ -275,7 +282,14 @@ std::map< std::vector<graph>, long long> ESU::k3Triangle(Hypergraph& inputGraph)
     assert(motif.getEdgeMaxDeg() == 3);
   }
   h = inputGraph.filterEdge(2);
-  Search = HYPERGRAPH;
+}
+
+
+// TRIANGLE method
+
+std::map< std::vector<graph>, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
+  clearDataStruct();
+  k3IntermediateForm(inputGraph);
   vector< vector<int> > g = h.getGraph();
   int n = (int) g.size();
   long long res = 0;
@@ -313,31 +327,14 @@ std::map< std::vector<graph>, long long> ESU::k3Triangle(Hypergraph& inputGraph)
   counterHyper[IsomorphismHyper::canonization(h_trig)] += triangle;
   counterHyper[IsomorphismHyper::canonization(h_line)] += res - 3 * triangle;
   
-  // Remove keys with value 0 (only useful for display only)
-  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-    if(it -> second == 0) it = counterHyper.erase(it);
-    else ++it;
-  }
-  
   return counterHyper;
 }
 
 // FASE method
 
 std::map< std::vector<graph>, long long> ESU::k3Fase(Hypergraph& inputGraph) {
-  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
-    if (edge.size() != 3) continue;
-    Hypergraph motif = inputGraph.induceSubgraph(edge);
-    if (motif.is_two_connected()) {
-      Hypergraph simpleMotif = motif.filterEdge(2);
-      --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
-      // this occurence will be found by ESU!
-    }
-    assert(is_sorted(edge.begin(), edge.end()));
-    counterHyper[IsomorphismHyper::canonization(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 3);
-  }
-  h = inputGraph.filterEdge(2);
+  clearDataStruct();
+  k3IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
   for (auto edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
@@ -358,25 +355,90 @@ std::map< std::vector<graph>, long long> ESU::k3Fase(Hypergraph& inputGraph) {
     counterHyper[IsomorphismHyper::canonization(h)] += b;
   }
   
-  // Remove keys with value 0 (only useful for display only)
-  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-    if(it -> second == 0) it = counterHyper.erase(it);
-    else ++it;
-  }
   
+  return counterHyper;
+}
+
+// SIMPLE ESU
+
+std::map< std::vector<graph>, long long> ESU::k3ESU(Hypergraph& inputGraph) {
+  clearDataStruct();
+  k3IntermediateForm(inputGraph);
+  h = inputGraph;
+  Search = CLASS_ONLY;
+  setupAndRun(h.getGraph(), 3);
   return counterHyper;
 }
 
 
 /*
+ * Baseline method for K_4
+ */
+
+// implementar o caso K = 4 do paper
+// https://github.com/HGX-Team/hypergraphx
+// https://arxiv.org/pdf/2209.10241.pdf
+
+std::map< std::vector<graph>, long long> ESU::k4(Hypergraph& inputGraph) {
+  clearDataStruct();
+  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+    if (edge.size() != 4) continue;
+    Hypergraph motif = inputGraph.induceSubgraph(edge);
+    assert(is_sorted(edge.begin(), edge.end()));
+    visited.insert(edge); // it will insert the 3 nodes just visited
+    counterHyper[IsomorphismHyper::canonization(motif)]++;
+    assert(motif.getEdgeMaxDeg() == 4);
+    
+    //cout << "YES" << '\n';
+    //exit(0);
+  }
+  Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
+  assert( reducedGraph.getEdgeCount() == reducedGraph.getIncidenceMatrix().size() );
+  vector< vector<int> > g(reducedGraph.getNodeCount());
+  int edge = 0;
+  for (auto e : reducedGraph.getIncidenceMatrix()) {
+    for (auto e_i : e) {
+      g[e_i].emplace_back(edge);
+    }
+    ++edge;
+  }
+  edge = -1;
+  for (auto e : reducedGraph.getIncidenceMatrix()) {
+    ++edge;
+    if ( (int) e.size() != 3 ) continue;
+    for (auto node : e) {
+      for (auto e_i : g[node]) {
+        vector<int> e1 = reducedGraph.getEdge(e_i);
+        for (auto add : reducedGraph.getEdge(edge)) {
+          e1.emplace_back(add);
+        }
+        sort(e1.begin(), e1.end());
+        e1.erase(unique(e1.begin(), e1.end()), e1.end());
+        if (e1.size() == 4 && visited.find(e1) == visited.end()) {
+          visited.insert(e1);
+          Hypergraph motif = inputGraph.induceSubgraph(e1);
+          assert(is_sorted(e1.begin(), e1.end()));
+          counterHyper[IsomorphismHyper::canonization(motif)]++;
+        }
+      }
+    }
+  }
+  h = inputGraph;
+  Search = HYPERGRAPH;
+  setupAndRun(h.getGraph(), 4);
+  return counterHyper;
+}
+
+
+ 
+/*
  * The following are a series of proposed methods for K_4
  */
 
 
-// FaSE
+// Auxiliary method to compute intermediate form
 
-
-std::map< std::vector<graph>, long long> ESU::k4Fase(Hypergraph& inputGraph) {
+void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
   for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 4) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
@@ -468,6 +530,12 @@ std::map< std::vector<graph>, long long> ESU::k4Fase(Hypergraph& inputGraph) {
   }
   
   h = inputGraph.filterEdge(2);
+}
+
+// FaSE
+std::map< std::vector<graph>, long long> ESU::k4Fase(Hypergraph& inputGraph) {
+  clearDataStruct();
+  k4IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
   for (auto edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
@@ -502,98 +570,8 @@ std::map< std::vector<graph>, long long> ESU::k4Fase(Hypergraph& inputGraph) {
 // SIMPLE ESU
 
 std::map< std::vector<graph>, long long> ESU::k4ESU(Hypergraph& inputGraph) {
-  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
-    if (edge.size() != 4) continue;
-    Hypergraph motif = inputGraph.induceSubgraph(edge);
-    assert(is_sorted(edge.begin(), edge.end()));
-    if (motif.is_two_connected()) {
-      Hypergraph simpleMotif = motif.filterEdge(2);
-      --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
-      // this occurence will be found by ESU!
-    }
-    counterHyper[IsomorphismHyper::canonization(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 4);
-  }
-  Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
-  vector< vector<int> > g(reducedGraph.getNodeCount());
-  int edge = 0;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
-    for (auto e_i : e) {
-      g[e_i].emplace_back(edge);
-    }
-    ++edge;
-  }
-  edge = -1;
-  vector<int> f(reducedGraph.getNodeCount());
-  std::stack<int> rem;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
-    ++edge;
-    if ( (int) e.size() != 3 ) continue;
-    for (auto node : e) {
-      for (auto e_i : g[node]) {
-        vector<int> nodes = reducedGraph.getEdge(e_i);
-        for (auto add : reducedGraph.getEdge(edge)) nodes.emplace_back(add);
-        sort(nodes.begin(), nodes.end());
-        nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
-        if (nodes.size() != 4) continue;
-        int added_node = -1;
-        for (auto c : nodes) {
-          if (find(e.begin(), e.end(), c) == e.end()) {
-            added_node = c;
-            break;
-          }
-        }
-        assert(added_node != -1);
-        if (f[added_node]) continue;
-        f[added_node] = 1;
-        rem.push(added_node);
-        assert(is_sorted(nodes.begin(), nodes.end()));
-        Hypergraph motif1 = inputGraph.induceSubgraphSkipComp(nodes);
-        if (motif1.getEdgeMaxDeg() != 3) continue;
-        int skip = 0;
-        for (auto motif_edge : motif1.getIncidenceMatrix()) {
-          if (motif_edge.size() != 3) continue;
-          if (motif_edge <= e) continue;
-          int missing = -1;
-          for (auto n : nodes) {
-            if (find(motif_edge.begin(), motif_edge.end(), n) == motif_edge.end()) {
-              missing = n;
-              break;
-            }
-          }
-          assert(missing != -1);
-          for (int mask1 = 1; mask1 < (1 << 3) - 1; mask1++) { // all subsets of current edge
-            vector<int> new_edge1;
-            for (int x = 0; x < 3; x++) {
-              if ((mask1 >> x) & 1) {
-                new_edge1.emplace_back(motif_edge[x]);
-              }
-            }
-            new_edge1.emplace_back(missing);
-            sort(new_edge1.begin(), new_edge1.end());
-            if (! reducedGraph.validEdge(new_edge1) ) continue;
-            skip = 1;
-            break;
-          }
-        }
-        if (skip) continue; 
-        Hypergraph motif = inputGraph.induceSubgraph(nodes);
-        assert(motif.getEdgeMaxDeg() == 3);
-        if (motif.is_two_connected()) {
-          Hypergraph simpleMotif = motif.filterEdge(2);
-          --counterHyper[IsomorphismHyper::canonization(simpleMotif)];
-          // this occurence will be found by ESU!
-        }
-        assert(is_sorted(nodes.begin(), nodes.end()));
-        counterHyper[IsomorphismHyper::canonization(motif)]++;
-      }
-    }
-    while (!rem.empty()) {
-      f[rem.top()] = 0;
-      rem.pop();
-    }
-  }
-  
+  clearDataStruct();
+  k4IntermediateForm(inputGraph);
   h = inputGraph;
   Search = CLASS_ONLY;
   setupAndRun(h.getGraph(), 4);
@@ -601,116 +579,18 @@ std::map< std::vector<graph>, long long> ESU::k4ESU(Hypergraph& inputGraph) {
 }
 
 
-// implementar o caso K = 4 do paper
-// https://github.com/HGX-Team/hypergraphx
-// https://arxiv.org/pdf/2209.10241.pdf
-
-std::map< std::vector<graph>, long long> ESU::k4(Hypergraph& inputGraph) {
-  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
-    if (edge.size() != 4) continue;
-    Hypergraph motif = inputGraph.induceSubgraph(edge);
-    assert(is_sorted(edge.begin(), edge.end()));
-    visited.insert(edge); // it will insert the 3 nodes just visited
-    counterHyper[IsomorphismHyper::canonization(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 4);
-  }
-  Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
-  assert( reducedGraph.getEdgeCount() == reducedGraph.getIncidenceMatrix().size() );
-  vector< vector<int> > g(reducedGraph.getNodeCount());
-  int edge = 0;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
-    for (auto e_i : e) {
-      g[e_i].emplace_back(edge);
-    }
-    ++edge;
-  }
-  edge = -1;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
-    ++edge;
-    if ( (int) e.size() != 3 ) continue;
-    for (auto node : e) {
-      for (auto e_i : g[node]) {
-        vector<int> e1 = reducedGraph.getEdge(e_i);
-        for (auto add : reducedGraph.getEdge(edge)) {
-          e1.emplace_back(add);
-        }
-        sort(e1.begin(), e1.end());
-        e1.erase(unique(e1.begin(), e1.end()), e1.end());
-        if (e1.size() == 4 && visited.find(e1) == visited.end()) {
-          visited.insert(e1);
-          Hypergraph motif = inputGraph.induceSubgraph(e1);
-          assert(is_sorted(e1.begin(), e1.end()));
-          counterHyper[IsomorphismHyper::canonization(motif)]++;
-        }
-      }
-    }
-  }
-  h = inputGraph;
-  Search = HYPERGRAPH;
-  setupAndRun(h.getGraph(), 4);
-  return counterHyper;
-}
-
-
-
-
-
-
-
-
 /*
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
  * 
  * 
  */
 
 
-
-
-//void findMotifs3() {
-  //Hypergraph h;
-  //h.readFromStdin();
-  //auto census = ESU::bruteForce3(h);
-  //map< vector<graph>, vector<int> > sample;
-  //const int NUMBER_NETWORKS = 100;
-  //for (int i = 0; i < NUMBER_NETWORKS; i++) {
-    //h.shuffleHypergraph(20);
-    //auto count = ESU::bruteForce3(h);
-    //for (auto [a, b] : census) {
-      //sample[a].emplace_back(count[a]);
-    //}
-  //}
-  //for (auto [a, b] : census) {
-    //double mean = 0;
-    //for (auto value : sample[a]) {
-      //mean += value;
-    //}
-    //mean /= NUMBER_NETWORKS;
-    //double std = 0;
-    //for (auto value : sample[a]) {
-      //std += (value - mean) * (value - mean);
-    //}
-    //std /= NUMBER_NETWORKS - 1;
-    //std = sqrt(std);
-    //cout << b << ' ' << (b - mean) / std << '\n';
-  //}
-//}
-
-void ESU::printResults
-(
-std::chrono::time_point<std::chrono::steady_clock> startTime, 
-std::chrono::time_point<std::chrono::steady_clock> endTime, 
-map< vector<graph>, long long> subgraph_count, 
-int k,
-int detailedOutput) {
+void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startTime, std::chrono::time_point<std::chrono::steady_clock> endTime, map< vector<graph>, long long> subgraph_count, int k, int detailedOutput) {
+  // Remove keys with value 0 (only useful for display only)
+  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
+    if(it -> second == 0) it = counterHyper.erase(it);
+    else ++it;
+  }
   cout << "-----------------------------------------------" << '\n';
   cout << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   long long total_subgraph = 0;
@@ -741,23 +621,6 @@ int detailedOutput) {
   cout << flush;
 }
 
-//void readHypergraph() {
-  //Hypergraph h;
-  //int k = 4;
-  
-  //h.readFromFile("Dataset/history.in");
-
-  //{
-    //auto startTime = steady_clock::now();
-    //auto subgraph_count = ESU::k4(h);
-    //auto endTime = steady_clock::now();
-    //printResults(startTime, endTime, subgraph_count, 3);
-    
-  //}
-
-//}
-
-
 
 void ESU::clearDataStruct() {
   edgeList.clear();
@@ -773,19 +636,65 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, string outputFile, bool de
   clearDataStruct();
   int k;
   auto startTime = steady_clock::now();
-  if (motifSize == 3) { // Execute our fastest method K=3, TRIANGLE
+  if (motifSize == 3) { // Execute our fastest method K = 3, TRIANGLE
     k = 3;
     k3Triangle(h);
   } else { // Execute our fastest method K=4, FASE
     k = 4;
-    k4Fase(h);
+    k4ESU(h);
+    //k4Fase(h);
   }
   auto endTime = steady_clock::now();
   printResults(startTime, endTime, counterHyper, k, detailedOutput);
 }
   
+  
+  
+// ADD Alternative method  
+  
 void ESU::findMotifs(Hypergraph& h, int motifSize, string outputFile, bool detailedOutput) {
-  clearDataStruct();
+  
+  auto census = (motifSize == 3 ? ESU::k3Triangle(h) : ESU::k4Fase(h));
+  map< vector<graph>, vector<int> > sample;
+  const int NUMBER_NETWORKS = 100;
+  for (int i = 0; i < NUMBER_NETWORKS; i++) {
+    h.shuffleHypergraph(100);
+    auto count = (motifSize == 3 ? ESU::k3Triangle(h) : ESU::k4Fase(h));
+    for (auto [a, b] : census) {
+      sample[a].emplace_back(count[a]);
+    }
+    for (auto [a, b] : count) {
+      cout << b << '\n';
+    }
+    cout << "----" << '\n';
+  }
+  double sum = 0;
+  vector<double> sp;
+  for (auto [a, b] : census) {
+    double mean = 0;
+    for (auto value : sample[a]) {
+      mean += value;
+    }
+    mean /= NUMBER_NETWORKS;
+    sp.emplace_back( (b - mean) / (b + mean + 4) );
+    sum += sp.back() * sp.back();
+  }
+  sum = sqrt(sum);
+  int counter = 0;
+  for (auto [a, b] : census) {
+    cout << "Hyper-subgraph #" << ++counter << '\n';
+    if (detailedOutput) {
+      auto adj = IsomorphismHyper::getHypergraph(a);
+      Hypergraph h;
+      h.setIncidenceMatrix(adj);
+      h.setN(motifSize);
+      h.printIncidenceMatrix();
+    }
+    cout << "Number of occurences: " << b << '\n';
+    cout << "Significance Profile: " << sp[counter - 1] / sum << '\n';
+    cout << "-----------------------------------------------" << '\n';
+  }
+  
 }
 
 

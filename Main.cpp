@@ -97,11 +97,11 @@ int main(int argc, char* argv[]) {
   Hypergraph h; 
   h.readFromFile(inputFile);
   
-  
+  //cout << detailedOutput << '\n';
   if (task == "count") { // network-census of whole network
     ESU::networkCensus(h, motifSize, outputFile, detailedOutput);
   } else { // find significance profile of each subgraph
-    //ESU::findMotifs(h, motifSize, outputFile, detailedOutput);
+    ESU::findMotifs(h, motifSize, outputFile, detailedOutput);
   }
   
   return 0; 

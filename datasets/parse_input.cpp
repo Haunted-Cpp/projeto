@@ -43,13 +43,13 @@ int main() {
       edges.emplace_back(hyperedge);
     }
   }
-  cout << (int) nodes.size() << '\n';
-  cout << (int) edges.size() << '\n';
+  //cout << (int) nodes.size() << '\n';
+  //cout << (int) edges.size() << '\n';
   assert( (int) edges.size() == accumulate(counter.begin(), counter.end(), 0) );
   map<int, int> number;
   int current_number = 0;
   for (auto edge : edges) {
-    cout << (int) edge.size() << ' ';
+    //cout << (int) edge.size() << ' ';
     for (auto e : edge) {
       if (number.find(e) == number.end()) {
         number[e] = ++current_number;

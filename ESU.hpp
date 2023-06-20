@@ -44,13 +44,13 @@ private:
   static void k3IntermediateForm(Hypergraph& inputGraph);
   static void k4IntermediateForm(Hypergraph& inputGraph);
   
-  static void printResults(std::chrono::time_point<std::chrono::steady_clock>, std::chrono::time_point<std::chrono::steady_clock>, std::map< std::vector<graph>, long long>, int, int);
+  static void printResults(std::chrono::time_point<std::chrono::steady_clock>, std::chrono::time_point<std::chrono::steady_clock>, std::map< std::vector<graph>, long long>, int, bool, std::ostream&);
   
 public:
 
   
-  static void networkCensus(Hypergraph& , int, string, bool);
+  static void networkCensus(Hypergraph&, int, bool, std::ostream&);
   
-  static void findMotifs(Hypergraph&, int, string, bool);
+  static void findMotifs(Hypergraph&, int, bool, std::ostream&);
   
 };

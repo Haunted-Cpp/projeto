@@ -6,7 +6,7 @@
 #include "IsomorphismHyper.hpp"
 
 
-std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+std::mt19937 rng(10001);
 
 int gen(int lo, int hi) { return std::uniform_int_distribution<int>(lo,hi)(rng); }
 
@@ -55,43 +55,76 @@ void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
   sortAndCheck(incidenceMatrix);
 }
 
-void Hypergraph::readIncidenceMatrix(istream& in) {
-  /*
-   * Format:
-   * n # number of hypernodes
-   * m # number of hyperedges
-   * k_1 a1, a2, ..., ak_1
-   * k_2 b1, b2, ..., bk_2
-   * ...
-   */
-   in >> N >> M;
-   assert(N <= MAX_INPUT_N);
+//void Hypergraph::readIncidenceMatrix(istream& in) {
+  ///*
+   //* Format:
+   //* n # number of hypernodes
+   //* m # number of hyperedges
+   //* k_1 a1, a2, ..., ak_1
+   //* k_2 b1, b2, ..., bk_2
+   //* ...
+   //*/
+   //in >> N >> M;
+   //assert(N <= MAX_INPUT_N);
    //hashEdge.reserve(M);
-   int size = 0;
-   incidenceMatrix.clear();
-   for (int i = 0; i < M; i++) {
-     int k;
-     in >> k;
+   //int size = 0;
+   //incidenceMatrix.clear();
+   //for (int i = 0; i < M; i++) {
+     //int k;
+     //in >> k;
      //k = 2;
-     K = max(K, k); // update the max degree
-     assert(k <= MAX_EDGE_SIZE); // The max degree should not be bigger than 4.
-     vector<int> edge(k);
-     for (int j = 0; j < k; j++) {
-       int node;
-       in >> node; // number from 0 to n - 1
-       edge[j] = node - 1;
-       // Check that each node is numbered from 0 to n - 1
-       assert(node >= 1);
-       assert(node <= N);
-     }
+     //K = max(K, k); // update the max degree
+     //assert(k <= MAX_EDGE_SIZE); // The max degree should not be bigger than 4.
+     //vector<int> edge(k);
+     //for (int j = 0; j < k; j++) {
+       //int node;
+       //in >> node; // number from 0 to n - 1
+       //edge[j] = node - 1;
+        //Check that each node is numbered from 0 to n - 1
+       //assert(node >= 1);
+       //assert(node <= N);
+     //}
      //int trash;
      //in >> trash;
-     incidenceMatrix.emplace_back(edge);
-   }
+     //incidenceMatrix.emplace_back(edge);
+   //}
    //cout << "YES" << endl;
-   compress();
-   sortAndCheck(incidenceMatrix);
+   //compress();
+   //sortAndCheck(incidenceMatrix);
+//}
+
+
+void Hypergraph::readIncidenceMatrix(istream& in) {
+  incidenceMatrix.clear();
+  string edge;
+  N = M = 0;
+  std::set< vector<int> > duplicate;
+  while (getline(in, edge)) {
+    vector<int> nodes;
+    std::istringstream token(edge);
+    string node;
+    while (token >> node) {
+      nodes.emplace_back(stoi(node) - 1);
+      assert(nodes.back() >= 0);
+    }
+    if (nodes.size() > MAX_EDGE_SIZE) { // Ignore Hyperedges with size > MAX_EDGE_SIZE (currently 4)
+      continue;
+    }
+    sort(nodes.begin(), nodes.end());
+    if (duplicate.find(nodes) != duplicate.end()) {
+      continue;
+    }
+    duplicate.insert(nodes);
+    ++M;
+    K = max(K, (int) nodes.size());
+    incidenceMatrix.emplace_back(nodes);
+  }
+  compress();
+  for (auto& edge : incidenceMatrix) {
+    for (auto& node : edge) N = max(N, node + 1);
+  }
 }
+
 void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
   hashEdge.clear();
   for (int i = 0; i < M; i++) {
@@ -102,12 +135,8 @@ void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
   edge.erase(unique(edge.begin(), edge.end()), edge.end());
   // Each edge should be unique => List size without duplicates MUST be M
   assert ( (int) edge.size() == M );
-  //if (edge.size() != M) {
-    //cout << "F" << '\n';
-    //exit(0);
-  //}
-  //edgeBySize.clear();
-  for (int i = 0; i < MAX_EDGE_SIZE; i++) {
+  edgeBySize.clear();
+  for (int i = 0; i <= MAX_EDGE_SIZE; i++) {
     edgeBySize[i].clear();
   } 
   for (int i = 0; i < M; i++) {
@@ -150,7 +179,7 @@ vector< vector<int> > Hypergraph::buildEdgeGraph() {
 
 vector< vector<int> > Hypergraph::buildVertexGraph(int k) {
   vector< vector<int> > nei( getNodeCount() );
-  for (auto& edge : incidenceMatrix) { // O (m * k ^ 2), but since k <= 10 ... ok
+  for (auto& edge : incidenceMatrix) { // O (m * k ^ 2), but since k <= 4 ... ok
     if ( (int) edge.size() <= k ) {
       for (int i = 0; i < (int) edge.size(); i++) {
         for (int j = i + 1; j < (int) edge.size(); j++) {
@@ -166,8 +195,6 @@ vector< vector<int> > Hypergraph::buildVertexGraph(int k) {
   }
   return nei;  
 }
-
-
 
 bool Hypergraph::isEqual(const vector< vector<int> >& edgeList1)  {
   return incidenceMatrix == edgeList1;
@@ -185,6 +212,14 @@ int Hypergraph::getEdgeCount()  {
   return M;
 }
 
+vector<int> Hypergraph::getEdgeBySize() {
+  vector<int> size(MAX_EDGE_SIZE + 1);
+  for (int i = 2; i <= MAX_EDGE_SIZE; i++) {
+    size[i] = edgeBySize[i].size();
+  }
+  return size;
+}
+
 vector<int> Hypergraph::getEdge(int n) {
   assert(n >= 0 && n < M);
   return incidenceMatrix[n];
@@ -195,7 +230,6 @@ void Hypergraph::printIncidenceMatrix(ostream& out)  {
   out << "Nodes: " << getNodeCount() << '\n';
   out << "Hyperedges:" << getEdgeCount() << '\n';
   for (int i = 0; i < M; i++) {
-    out << incidenceMatrix[i].size() << ' ';
     for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
     out << '\n';
   }
@@ -207,6 +241,7 @@ void Hypergraph::printIncidenceMatrix(ostream& out)  {
  * ------------ Make sure size is correct!!! ----
  * Note that number of nodes is not known!!
  */ 
+ 
 void Hypergraph::printEdgeSubgraph(vector< pair<int, int> >& edgeList) {
   cout << "Selected subgraph" << '\n';
   vector<int> nodes;
@@ -373,9 +408,6 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const s
   }
   h.setIncidenceMatrix(adj);
   h.setN(nodes);
-  //for (auto edge : adj) { // REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ME
-    //for (auto n : edge) assert(n >= 0 && n <= 3);
-  //}
   return h;
 }
 
@@ -398,7 +430,6 @@ Hypergraph Hypergraph::induceSubgraphSkipComp(const vector<int>& subgraph) {
     }
   }
   h.setIncidenceMatrix(adj);
-  //h.compress();
   return h;
 }
 

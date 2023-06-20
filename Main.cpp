@@ -1,15 +1,4 @@
-#include <iostream>
-#include <cassert>
-#include <vector>
-#include <algorithm>
-#include <numeric>
-#include <unordered_set>
-#include <stack>
-#include <map>
-#include <memory>
-#include <chrono>
-#include <cmath>
-#include <queue>
+#include <bits/stdc++.h>
 
 #include "nauty.h"
 #include "Hypergraph.hpp"
@@ -89,6 +78,19 @@ int main(int argc, char* argv[]) {
     return 0; 
   }
   
+  std::ofstream fout;
+  std::ostream& out = !outputFile.empty() ? fout : std::cout;
+  
+  
+  if (!outputFile.empty()) {
+    fout.open(outputFile);
+    if (fout.fail()) {
+      cout << "output file: " << outputFile << " - could not be opened" << '\n';
+      exit(EXIT_FAILURE);
+    };
+  }
+  
+  
   //cout << motifSize << '\n';
   //cout << inputFile << '\n';
   //cout << outputFile << '\n';
@@ -97,12 +99,26 @@ int main(int argc, char* argv[]) {
   Hypergraph h; 
   h.readFromFile(inputFile);
   
+  out << "Hypergraph read from file: " << inputFile << '\n';
+  out << "-----------------------------------------------" << '\n';
+  out << "Number of nodes: " << h.getNodeCount() << '\n';
+  out << "Number of hyperedges: " << h.getEdgeCount() << '\n';
+  out << "-----------------------------------------------" << '\n';
+  vector<int> size = h.getEdgeBySize();
+  for (int i = 2; i <= MAX_EDGE_SIZE; i++) {
+    out << "E" << i << ": " << size[i] << '\n';
+  }
+  out << "-----------------------------------------------" << '\n';
+  
+  //exit(0);
   //cout << detailedOutput << '\n';
   if (task == "count") { // network-census of whole network
-    ESU::networkCensus(h, motifSize, outputFile, detailedOutput);
+    ESU::networkCensus(h, motifSize, detailedOutput, out);
   } else { // find significance profile of each subgraph
-    ESU::findMotifs(h, motifSize, outputFile, detailedOutput);
+    ESU::findMotifs(h, motifSize, detailedOutput, out);
   }
+  
+  fout.close();
   
   return 0; 
 }

@@ -23,7 +23,7 @@ set* IsomorphismHyper::gv;
 
 map< vector< pair<int, int> >, string> IsomorphismHyper::canonStrCache; // could maybe be replaced by hashing or pre-calc
 
-map< vector< vector<int> >, vector<graph> > IsomorphismHyper::canonCache;
+std::unordered_map< vector< vector<int> >, vector<graph>, HashFunction> IsomorphismHyper::canonCache;
 map< vector<graph>, vector< vector<int> > > IsomorphismHyper::canonCacheReverse;
 
 

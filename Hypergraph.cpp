@@ -226,14 +226,14 @@ vector<int> Hypergraph::getEdge(int n) {
 }
 
 void Hypergraph::printIncidenceMatrix(ostream& out)  {
-  out << "-----------------------------------------------" << '\n';
-  out << "Nodes: " << getNodeCount() << '\n';
-  out << "Hyperedges:" << getEdgeCount() << '\n';
+  out << "-----------------------------------------------" << endl;
+  out << "Nodes: " << getNodeCount() << endl;
+  out << "Hyperedges:" << getEdgeCount() << endl;
   for (int i = 0; i < M; i++) {
     for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
-    out << '\n';
+    out << endl;
   }
-  out << "-----------------------------------------------" << '\n';
+  out << "-----------------------------------------------" << endl;
 }
 
 /*
@@ -243,19 +243,19 @@ void Hypergraph::printIncidenceMatrix(ostream& out)  {
  */ 
  
 void Hypergraph::printEdgeSubgraph(vector< pair<int, int> >& edgeList) {
-  cout << "Selected subgraph" << '\n';
+  cout << "Selected subgraph" << endl;
   vector<int> nodes;
   for (auto& [a, b] : edgeList) {
-    cout << a + 1 << ' ' << b + 1 << '\n';
+    cout << a + 1 << ' ' << b + 1 << endl;
     nodes.emplace_back(a);
     nodes.emplace_back(b);
   }
   sort(nodes.begin(), nodes.end());
   nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
-  cout << "Nodes in each edge" << '\n';
+  cout << "Nodes in each edge" << endl;
   for (auto& node : nodes) {
     for (auto& value : incidenceMatrix[node]) cout << value + 1 << ' ';
-    cout << '\n';
+    cout << endl;
   }
 }
 
@@ -442,7 +442,7 @@ void Hypergraph::saveToFile(string filename) {
   ofstream fout;
   fout.open(filename);
   if (fout.fail()) {
-    cout << filename << " could not be opened" << '\n';
+    cout << filename << " could not be opened" << endl;
     exit(EXIT_FAILURE);
   };
   printIncidenceMatrix(fout);
@@ -453,7 +453,7 @@ void Hypergraph::readFromFile(string filename) {
   ifstream fin;
   fin.open(filename);
   if (fin.fail()) {
-    cout << filename << " could not be opened" << '\n';
+    cout << filename << " could not be opened" << endl;
     exit(EXIT_FAILURE);
   };
   readIncidenceMatrix(fin);

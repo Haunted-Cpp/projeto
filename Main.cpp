@@ -27,10 +27,10 @@ int main(int argc, char* argv[]) {
   }
   
   if ( args.size() & 1 ) { // If number of arguments is odd, then a pair is missing
-    cout << "Invalid number of arguments provided." << '\n';
-    cout << "Each flag must be followed by an argument" << '\n';
-    cout << "Use the format: -flag argument" << '\n';
-    cout << "More information provide in the readme file" << '\n';
+    cout << "Invalid number of arguments provided." << endl;
+    cout << "Each flag must be followed by an argument" << endl;
+    cout << "Use the format: -flag argument" << endl;
+    cout << "More information provide in the readme file" << endl;
     return 0;
   }
   
@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
     if (args[i] == "-s") {
       string number = args[i + 1];
       if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
-        cout << "No valid motifSize provided with -s flag" << '\n';
-        cout << "Use \"-s k\", where 3 <= k <= 4" << '\n';
+        cout << "No valid motifSize provided with -s flag" << endl;
+        cout << "Use \"-s k\", where 3 <= k <= 4" << endl;
         return 0;
       }
       motifSize = std::stoi(args[i + 1]);
@@ -52,29 +52,29 @@ int main(int argc, char* argv[]) {
     } else if (args[i] == "-d") {
       detailedOutput = true;
     } else {
-      cout << "Invalid argument flag provided." << '\n';
-      cout << "More information in the readme provided" << '\n';
+      cout << "Invalid argument flag provided." << endl;
+      cout << "More information in the readme provided" << endl;
       return 0;
     }
   }
   
   // -s **size**, is mandatory
   if (motifSize == -1 || motifSize < 3 || motifSize > 4) {
-    cout << "No valid motifSize provided with -s flag" << '\n';
-    cout << "Use \"-s k\", where 3 <= k <= 4" << '\n';
+    cout << "No valid motifSize provided with -s flag" << endl;
+    cout << "Use \"-s k\", where 3 <= k <= 4" << endl;
     return 0; 
   } 
   
   // -i **inputFile**, is mandatory
   if (inputFile.empty()) {
-    cout << "No input file provided with -i flag" << '\n';
+    cout << "No input file provided with -i flag" << endl;
     return 0; 
   }
   
   // -m **method**, is mandatory
   if (task != "count" && task != "motif") {
-    cout << "No valid method provided with -m flag." << '\n';
-    cout << "Valid options are: \"count\", \"motif\"" << '\n'; 
+    cout << "No valid method provided with -m flag." << endl;
+    cout << "Valid options are: \"count\", \"motif\"" << endl;
     return 0; 
   }
   
@@ -85,11 +85,13 @@ int main(int argc, char* argv[]) {
   if (!outputFile.empty()) {
     fout.open(outputFile);
     if (fout.fail()) {
-      cout << "output file: " << outputFile << " - could not be opened" << '\n';
+      cout << "output file: " << outputFile << " - could not be opened" << endl;
       exit(EXIT_FAILURE);
     };
   }
   
+  //IsomorphismHyper::precalc(3);
+  //IsomorphismHyper::precalc(4);
   
   //cout << motifSize << '\n';
   //cout << inputFile << '\n';
@@ -99,19 +101,17 @@ int main(int argc, char* argv[]) {
   Hypergraph h; 
   h.readFromFile(inputFile);
   
-  out << "Hypergraph read from file: " << inputFile << '\n';
-  out << "-----------------------------------------------" << '\n';
-  out << "Number of nodes: " << h.getNodeCount() << '\n';
-  out << "Number of hyperedges: " << h.getEdgeCount() << '\n';
-  out << "-----------------------------------------------" << '\n';
+  out << "Hypergraph read from file: " << inputFile << endl;
+  out << "-----------------------------------------------" << endl;
+  out << "Number of nodes: " << h.getNodeCount() << endl;
+  out << "Number of hyperedges: " << h.getEdgeCount() << endl;
+  out << "-----------------------------------------------" << endl;
   vector<int> size = h.getEdgeBySize();
   for (int i = 2; i <= MAX_EDGE_SIZE; i++) {
-    out << "E" << i << ": " << size[i] << '\n';
+    out << "E" << i << ": " << size[i] << endl;
   }
-  out << "-----------------------------------------------" << '\n';
+  out << "-----------------------------------------------" << endl;
   
-  //exit(0);
-  //cout << detailedOutput << '\n';
   if (task == "count") { // network-census of whole network
     ESU::networkCensus(h, motifSize, detailedOutput, out);
   } else { // find significance profile of each subgraph

@@ -577,20 +577,20 @@ void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startT
     if(it -> second == 0) it = counterHyper.erase(it);
     else ++it;
   }
-  out << "-----------------------------------------------" << '\n';
+  out << "-----------------------------------------------" << endl;
   out << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   long long total_subgraph = 0;
   for (auto& [a, b] : subgraph_count) {
     total_subgraph += b;
   }
-  out << total_subgraph << " hyper-subgraphs extracted" << '\n';
-  out << subgraph_count.size() << " types of hyper-subgraphs found" << '\n';
-  out << "-----------------------------------------------" << '\n';
+  out << total_subgraph << " hyper-subgraphs extracted" << endl;
+  out << subgraph_count.size() << " types of hyper-subgraphs found" << endl;
+  out << "-----------------------------------------------" << endl;
   int counter = 0;
   for (auto& [a, b] : subgraph_count) {
-    out << "Type #" << ++counter << ": " << b << '\n';
+    out << "Type #" << ++counter << ": " << b << endl;
   }
-  out << "-----------------------------------------------" << '\n';
+  out << "-----------------------------------------------" << endl;
   if (detailedOutput) {
     counter = 0;
     for (auto& [a, b] : subgraph_count) {
@@ -598,10 +598,10 @@ void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startT
       Hypergraph h;
       h.setIncidenceMatrix(adj);
       h.setN(k);
-      out << "Hyper-subgraph #" << ++counter << '\n';
+      out << "Hyper-subgraph #" << ++counter << endl;
       h.printIncidenceMatrix();
-      out << "Number of occurences: " << b << '\n';
-      out << "-----------------------------------------------" << '\n';
+      out << "Number of occurences: " << b << endl;
+      out << "-----------------------------------------------" << endl;
     }
   }
   out << flush;
@@ -624,13 +624,14 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, ostre
   auto startTime = steady_clock::now();
   if (motifSize == 3) { // Execute our fastest method K = 3, TRIANGLE
     k = 3;
-    k3Triangle(h);
+    //k3Triangle(h);
     //k3Fase(h);
-    //k3(h);
+    k3(h);
   } else { // Execute our fastest method K=4, FASE
     k = 4;
+    k4(h);
     //k4ESU(h);
-    k4Fase(h);
+    //k4Fase(h);
   }
   auto endTime = steady_clock::now();
   printResults(startTime, endTime, counterHyper, k, detailedOutput, out);
@@ -651,9 +652,9 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, ostream&
       sample[a].emplace_back(count[a]);
     }
     for (auto [a, b] : count) {
-      out << b << '\n';
+      out << b << endl;
     }
-    out << "----" << '\n';
+    out << "----" << endl;
   }
   double sum = 0;
   vector<double> sp;
@@ -669,7 +670,7 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, ostream&
   sum = sqrt(sum);
   int counter = 0;
   for (auto [a, b] : census) {
-    out << "Hyper-subgraph #" << ++counter << '\n';
+    out << "Hyper-subgraph #" << ++counter << endl;
     if (detailedOutput) {
       auto adj = IsomorphismHyper::getHypergraph(a);
       Hypergraph h;
@@ -677,9 +678,9 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, ostream&
       h.setN(motifSize);
       h.printIncidenceMatrix();
     }
-    out << "Number of occurences: " << b << '\n';
-    out << "Significance Profile: " << sp[counter - 1] / sum << '\n';
-    out << "-----------------------------------------------" << '\n';
+    out << "Number of occurences: " << b << endl;
+    out << "Significance Profile: " << sp[counter - 1] / sum << endl;
+    out << "-----------------------------------------------" << endl;
   }
 }
 

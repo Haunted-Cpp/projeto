@@ -14,15 +14,15 @@ int main(int argc, char* argv[]) {
   std::ios::sync_with_stdio(0);
   std::cin.tie(0);
   
-  int motifSize = -1, n = -1;
+  int motifSize = -1, n = -1, randomNetworks = 100, randomShuffles = 1000;
   string inputFile, outputFile, task;
-  bool detailedOutput = false;
-  
+  bool detailedOutput = false, significanceProfile = true;
   
   vector<string> args;
   for (int i = 1; i < argc; i++) {
     string arg = string(argv[i]);
     if (arg == "-d") detailedOutput = true;
+    else if (arg == "-z") significanceProfile = false; // use z_score instead
     else args.emplace_back(arg);
   }
   
@@ -57,6 +57,22 @@ int main(int argc, char* argv[]) {
         return 0;
       }
       n = std::stoi(args[i + 1]);
+    } else if (args[i] == "-r") { // number of random networks
+      string number = args[i + 1];
+      if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
+        cout << "No valid number of nodes provided with -r flag" << endl;
+        cout << "Use \"-r <positive_integer>\"" << endl;
+        return 0;
+      }
+      randomNetworks = std::stoi(args[i + 1]);
+    } else if (args[i] == "-e") { // number of random shuffles
+      string number = args[i + 1];
+      if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
+        cout << "No valid number of nodes provided with -e flag" << endl;
+        cout << "Use \"-e <positive_integer>\"" << endl;
+        return 0;
+      }
+      randomShuffles = std::stoi(args[i + 1]);
     } else {
       cout << "Invalid argument flag provided." << endl;
       cout << "More information in the readme provided" << endl;
@@ -64,10 +80,32 @@ int main(int argc, char* argv[]) {
     }
   }
   
+  
+  // -n is optional, but should be bigger than 0
+  if (n < 0) {
+    cout << "No valid number of nodes provided with -n flag" << endl;
+    cout << "Use \"-n <k>\", k integer > 0" << endl;
+    return 0;
+  }
+  
+  // -r is optional, but should be bigger than 0
+  if (randomNetworks < 0) {
+    cout << "No valid number of random networks provided with -r flag" << endl;
+    cout << "Use \"-r <k>\", k integer > 0" << endl;
+    return 0;
+  }
+  
+  // -e is optional, but should be bigger than 0
+  if (randomShuffles < 0) {
+    cout << "No valid number of edge swaps provided with -e flag" << endl;
+    cout << "Use \"-e <k>\", k integer > 0" << endl;
+    return 0;
+  }
+  
   // -s **size**, is mandatory
   if (motifSize == -1 || motifSize < 3 || motifSize > 4) {
     cout << "No valid motifSize provided with -s flag" << endl;
-    cout << "Use \"-s <k>\", where 3 <= k <= 4" << endl;
+    cout << "Use \"-s <k>\", 3 <= k <= 4" << endl;
     return 0; 
   } 
   
@@ -101,16 +139,8 @@ int main(int argc, char* argv[]) {
   IsomorphismHyper::precalc(4);
   IsomorphismHyper::no_use = 1;
   
-  //cout << "-------" << endl;
   Hypergraph h(n); 
   h.readFromFile(inputFile);
-
-  
-  
-  bool significanceProfile = true;
-  int randomNetworks = 100;
-  int randomShuffles = 1000;
-  
   
   out << "Hypergraph read from file: " << inputFile << endl;
   out << "-----------------------------------------------" << endl;

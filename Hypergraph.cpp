@@ -601,14 +601,14 @@ void Hypergraph::shuffleHypergraph (int iterations) {
     int e1 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
     int e2 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
     if (edgeBySize[edgeSize][e1] == edgeBySize[edgeSize][e2]) continue; // we must shuffle two distinct edges ...
+    vector< vector<int> > old = getDegreeSequence();
     if (!shuffleEdgesSingle(edgeBySize[edgeSize][e1], edgeBySize[edgeSize][e2])) continue;
+    vector< vector<int> > neww = getDegreeSequence();
+    assert(neww == old);
     --iterations;
     shuffleTry = 0;
   }
-  if (shuffleTry == 10000) {
-    cout << "A similar random hypergraph couldn't be generated!" << '\n';
-    cout << "Please use the subset random strategy or a bigger hypergraph as input" << '\n';
-    exit(0);
-  }
+  // If shuffleTry == 10000, it means no additional shuffle could be performed
+  // It likely means the hypergraph was too small ...
   sortAndCheck(incidenceMatrix); // convert graph to "standard" form
 }

@@ -143,6 +143,7 @@ void Fase::reduceCanonicalTypes()
   for (auto element : igtrie.enumerate(K))
     getSubgraphFrequency(element, iso);
   iso->finishNauty();
+  delete iso;
 }
 
 int Fase::getTypes()

@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAX_EDGE_SIZE 4
-#define MAX_HYPER_MOTIF_SIZE 4 // Should be SMALLER than MAX_EDGE_SIZE
+#define MAX_HYPER_MOTIF_SIZE 4 // Should be SMALLER than MAX_EDGE_SIZE [CHANGE TO 4]
 #define MAX_MOTIF_SIZE 20 
 #define MAX_INPUT_N 10'000'005
 
@@ -31,7 +31,8 @@ using namespace std::chrono;
 struct HashFunction {
   std::size_t operator()(std::vector<int> const& vec) const {
     std::size_t seed = vec.size();
-    for(auto x : vec) {
+    for(auto xx : vec) {
+      unsigned int x = static_cast<unsigned int>(xx);
       x = ((x >> 16) ^ x) * 0x45d9f3b;
       x = ((x >> 16) ^ x) * 0x45d9f3b;
       x = (x >> 16) ^ x;
@@ -42,7 +43,8 @@ struct HashFunction {
   std::size_t operator()(std::vector< vector<int> > const& vec) const {
     std::size_t seed = vec.size();
     for(auto a : vec) {
-      for (auto x : a) {
+      for (auto xx : a) {
+        unsigned int x = static_cast<unsigned int>(xx);
         x = ((x >> 16) ^ x) * 0x45d9f3b;
         x = ((x >> 16) ^ x) * 0x45d9f3b;
         x = (x >> 16) ^ x;

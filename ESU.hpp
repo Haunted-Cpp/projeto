@@ -37,9 +37,7 @@ private:
   static void k3IntermediateForm(Hypergraph& inputGraph);
   static void k4IntermediateForm(Hypergraph& inputGraph);
   static void printResults(std::chrono::time_point<std::chrono::steady_clock>, std::chrono::time_point<std::chrono::steady_clock>, std::map< int, long long>, int, bool, std::ostream&);
-  //static void z_score(const std::map<int, std::vector<int> >&, ostream&, int);
-  //static void sp(const std::map<int, std::vector<int> >&, ostream&, int);
 public:
-  static void networkCensus(Hypergraph&, int, bool, std::ostream&);
-  static void findMotifs(Hypergraph&, int, bool, bool, int, int, std::ostream&);
+  static void networkCensus(Hypergraph&, int, bool, int, std::ostream&);
+  static void findMotifs(Hypergraph&, int, bool, bool, int, int, int, std::ostream&);
 };

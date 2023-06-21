@@ -13,7 +13,7 @@ private:
   void sortAndCheck(std::vector< std::vector<int> >&);
   void compress();
   void readIncidenceMatrix(std::istream&);
-  void printIncidenceMatrix(std::ostream&);
+  
   bool shuffleEdgesSingle(int, int);
   bool shuffleEdgesSubset(int, int);
   std::vector<int> bfs(const std::vector< std::vector<int> >&);
@@ -39,6 +39,7 @@ public:
   void setIncidenceMatrix(std::vector< std::vector<int> >& );
   std::vector<int> getEdge(int);
   void printIncidenceMatrix(); // print to stdout
+  void printIncidenceMatrix(std::ostream&); // print to a given ostream
   void saveToFile(std::string); // print to file in specified format
   void readFromStdin(); // read from stdin
   void readFromFile(std::string); // read from file

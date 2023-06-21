@@ -14,15 +14,16 @@ int main(int argc, char* argv[]) {
   std::ios::sync_with_stdio(0);
   std::cin.tie(0);
   
-  int motifSize = -1, n = -1, randomNetworks = 100, randomShuffles = 1000;
-  string inputFile, outputFile, task;
-  bool detailedOutput = false, significanceProfile = true;
+  int motifSize = -1, n = -1, randomNetworks = 100, randomShuffles = 1000, algorithm = -1;
+  string inputFile, outputFile = "report.txt";
+  bool detailedOutput = false, significanceProfile = true, motif = false;
   
   vector<string> args;
   for (int i = 1; i < argc; i++) {
     string arg = string(argv[i]);
     if (arg == "-d") detailedOutput = true;
     else if (arg == "-z") significanceProfile = false; // use z_score instead
+    else if (arg == "-m") motif = true;
     else args.emplace_back(arg);
   }
   
@@ -47,8 +48,18 @@ int main(int argc, char* argv[]) {
       inputFile = args[i + 1];
     } else if (args[i] == "-o") {
       outputFile = args[i + 1];
-    } else if (args[i] == "-m") {
-      task = args[i + 1];
+    } else if (args[i] == "-a") {
+      if (any_of(args[i + 1].begin(), args[i + 1].end(), [](char c) { return !isdigit(c); })) {
+        cout << "No valid algorithm provided with -a flag" << endl;
+        cout << "Use \"-a <k>\", \n 1 <= k <= 4" << endl;
+        return 0;
+      }
+      algorithm = std::stoi(args[i + 1]);
+      if (algorithm > 4 || algorithm < 1) {
+        cout << "No valid algorithm provided with -a flag" << endl;
+        cout << "Use \"-a <k>\", \n 1 <= k <= 4" << endl;
+        return 0;
+      }
     } else if (args[i] == "-n") {
       string number = args[i + 1];
       if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
@@ -57,6 +68,11 @@ int main(int argc, char* argv[]) {
         return 0;
       }
       n = std::stoi(args[i + 1]);
+      if (n < 0) {
+        cout << "No valid number of nodes provided with -n flag" << endl;
+        cout << "Use \"-n <k>\", k integer > 0" << endl;
+        return 0;
+      }
     } else if (args[i] == "-r") { // number of random networks
       string number = args[i + 1];
       if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
@@ -80,13 +96,6 @@ int main(int argc, char* argv[]) {
     }
   }
   
-  
-  // -n is optional, but should be bigger than 0
-  if (n < 0) {
-    cout << "No valid number of nodes provided with -n flag" << endl;
-    cout << "Use \"-n <k>\", k integer > 0" << endl;
-    return 0;
-  }
   
   // -r is optional, but should be bigger than 0
   if (randomNetworks < 0) {
@@ -115,50 +124,48 @@ int main(int argc, char* argv[]) {
     return 0; 
   }
   
-  // -m **method**, is mandatory
-  if (task != "count" && task != "motif") {
-    cout << "No valid method provided with -m flag." << endl;
-    cout << "Valid options are: \"count\", \"motif\"" << endl;
+  if (motifSize != 3 && algorithm == 3) {
+    cout << "Sorry, the triangle method is only available for Size = 3" << endl;
+    cout << "Please choose another algorithm using -a <k>, 1 <= k <= 4" << endl;
     return 0; 
   }
   
   std::ofstream fout;
-  std::ostream& out = !outputFile.empty() ? fout : std::cout;
+  std::ostream& out = fout;
   
   
-  if (!outputFile.empty()) {
-    fout.open(outputFile);
-    if (fout.fail()) {
-      cout << "output file: " << outputFile << " - could not be opened" << endl;
-      exit(EXIT_FAILURE);
-    };
-  }
+  fout.open(outputFile);
+  if (fout.fail()) {
+    cout << "output file: " << outputFile << " - could not be opened" << endl;
+    exit(EXIT_FAILURE);
+  };
   
   // https://oeis.org/A323817
   IsomorphismHyper::precalc(3);
   IsomorphismHyper::precalc(4);
-  IsomorphismHyper::no_use = 1;
   
   Hypergraph h(n); 
   h.readFromFile(inputFile);
-  
-  out << "Hypergraph read from file: " << inputFile << endl;
-  out << "-----------------------------------------------" << endl;
-  out << "Number of nodes: " << h.getNodeCount() << endl;
-  out << "Number of hyperedges: " << h.getEdgeCount() << endl;
-  out << "-----------------------------------------------" << endl;
+    
+    
+  cout << "-----------------------------------------------" << endl;
+  cout << "Hypergraph read from file: " << inputFile << endl;
+  cout << "-----------------------------------------------" << endl;
+  cout << "Number of nodes: " << h.getNodeCount() << endl;
+  cout << "Number of hyperedges: " << h.getEdgeCount() << endl;
+  cout << "-----------------------------------------------" << endl;
   vector<int> size = h.getEdgeBySize();
   for (int i = 2; i <= MAX_EDGE_SIZE; i++) {
-    out << "E" << i << ": " << size[i] << endl;
-  }
-  out << "-----------------------------------------------" << endl;
-  
-  if (task == "count") { // network-census of whole network
-    ESU::networkCensus(h, motifSize, detailedOutput, out);
-  } else { // find significance profile of each subgraph
-    ESU::findMotifs(h, motifSize, detailedOutput, significanceProfile, randomNetworks, randomShuffles, out);
+    cout << "E" << i << ": " << size[i] << endl;
   }
   
+  if (!motif) { // network-census of whole network
+    ESU::networkCensus(h, motifSize, detailedOutput, algorithm, out);
+  } else { // find motifs - significance profile of each subgraph
+    ESU::findMotifs(h, motifSize, detailedOutput, significanceProfile, randomNetworks, randomShuffles, algorithm, out);
+  }
+  
+  cout << "Results saved to file: " << outputFile << '\n';
   fout.close();
   
   return 0; 

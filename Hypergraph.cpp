@@ -64,65 +64,28 @@ void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
   sortAndCheck(incidenceMatrix);
 }
 
-//void Hypergraph::readIncidenceMatrix(istream& in) {
-  ///*
-   //* Format:
-   //* n # number of hypernodes
-   //* m # number of hyperedges
-   //* k_1 a1, a2, ..., ak_1
-   //* k_2 b1, b2, ..., bk_2
-   //* ...
-   //*/
-   //in >> N >> M;
-   //assert(N <= MAX_INPUT_N);
-   //hashEdge.reserve(M);
-   //int size = 0;
-   //incidenceMatrix.clear();
-   //for (int i = 0; i < M; i++) {
-     //int k;
-     //in >> k;
-     //k = 2;
-     //K = max(K, k); // update the max degree
-     //assert(k <= MAX_EDGE_SIZE); // The max degree should not be bigger than 4.
-     //vector<int> edge(k);
-     //for (int j = 0; j < k; j++) {
-       //int node;
-       //in >> node; // number from 0 to n - 1
-       //edge[j] = node - 1;
-        //Check that each node is numbered from 0 to n - 1
-       //assert(node >= 1);
-       //assert(node <= N);
-     //}
-     //int trash;
-     //in >> trash;
-     //incidenceMatrix.emplace_back(edge);
-   //}
-   //cout << "YES" << endl;
-   //compress();
-   //sortAndCheck(incidenceMatrix);
-//}
-
-
 void Hypergraph::readIncidenceMatrix(istream& in) {
   incidenceMatrix.clear();
   string edge;
   M = 0;
   std::set< vector<int> > duplicate;
-  
   while (getline(in, edge)) {
     vector<int> nodes;
     std::istringstream token(edge);
     string node;
     while (token >> node) {
       nodes.emplace_back(stoi(node));
-      //cout << stoi(node) - !Z << ' ';
       assert(nodes.back() >= 0);
     }
-    //cout << '\n';
+    sort(nodes.begin(), nodes.end()); 
+    nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
     if (nodes.size() > MAX_EDGE_SIZE) { // Ignore Hyperedges with size > MAX_EDGE_SIZE (currently 4)
       continue;
     }
-    sort(nodes.begin(), nodes.end());
+    
+    if (nodes.size() < 2) { // Ignore Hyperedges with size < 2
+      continue;
+    }
     if (duplicate.find(nodes) != duplicate.end()) {
       continue;
     }
@@ -131,7 +94,6 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
     K = max(K, (int) nodes.size());
     incidenceMatrix.emplace_back(nodes);
   }
-  
   compress();
   if (N == -1) { // Value was not given by user
     for (auto& edge : incidenceMatrix) {
@@ -141,11 +103,16 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
     for (auto& edge : incidenceMatrix) {
       for (auto& node : edge) {
         if (N < node) {
-          cout << "number of nodes given -n <integer> is not big enough for the current dataset" << '\n';
+          cout << "number of nodes given -n <integer> is not big enough for the current dataset" << endl;
           exit(0);
         }
       }
     }
+  }
+  if (N > MAX_INPUT_N) {
+    cout << "Sorry, Hypergraph is too big!" << endl;
+    cout << "Introduce a smaller one or change the max. value in Settings.hpp" << endl;
+    exit(0);
   }
 }
 
@@ -253,14 +220,15 @@ vector<int> Hypergraph::getEdge(int n) {
 }
 
 void Hypergraph::printIncidenceMatrix(ostream& out)  {
-  out << "-----------------------------------------------" << endl;
+  out << endl;
   out << "Nodes: " << getNodeCount() << endl;
   out << "Hyperedges:" << getEdgeCount() << endl;
+  out << endl;
   for (int i = 0; i < M; i++) {
     for (auto& node : incidenceMatrix[i]) out << node + 1 << ' ';
     out << endl;
   }
-  out << "-----------------------------------------------" << endl;
+  out << endl;
 }
 
 /*
@@ -601,14 +569,11 @@ void Hypergraph::shuffleHypergraph (int iterations) {
     int e1 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
     int e2 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
     if (edgeBySize[edgeSize][e1] == edgeBySize[edgeSize][e2]) continue; // we must shuffle two distinct edges ...
-    vector< vector<int> > old = getDegreeSequence();
     if (!shuffleEdgesSingle(edgeBySize[edgeSize][e1], edgeBySize[edgeSize][e2])) continue;
-    vector< vector<int> > neww = getDegreeSequence();
-    assert(neww == old);
     --iterations;
     shuffleTry = 0;
   }
   // If shuffleTry == 10000, it means no additional shuffle could be performed
-  // It likely means the hypergraph was too small ...
+  // It likely means the hypergraph was too small / dense
   sortAndCheck(incidenceMatrix); // convert graph to "standard" form
 }

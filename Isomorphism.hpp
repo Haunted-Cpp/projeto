@@ -18,9 +18,13 @@ private:
   
   static set* gv;
   static std::map< std::vector< std::pair<int, int> >, std::string> canonStrCache;
-  static std::map< std::vector< std::vector<int> >, std::vector<graph> > canonCache;
+  
   static std::map< std::vector<graph>, std::vector< std::vector<int> > > canonCacheReverse;
 public:
+  
+   static std::map< std::vector< std::vector<int> >, std::vector<graph> > canonCache;
+
+
    static bool isomorphismSlow( Hypergraph& h1,  Hypergraph& h2);
    static bool isomorphismNauty( Hypergraph& h1,  Hypergraph& h2);
    static std::vector<graph> canonization( Hypergraph& h);

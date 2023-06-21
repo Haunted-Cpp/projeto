@@ -15,6 +15,7 @@ private:
   void readIncidenceMatrix(std::istream&);
   void printIncidenceMatrix(std::ostream&);
   bool shuffleEdges(int, int);
+  std::vector<int> bfs(const std::vector< std::vector<int> >&);
 public:
   Hypergraph();
   void randomHypergraph(int, int, int);

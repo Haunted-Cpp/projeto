@@ -134,7 +134,9 @@ void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
   sort(edge.begin(), edge.end());
   edge.erase(unique(edge.begin(), edge.end()), edge.end());
   // Each edge should be unique => List size without duplicates MUST be M
+  
   assert ( (int) edge.size() == M );
+  
   edgeBySize.clear();
   for (int i = 0; i <= MAX_EDGE_SIZE; i++) {
     edgeBySize[i].clear();
@@ -283,9 +285,8 @@ vector< vector<int> > Hypergraph::getGraph() {
   return graph;
 }
 
-bool Hypergraph::is_two_connected() {
-  vector< vector<int> > graph = getGraph();
-  vector<int> vis(getNodeCount());
+vector<int> Hypergraph::bfs(const vector< vector<int> >& graph) {
+  vector<int> vis(graph.size());
   vis[0] = 1; // Notice how nodes should be numbered from 0 to n - 1 here ...
   queue<int> q;
   q.emplace(0);
@@ -293,13 +294,20 @@ bool Hypergraph::is_two_connected() {
     int node = q.front();
     q.pop();
     for (auto& to : graph[node]) {
-      assert(to < getNodeCount());
+      assert(to < graph.size());
       if (!vis[to]) {
         vis[to] = 1;
         q.emplace(to);
       }
     }
   }
+  return vis;
+}
+
+bool Hypergraph::is_two_connected() {
+  vector< vector<int> > graph = getGraph();
+  assert(graph.size() == getNodeCount());
+  vector<int> vis = bfs(graph);
   return count(vis.begin(), vis.end(), 1) == getNodeCount();
 }
 

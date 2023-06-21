@@ -14,17 +14,24 @@ using std::vector;
  * Initialize static variables
  */
  
+ 
+int IsomorphismHyper::no_use = 0;
+ 
 int IsomorphismHyper::lab[MAX_INPUT_N];
 int IsomorphismHyper::ptn[MAX_INPUT_N];
 int IsomorphismHyper::orbits[MAX_INPUT_N];
+int IsomorphismHyper::counter = 0; // used to precalc every hash 
 graph IsomorphismHyper::g[MAX_INPUT_N * MAX_M];
 graph IsomorphismHyper::cg[MAX_INPUT_N * MAX_M];
 set* IsomorphismHyper::gv;
 
 map< vector< pair<int, int> >, string> IsomorphismHyper::canonStrCache; // could maybe be replaced by hashing or pre-calc
 
-std::unordered_map< vector< vector<int> >, vector<graph>, HashFunction> IsomorphismHyper::canonCache;
-map< vector<graph>, vector< vector<int> > > IsomorphismHyper::canonCacheReverse;
+std::unordered_map< vector< vector<int> >, int, HashFunction> IsomorphismHyper::canonCache;
+
+std::map< vector<graph>, int> IsomorphismHyper::found;
+
+map< int, vector< vector<int> > > IsomorphismHyper::canonCacheReverse;
 
 
 bool IsomorphismHyper::isomorphismSlow(Hypergraph& h1, Hypergraph& h2) {
@@ -111,7 +118,9 @@ vector<graph> IsomorphismHyper::canonization(vector< vector<int> >& adj) {
 }
 
 vector<graph> IsomorphismHyper::canonization(Hypergraph& h) {
-  if (canonCache.find(h.getIncidenceMatrix()) != canonCache.end()) return canonCache[h.getIncidenceMatrix()];
+  assert(no_use == 0); // REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+  // Make sure this is only called in the beginning ..............
+  
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
   int n = h.getNodeCount() + h.getEdgeCount(); // number of nodes in our modified graph # node + # edges
@@ -137,13 +146,74 @@ vector<graph> IsomorphismHyper::canonization(Hypergraph& h) {
   densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
   vector<graph> labels;
   for (int i = 0; i < n; i++) labels.emplace_back(cg[i]);
-  
-  
-  canonCacheReverse[labels] = h.getIncidenceMatrix();
-  return canonCache[h.getIncidenceMatrix()] = labels;
+  return labels;
 }
 
-vector< vector<int> > IsomorphismHyper::getHypergraph(const vector<graph>& label) {
-  assert(canonCacheReverse.find(label) != canonCacheReverse.end());
-  return canonCacheReverse[label];
+int IsomorphismHyper::getLabel(Hypergraph& h) {
+  auto adj = h.getIncidenceMatrix();
+  assert(is_sorted(adj.begin(), adj.end()));
+  if (canonCache.find(h.getIncidenceMatrix()) != canonCache.end()) return canonCache[h.getIncidenceMatrix()];
+  
+  cout << "WTF" << '\n';
+  for (auto e : adj) {
+    for (auto n : e) cout << n << ' ';
+    cout << '\n';
+  }
+  exit(0);
+  assert(false);
+}
+
+
+void IsomorphismHyper::precalc(int N) {
+  vector< vector<int> > edges;
+  for (int mask = 0; mask < (1 << N); mask++) {
+    if (__builtin_popcount(mask) < 2) continue;
+    vector<int> edge;
+    for (int i = 0; i < N; i++) {
+      if ((mask >> i) & 1) {
+        edge.emplace_back(i);
+      }
+    }
+    edges.emplace_back(edge);
+  } 
+  const int M = (int) edges.size();
+  for (int mask = 1; mask < (1 << M); mask++) {
+    vector< vector<int> > adj;
+    vector< vector<int> > g;
+    for (int i = 0; i < M; i++) {
+      if ((mask >> i) & 1) {
+        adj.emplace_back(edges[i]);
+        for (int e1 = 0; e1 < edges[i].size(); e1++) {
+          for (int e2 = e1 + 1; e2 < edges[i].size(); e2++) {
+            g.push_back({edges[i][e1], edges[i][e2]});
+          }
+        }
+      }
+    }
+    sort(g.begin(), g.end());
+    g.erase(unique(g.begin(), g.end()), g.end());
+    Hypergraph h;
+    h.setN(N);
+    h.setIncidenceMatrix(g);
+    if (!h.is_two_connected()) continue;
+    Hypergraph h1;
+    h1.setN(N);
+    h1.setIncidenceMatrix(adj);
+    vector<graph> label = canonization(h1);
+    sort(adj.begin(), adj.end());
+    if (found.find(label) != found.end()) {
+      int id = found[label];
+      canonCache[adj] = id;
+      continue;
+    } 
+    canonCache[adj] = counter;
+    canonCacheReverse[counter] = adj;
+    found[label] = counter;
+    ++counter;
+  }
+}
+
+vector< vector<int> > IsomorphismHyper::getHypergraph(int mask) {
+  assert(canonCacheReverse.find(mask) != canonCacheReverse.end());
+  return canonCacheReverse[mask];
 }

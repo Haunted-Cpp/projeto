@@ -17,7 +17,16 @@ int gen(int lo, int hi) { return std::uniform_int_distribution<int>(lo,hi)(rng);
  * Every vertex in an edge should be unique!!
  */
 
+Hypergraph::Hypergraph(int n) {
+  N = n;
+  K = 0; // initially the max. degree is 0
+  edgeBySize.resize(MAX_EDGE_SIZE + 1);
+  //cout << edgeBySize.size() << '\n';
+  assert(MAX_HYPER_MOTIF_SIZE <= MAX_EDGE_SIZE);
+}
+
 Hypergraph::Hypergraph() {
+  N = -1;
   K = 0; // initially the max. degree is 0
   edgeBySize.resize(MAX_EDGE_SIZE + 1);
   assert(MAX_HYPER_MOTIF_SIZE <= MAX_EDGE_SIZE);
@@ -97,16 +106,19 @@ void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
 void Hypergraph::readIncidenceMatrix(istream& in) {
   incidenceMatrix.clear();
   string edge;
-  N = M = 0;
+  M = 0;
   std::set< vector<int> > duplicate;
+  
   while (getline(in, edge)) {
     vector<int> nodes;
     std::istringstream token(edge);
     string node;
     while (token >> node) {
-      nodes.emplace_back(stoi(node) - 1);
+      nodes.emplace_back(stoi(node));
+      //cout << stoi(node) - !Z << ' ';
       assert(nodes.back() >= 0);
     }
+    //cout << '\n';
     if (nodes.size() > MAX_EDGE_SIZE) { // Ignore Hyperedges with size > MAX_EDGE_SIZE (currently 4)
       continue;
     }
@@ -119,9 +131,21 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
     K = max(K, (int) nodes.size());
     incidenceMatrix.emplace_back(nodes);
   }
+  
   compress();
-  for (auto& edge : incidenceMatrix) {
-    for (auto& node : edge) N = max(N, node + 1);
+  if (N == -1) { // Value was not given by user
+    for (auto& edge : incidenceMatrix) {
+      for (auto& node : edge) N = max(N, node + 1);
+    }
+  } else { //verify if number of nodes is big enough
+    for (auto& edge : incidenceMatrix) {
+      for (auto& node : edge) {
+        if (N < node) {
+          cout << "number of nodes given -n <integer> is not big enough for the current dataset" << '\n';
+          exit(0);
+        }
+      }
+    }
   }
 }
 
@@ -138,6 +162,7 @@ void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
   assert ( (int) edge.size() == M );
   
   edgeBySize.clear();
+  edgeBySize.resize(MAX_EDGE_SIZE + 1);
   for (int i = 0; i <= MAX_EDGE_SIZE; i++) {
     edgeBySize[i].clear();
   } 
@@ -343,26 +368,6 @@ void Hypergraph::compress() {
 // we assume subgraph is 0-indexed!!!
 
 
-
-//k = 3
-//3
-//5
-//6
-//7
-
-// k = 4
-//3
-//5
-//6
-//7
-//9
-//10
-//11
-//12
-//13
-//14
-//15
-
 // lim = 4, if k = 3
 // lim = 11 (whole vector), if k = 4
 
@@ -509,7 +514,7 @@ vector< vector<int> > Hypergraph::getDegreeSequence() {
  * Creates a "random similar" hypergraph"
  */
 
-bool Hypergraph::shuffleEdges(int e1, int e2) {
+bool Hypergraph::shuffleEdgesSubset(int e1, int e2) {
   assert( incidenceMatrix[e1].size() == incidenceMatrix[e2].size() );
   vector<int> nodes;
   for (auto node : incidenceMatrix[e1]) nodes.emplace_back(node); 
@@ -529,7 +534,7 @@ bool Hypergraph::shuffleEdges(int e1, int e2) {
   sort(n2.begin(), n2.end());
   n2.erase(unique(n2.begin(), n2.end()), n2.end()); // if there are duplicates, skip
   if ( (int) n2.size() != (int) incidenceMatrix[e2].size() ) return false;
-  // no overlaping edges ...
+   //no overlaping edges ...
   if ( hashEdge.find(n1) != hashEdge.end() ) return false;
   if ( hashEdge.find(n2) != hashEdge.end() ) return false;
   assert( (int) n1.size() == (int) n2.size() );
@@ -542,17 +547,68 @@ bool Hypergraph::shuffleEdges(int e1, int e2) {
   return true;
 }
 
+bool Hypergraph::shuffleEdgesSingle(int e1, int e2) {
+  
+  assert(incidenceMatrix[e1].size() == incidenceMatrix[e2].size());
+  
+  vector<int> n1;
+  for (auto node : incidenceMatrix[e1]) n1.emplace_back(node); 
+  vector<int> n2;
+  for (auto node : incidenceMatrix[e2]) n2.emplace_back(node); 
+  
+  
+  assert(n1.size() == n2.size());
+  int p = gen(0, (int) n1.size() - 1);
+  
+  swap(n1[p], n2[p]);
+
+  sort(n1.begin(), n1.end());
+  n1.erase(unique(n1.begin(), n1.end()), n1.end()); 
+  
+  // if there are duplicates, skip
+  if (n1.size() != incidenceMatrix[e1].size()) return false; 
+
+  sort(n2.begin(), n2.end());
+  n2.erase(unique(n2.begin(), n2.end()), n2.end()); 
+  
+  // if there are duplicates, skip
+  if (n2.size() != incidenceMatrix[e2].size()) return false;
+  
+  // no overlaping edges ...
+  
+  
+  if (hashEdge.find(n1) != hashEdge.end()) return false;
+  
+  if (hashEdge.find(n2) != hashEdge.end()) return false;
+  //cout << "YES2" << '\n';
+  hashEdge.erase(incidenceMatrix[e1]);
+  hashEdge.erase(incidenceMatrix[e2]);
+  incidenceMatrix[e1] = n1;
+  incidenceMatrix[e2] = n2;
+  hashEdge.insert(incidenceMatrix[e1]);
+  hashEdge.insert(incidenceMatrix[e2]);
+  return true;
+  
+}
 
 // careful - in very small graphs some shuffles might not be possible!!!
 void Hypergraph::shuffleHypergraph (int iterations) {
-  while (iterations > 0) {
+  int shuffleTry = 0;
+  while (iterations > 0 && shuffleTry < 10000) {
     int edgeSize = gen(2, K); // select a random edge size
+    shuffleTry++;
     if ( (int) edgeBySize[edgeSize].size() <= 1) continue; // we must have at least two edges two be able to shuffle
     int e1 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
     int e2 = gen(0, (int) edgeBySize[edgeSize].size() - 1);
     if (edgeBySize[edgeSize][e1] == edgeBySize[edgeSize][e2]) continue; // we must shuffle two distinct edges ...
-    if (!shuffleEdges(edgeBySize[edgeSize][e1], edgeBySize[edgeSize][e2])) continue;
+    if (!shuffleEdgesSingle(edgeBySize[edgeSize][e1], edgeBySize[edgeSize][e2])) continue;
     --iterations;
+    shuffleTry = 0;
+  }
+  if (shuffleTry == 10000) {
+    cout << "A similar random hypergraph couldn't be generated!" << '\n';
+    cout << "Please use the subset random strategy or a bigger hypergraph as input" << '\n';
+    exit(0);
   }
   sortAndCheck(incidenceMatrix); // convert graph to "standard" form
 }

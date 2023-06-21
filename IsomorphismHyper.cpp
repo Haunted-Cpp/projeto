@@ -153,13 +153,6 @@ int IsomorphismHyper::getLabel(Hypergraph& h) {
   auto adj = h.getIncidenceMatrix();
   assert(is_sorted(adj.begin(), adj.end()));
   if (canonCache.find(h.getIncidenceMatrix()) != canonCache.end()) return canonCache[h.getIncidenceMatrix()];
-  
-  cout << "WTF" << '\n';
-  for (auto e : adj) {
-    for (auto n : e) cout << n << ' ';
-    cout << '\n';
-  }
-  exit(0);
   assert(false);
 }
 

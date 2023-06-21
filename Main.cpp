@@ -14,10 +14,10 @@ int main(int argc, char* argv[]) {
   std::ios::sync_with_stdio(0);
   std::cin.tie(0);
   
-  
-  int motifSize = -1;
+  int motifSize = -1, n = -1;
   string inputFile, outputFile, task;
   bool detailedOutput = false;
+  
   
   vector<string> args;
   for (int i = 1; i < argc; i++) {
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
       string number = args[i + 1];
       if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
         cout << "No valid motifSize provided with -s flag" << endl;
-        cout << "Use \"-s k\", where 3 <= k <= 4" << endl;
+        cout << "Use \"-s <k>\", where 3 <= k <= 4" << endl;
         return 0;
       }
       motifSize = std::stoi(args[i + 1]);
@@ -49,8 +49,14 @@ int main(int argc, char* argv[]) {
       outputFile = args[i + 1];
     } else if (args[i] == "-m") {
       task = args[i + 1];
-    } else if (args[i] == "-d") {
-      detailedOutput = true;
+    } else if (args[i] == "-n") {
+      string number = args[i + 1];
+      if (any_of(number.begin(), number.end(), [](char c) { return !isdigit(c); })) {
+        cout << "No valid number of nodes provided with -n flag" << endl;
+        cout << "Use \"-n <k>\", \n k should be as large as the number of nodes used." << endl;
+        return 0;
+      }
+      n = std::stoi(args[i + 1]);
     } else {
       cout << "Invalid argument flag provided." << endl;
       cout << "More information in the readme provided" << endl;
@@ -61,7 +67,7 @@ int main(int argc, char* argv[]) {
   // -s **size**, is mandatory
   if (motifSize == -1 || motifSize < 3 || motifSize > 4) {
     cout << "No valid motifSize provided with -s flag" << endl;
-    cout << "Use \"-s k\", where 3 <= k <= 4" << endl;
+    cout << "Use \"-s <k>\", where 3 <= k <= 4" << endl;
     return 0; 
   } 
   
@@ -90,16 +96,21 @@ int main(int argc, char* argv[]) {
     };
   }
   
-  //IsomorphismHyper::precalc(3);
-  //IsomorphismHyper::precalc(4);
+  // https://oeis.org/A323817
+  IsomorphismHyper::precalc(3);
+  IsomorphismHyper::precalc(4);
+  IsomorphismHyper::no_use = 1;
   
-  //cout << motifSize << '\n';
-  //cout << inputFile << '\n';
-  //cout << outputFile << '\n';
-  //cout << task << '\n';
-  
-  Hypergraph h; 
+  //cout << "-------" << endl;
+  Hypergraph h(n); 
   h.readFromFile(inputFile);
+
+  
+  
+  bool significanceProfile = true;
+  int randomNetworks = 100;
+  int randomShuffles = 1000;
+  
   
   out << "Hypergraph read from file: " << inputFile << endl;
   out << "-----------------------------------------------" << endl;
@@ -115,7 +126,7 @@ int main(int argc, char* argv[]) {
   if (task == "count") { // network-census of whole network
     ESU::networkCensus(h, motifSize, detailedOutput, out);
   } else { // find significance profile of each subgraph
-    ESU::findMotifs(h, motifSize, detailedOutput, out);
+    ESU::findMotifs(h, motifSize, detailedOutput, significanceProfile, randomNetworks, randomShuffles, out);
   }
   
   fout.close();

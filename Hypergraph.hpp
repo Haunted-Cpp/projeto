@@ -14,9 +14,11 @@ private:
   void compress();
   void readIncidenceMatrix(std::istream&);
   void printIncidenceMatrix(std::ostream&);
-  bool shuffleEdges(int, int);
+  bool shuffleEdgesSingle(int, int);
+  bool shuffleEdgesSubset(int, int);
   std::vector<int> bfs(const std::vector< std::vector<int> >&);
 public:
+  Hypergraph(int);
   Hypergraph();
   void randomHypergraph(int, int, int);
   std::vector< std::vector<int> > applyFunction(const std::vector<int>& permutation);

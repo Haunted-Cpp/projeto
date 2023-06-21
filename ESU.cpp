@@ -97,9 +97,10 @@ void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
     assert(subgraph.empty());
     assert(subgraph_compressed.empty());
     assert(edgeList.empty());
-    
     extension = {i};
+    //for (auto to : f) assert(to == 0);
     enumerateSubgraphs(extension);
+    //for (auto to : f) assert(to == 0);
   }
 }
 
@@ -577,8 +578,6 @@ void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startT
     if(it -> second == 0) it = counterHyper.erase(it);
     else ++it;
   }
-  out << "-----------------------------------------------" << endl;
-  out << "Network census completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   long long total_subgraph = 0;
   for (auto& [a, b] : subgraph_count) {
     total_subgraph += b;
@@ -634,43 +633,87 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, ostre
     //k4Fase(h);
   }
   auto endTime = steady_clock::now();
+  out << "-----------------------------------------------" << endl;
+  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   printResults(startTime, endTime, counterHyper, k, detailedOutput, out);
 }
   
   
-// ADD Alternative method  
+void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool significance_profile, int randomNetworks, int randomShuffles, ostream& out) {
   
-void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, ostream& out) {
+  map<int, long long> census;
+
+  if (motifSize == 3) {
+    census = ESU::k3Triangle(h);
+    // the numbers 0 - 5 are the internal labeling of all hyper-subgraphs with size = 3 
+    // these numbers should cover all the possible values of IsomorphismHyper::precalc(3)
+    for (int i = 0; i <= 5; i++) { 
+      if (census.find(i) == census.end()) census[i] = 0; // if a subgraph didn't appear in the census => count is 0 
+    }
+  } else {
+    census = ESU::k4Fase(h);
+    // the numbers 6 - 176 are the internal labeling of all hyper-subgraphs with size = 4 
+    // these numbers should cover all the possible values of IsomorphismHyper::precalc(4)
+    for (int i = 6; i <= 176; i++) {
+      if (census.find(i) == census.end()) census[i] = 0; // if a subgraph didn't appear in the census => count is 0 
+    }
+  }
   
-  auto census = (motifSize == 3 ? ESU::k3Triangle(h) : ESU::k4Fase(h));
-  map< int, vector<int> > sample;
-  const int NUMBER_NETWORKS = 100;
-  for (int i = 0; i < NUMBER_NETWORKS; i++) {
-    h.shuffleHypergraph(100);
-    auto count = (motifSize == 3 ? ESU::k3Triangle(h) : ESU::k4Fase(h));
+  
+  map< int, vector<long long> > sample;
+  for (int i = 0; i < randomNetworks; i++) {
+    Hypergraph tmp = h;
+    tmp.shuffleHypergraph(randomShuffles);
+    auto count = (motifSize == 3 ? ESU::k3Triangle(tmp) : ESU::k4Fase(tmp));
     for (auto [a, b] : census) {
       sample[a].emplace_back(count[a]);
     }
-    for (auto [a, b] : count) {
-      out << b << endl;
-    }
-    out << "----" << endl;
   }
+  
   double sum = 0;
-  vector<double> sp;
-  for (auto [a, b] : census) {
-    double mean = 0;
-    for (auto value : sample[a]) {
-      mean += value;
+  vector<double> score;
+  if (significance_profile) { // sp
+    cout << "Calculating the significance profile for each hyper-subgraph ..." << endl;
+    cout << "-----------------------------------------------" << endl;
+    //double sum = 0;
+    //vector<double> sp;
+    for (auto [a, b] : census) {
+      double mean = 0;
+      for (auto value : sample[a]) mean += value;
+      mean /= randomNetworks;
+      score.emplace_back( (b - mean) / (b + mean + 4) );
+      sum += score.back() * score.back();
     }
-    mean /= NUMBER_NETWORKS;
-    sp.emplace_back( (b - mean) / (b + mean + 4) );
-    sum += sp.back() * sp.back();
+    //score = sp;
+    //sum = sqrt(sum);
+    //for (auto value : sp) score.emplace_back(value / sum);
+  } else {
+    cout << "Calculating the z_score for each hyper-subgraph" << endl;
+    cout << "-----------------------------------------------" << endl;
+    //int counter = 0;
+    //double sum = 0;
+    vector<double> z_score;
+    for (auto [a, b] : census) {
+      double mean = 0;
+      for (auto value : sample[a]) mean += value;
+      mean /= randomNetworks;
+      double std = 0;
+      for (auto value : sample[a]) std += (value - mean) * (value - mean);
+      std /= randomNetworks - 1;
+      std = sqrt(std);
+      score.emplace_back((b - mean) / std);
+      sum += score.back() * score.back();
+    }
+    //score = z_score;
   }
   sum = sqrt(sum);
+  for (auto& value : score) value /= sum;
+    
+  assert(score.size() == census.size());
+  
   int counter = 0;
   for (auto [a, b] : census) {
-    out << "Hyper-subgraph #" << ++counter << endl;
+    out << "Hyper-subgraph #" << counter << endl;
     if (detailedOutput) {
       auto adj = IsomorphismHyper::getHypergraph(a);
       Hypergraph h;
@@ -679,8 +722,75 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, ostream&
       h.printIncidenceMatrix();
     }
     out << "Number of occurences: " << b << endl;
-    out << "Significance Profile: " << sp[counter - 1] / sum << endl;
+    out << "Significance Profile: " << score[counter++] << endl;
     out << "-----------------------------------------------" << endl;
   }
 }
 
+
+//-----------------------------------------------
+//Calculating the significance profile for each hyper-subgraph ...
+//-----------------------------------------------
+//Hyper-subgraph #0
+//-----------------------------------------------
+//Nodes: 3
+//Hyperedges:2
+//1 2 
+//1 3 
+//-----------------------------------------------
+//Number of occurences: 3883966
+//Significance Profile: -0.0135206
+//-----------------------------------------------
+//Hyper-subgraph #1
+//-----------------------------------------------
+//Nodes: 3
+//Hyperedges:3
+//1 2 
+//1 3 
+//2 3 
+//-----------------------------------------------
+//Number of occurences: 10203
+//Significance Profile: 0.452516
+//-----------------------------------------------
+//Hyper-subgraph #2
+//-----------------------------------------------
+//Nodes: 3
+//Hyperedges:1
+//1 2 3 
+//-----------------------------------------------
+//Number of occurences: 360377
+//Significance Profile: -0.208064
+//-----------------------------------------------
+//Hyper-subgraph #3
+//-----------------------------------------------
+//Nodes: 3
+//Hyperedges:2
+//1 2 
+//1 2 3 
+//-----------------------------------------------
+//Number of occurences: 240889
+//Significance Profile: 0.170979
+//-----------------------------------------------
+//Hyper-subgraph #4
+//-----------------------------------------------
+//Nodes: 3
+//Hyperedges:3
+//1 2 
+//1 2 3 
+//1 3 
+//-----------------------------------------------
+//Number of occurences: 62509
+//Significance Profile: 0.503756
+//-----------------------------------------------
+//Hyper-subgraph #5
+//-----------------------------------------------
+//Nodes: 3
+//Hyperedges:4
+//1 2 
+//1 2 3 
+//1 3 
+//2 3 
+//-----------------------------------------------
+//Number of occurences: 3526
+//Significance Profile: 0.684655
+//-----------------------------------------------

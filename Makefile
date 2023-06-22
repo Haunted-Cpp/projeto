@@ -1,4 +1,4 @@
-EXEC_NAME=Main
+EXEC_NAME=hypermotif
 CC=g++
 
 CFLAGS = -O3 -std=c++17

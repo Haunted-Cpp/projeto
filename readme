@@ -1,0 +1,63 @@
+Para executar a aplicação deve-se executar o comando:
+$ make
+De modo a criar o binário executável.
+
+O programa deverá ser executado com o comando ./main e dois argumentos, da seguinte forma:
+$ ./main traindata.csv testdata.csv
+
+Após isso, será apresentado um output similar ao apresentado no enunciado do trabalho. 
+
+Um exemplo de execução é:
+$ cat testdata.csv 
+$ X1,Yes,Yes,No,No,Some,$$,Yes,No,Thai,10-30
+$ ./main restaurant.csv testdata.csv
+----------------------- 
+Decision Tree: 
+----------------------- 
+<Pat>
+    Full:
+        <Est>
+            0-10: Yes (0)
+            10-30:
+                <Type>
+                    Burger: No (0)
+                    French: No (0)
+                    Italian: No (1)
+                    Thai: Yes (1)
+            30-60:
+                <Type>
+                    Burger: Yes (1)
+                    French: No (0)
+                    Italian: No (0)
+                    Thai: No (1)
+            >60: No (2)
+    None: No (2)
+    Some: Yes (4)
+----------------------- 
+Classification Results: 
+----------------------- 
+Yes
+$
+
+Os resultados obtidos foram recolhidos observando os resultados devolvidos no terminal
+
+A aplicação foi testada no sistema operativo:
+Ubuntu 20.04.3 LTS
+
+O compilador utilizado foi:
+g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+
+
+MANDATORY
+
+-s size           [Motif size to search, either 3 or 4]
+-i input          [Input filename]
+-m count OR motif [Select if network-census or motif discovery should be performed]
+
+OPTIONAL
+
+-d                [Specify if output should be detailed or not]
+-o output         [Output filename] 
+
+
+duplicate nodes will be removed from hyperedges

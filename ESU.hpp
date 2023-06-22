@@ -5,13 +5,13 @@
 class ESU {
 private:
   static int f[MAX_INPUT_N];
-  static std::vector< std::vector<int> > incidenceMatrix;
+  //static std::vector< std::vector<int> > incidenceMatrix;
   static std::vector<int> subgraph;
-  static std::vector< std::vector< std::pair<int, int> > > subgraphs;
+  //static std::vector< std::vector< std::pair<int, int> > > subgraphs;
   static std::vector< std::vector<int> > g;
   static int K; // Subgraph size
   static int V; // Initial node
-  static std::map<std::string, long long> counter;
+  //static std::map<std::string, long long> counter;
   static void enumerateSubgraphs(std::vector<int>);
   static void setupAndRun(const std::vector< std::vector<int> >& , int);
   static Hypergraph h;

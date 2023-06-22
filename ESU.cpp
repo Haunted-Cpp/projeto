@@ -16,8 +16,6 @@
 
 int ESU::f[MAX_INPUT_N];
 
-vector< std::vector<int> > ESU::incidenceMatrix;
-
 std::vector<int> ESU::subgraph;
 
 int ESU::K; // Subgraph size
@@ -25,9 +23,6 @@ int ESU::V; // Initial node
 
 // Used in classical graph
 vector< vector<int> > ESU::g;
-map<string, long long> ESU::counter;
-vector< vector< pair<int, int> > > ESU::subgraphs;
-// 
 
  //Used in Hypergraph
 Hypergraph ESU::h;
@@ -140,7 +135,7 @@ std::map< int, long long> ESU::bruteForce3(Hypergraph& inputGraph) {
         Hypergraph motif = inputGraph.induceSubgraph(nodes);
         DisjointSet dsu(3);
         
-        for (auto e : motif.getIncidenceMatrix()) {
+        for (auto& e : motif.getIncidenceMatrix()) {
           for (int a = 0; a < (int) e.size(); a++) {
             for (int b = a + 1; b < (int) e.size(); b++) {
               dsu.join(e[a], e[b]);
@@ -167,7 +162,7 @@ std::map< int, long long> ESU::bruteForce4(Hypergraph& inputGraph) {
           nodes = {i, j, z, x};
           Hypergraph motif = inputGraph.induceSubgraph(nodes);
           DisjointSet dsu(4);
-          for (auto e : motif.getIncidenceMatrix()) {
+          for (auto& e : motif.getIncidenceMatrix()) {
             for (int a = 0; a < (int) e.size(); a++) {
               for (int b = a + 1; b < (int) e.size(); b++) {
                 dsu.join(e[a], e[b]);
@@ -239,7 +234,7 @@ Hypergraph ESU::binaryToHyper(string str, int k) {
 
 std::map< int, long long> ESU::k3(Hypergraph& inputGraph) {
   clearDataStruct();
-  for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
+  for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
     visited.insert(edge); // it will insert the 3 nodes just visited
@@ -318,7 +313,7 @@ std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
-  for (auto edge : h.getIncidenceMatrix()) {
+  for (auto& edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
   auto census = FaSE(edges, 3);
@@ -360,20 +355,20 @@ std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
   vector< vector<int> > g(reducedGraph.getNodeCount());
   int edge = 0;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
-    for (auto e_i : e) {
+  for (auto& e : reducedGraph.getIncidenceMatrix()) {
+    for (auto& e_i : e) {
       g[e_i].emplace_back(edge);
     }
     ++edge;
   }
   edge = -1;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
+  for (auto& e : reducedGraph.getIncidenceMatrix()) {
     ++edge;
     if ( (int) e.size() != 3 ) continue;
-    for (auto node : e) {
-      for (auto e_i : g[node]) {
+    for (auto& node : e) {
+      for (auto& e_i : g[node]) {
         vector<int> e1 = reducedGraph.getEdge(e_i);
-        for (auto add : reducedGraph.getEdge(edge)) {
+        for (auto& add : reducedGraph.getEdge(edge)) {
           e1.emplace_back(add);
         }
         sort(e1.begin(), e1.end());
@@ -415,25 +410,25 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
   vector< vector<int> > g(reducedGraph.getNodeCount());
   int edge = 0;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
-    for (auto e_i : e) g[e_i].emplace_back(edge);
+  for (auto& e : reducedGraph.getIncidenceMatrix()) {
+    for (auto& e_i : e) g[e_i].emplace_back(edge);
     ++edge;
   }
   edge = -1;
   vector<int> f(reducedGraph.getNodeCount());
   std::stack<int> rem;
-  for (auto e : reducedGraph.getIncidenceMatrix()) {
+  for (auto& e : reducedGraph.getIncidenceMatrix()) {
     ++edge;
     if ( (int) e.size() != 3 ) continue;
-    for (auto node : e) {
-      for (auto e_i : g[node]) {
+    for (auto& node : e) {
+      for (auto& e_i : g[node]) {
         vector<int> nodes = reducedGraph.getEdge(e_i);
-        for (auto add : reducedGraph.getEdge(edge)) nodes.emplace_back(add);
+        for (auto& add : reducedGraph.getEdge(edge)) nodes.emplace_back(add);
         sort(nodes.begin(), nodes.end());
         nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
         if (nodes.size() != 4) continue;
         int added_node = -1;
-        for (auto c : nodes) {
+        for (auto& c : nodes) {
           if (find(e.begin(), e.end(), c) == e.end()) {
             added_node = c;
             break;
@@ -445,11 +440,11 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
         Hypergraph motif1 = inputGraph.induceSubgraphSkipComp(nodes);
         if (motif1.getEdgeMaxDeg() != 3) continue;
         int skip = 0;
-        for (auto motif_edge : motif1.getIncidenceMatrix()) {
+        for (auto& motif_edge : motif1.getIncidenceMatrix()) {
           if (motif_edge.size() != 3) continue;
           if (motif_edge <= e) continue;
           int missing = -1;
-          for (auto n : nodes) {
+          for (auto& n : nodes) {
             if (find(motif_edge.begin(), motif_edge.end(), n) == motif_edge.end()) {
               missing = n;
               break;
@@ -492,7 +487,7 @@ std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
-  for (auto edge : h.getIncidenceMatrix()) {
+  for (auto& edge : h.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
   auto census = FaSE(edges, 4);
@@ -557,12 +552,9 @@ void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startT
 
 
 void ESU::clearDataStruct() {
-  incidenceMatrix.clear();
   subgraph.clear();
   counterHyper.clear();
   visited.clear();
-  subgraphs.clear();
-  counter.clear();
 }
 
 
@@ -651,7 +643,7 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
         default: count = ESU::k4Fase(tmp); break;
       }
     }
-    for (auto [a, b] : census) {
+    for (auto& [a, b] : census) {
       sample[a].emplace_back(count[a]);
     }
   }
@@ -661,9 +653,9 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
   if (significance_profile) { // sp
     cout << "Calculating the significance profile" << endl;
     cout << "-----------------------------------------------" << endl;
-    for (auto [a, b] : census) {
+    for (auto& [a, b] : census) {
       double mean = 0;
-      for (auto value : sample[a]) mean += value;
+      for (auto& value : sample[a]) mean += value;
       mean /= randomNetworks;
       score.emplace_back( (b - mean) / (b + mean + 4) );
       sum += score.back() * score.back();
@@ -672,12 +664,12 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
     cout << "Calculating the z_score" << endl;
     cout << "-----------------------------------------------" << endl;
     vector<double> z_score;
-    for (auto [a, b] : census) {
+    for (auto& [a, b] : census) {
       double mean = 0;
-      for (auto value : sample[a]) mean += value;
+      for (auto& value : sample[a]) mean += value;
       mean /= randomNetworks;
       double std = 0;
-      for (auto value : sample[a]) std += (value - mean) * (value - mean);
+      for (auto& value : sample[a]) std += (value - mean) * (value - mean);
       std /= randomNetworks - 1;
       std = sqrt(std);
       score.emplace_back((b - mean) / std);
@@ -691,7 +683,7 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
   }
   int counter = 0;
   out << "-----------------------------------------------" << endl;
-  for (auto [a, b] : census) {
+  for (auto& [a, b] : census) {
     out << "Hyper-subgraph #" << counter + 1 << endl;
     if (detailedOutput) {
       auto adj = IsomorphismHyper::getHypergraph(a);

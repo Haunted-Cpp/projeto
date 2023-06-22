@@ -241,10 +241,11 @@ std::map< int, long long> ESU::k3(Hypergraph& inputGraph) {
     visited.insert(edge); // it will insert the 3 nodes just visited
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
   }
-  startAlgo = steady_clock::now();
   h = inputGraph;
   Search = HYPERGRAPH;
-  setupAndRun(h.getGraph(), 3);
+  vector< vector<int> > g = h.getGraph();
+  startAlgo = steady_clock::now();
+  setupAndRun(g, 3);
   return counterHyper;
 }
 
@@ -274,8 +275,8 @@ void ESU::k3IntermediateForm(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
-  startAlgo = steady_clock::now();
   vector< vector<int> > g = inputGraph.getGraph();
+  startAlgo = steady_clock::now();
   int n = (int) g.size();
   long long res = 0;
   long long triangle = 0;
@@ -314,11 +315,11 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
-  startAlgo = steady_clock::now();
   vector< pair<int, int> > edges;
   for (auto& edge : inputGraph.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
+  startAlgo = steady_clock::now();
   auto census = FaSE(edges, 3);
   for (auto& [str, cnt] : census) {
     Hypergraph hyper = binaryToHyper(str, 3);
@@ -332,11 +333,11 @@ std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k3ESU(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
-  startAlgo = steady_clock::now();
   Search = GRAPH;
   h = inputGraph.filterEdge(2);
+  vector< vector<int> > g = inputGraph.getGraph();
   startAlgo = steady_clock::now();
-  setupAndRun(inputGraph.getGraph(), 3);
+  setupAndRun(g, 3);
   return counterHyper;
 }
 
@@ -386,10 +387,11 @@ std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
       }
     }
   }
-  startAlgo = steady_clock::now();
   h = inputGraph;
   Search = HYPERGRAPH;
-  setupAndRun(h.getGraph(), 4);
+  g = h.getGraph();
+  startAlgo = steady_clock::now();
+  setupAndRun(g, 4);
   return counterHyper;
 }
 
@@ -491,11 +493,11 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
-  startAlgo = steady_clock::now();
   vector< pair<int, int> > edges;
   for (auto& edge : inputGraph.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
+  startAlgo = steady_clock::now();
   auto census = FaSE(edges, 4);
   for (auto& [str, cnt] : census) {
     Hypergraph hyper = binaryToHyper(str, 4);
@@ -509,10 +511,11 @@ std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k4ESU(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
-  startAlgo = steady_clock::now();
   Search = GRAPH;
   h = inputGraph.filterEdge(2);
-  setupAndRun(inputGraph.getGraph(), 4);
+  vector< vector<int> > g;
+  startAlgo = steady_clock::now();
+  setupAndRun(g, 4);
   return counterHyper;
 }
 

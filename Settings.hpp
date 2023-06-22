@@ -2,7 +2,7 @@
 
 #define MAX_EDGE_SIZE 4
 #define MAX_HYPER_MOTIF_SIZE 4 // Should be SMALLER than MAX_EDGE_SIZE [CHANGE TO 4]
-#define MAX_MOTIF_SIZE 20 
+#define MAX_MOTIF_SIZE 4 
 #define MAX_INPUT_N 10'000'005
 
 using std::string;

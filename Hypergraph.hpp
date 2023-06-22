@@ -13,7 +13,6 @@ private:
   void sortAndCheck(std::vector< std::vector<int> >&);
   void compress();
   void readIncidenceMatrix(std::istream&);
-  
   bool shuffleEdgesSingle(int, int);
   bool shuffleEdgesSubset(int, int);
   std::vector<int> bfs(const std::vector< std::vector<int> >&);

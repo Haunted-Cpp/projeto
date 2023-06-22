@@ -13,10 +13,7 @@ using std::vector;
 /* 
  * Initialize static variables
  */
- 
- 
-int IsomorphismHyper::no_use = 0;
- 
+  
 int IsomorphismHyper::lab[MAX_INPUT_N];
 int IsomorphismHyper::ptn[MAX_INPUT_N];
 int IsomorphismHyper::orbits[MAX_INPUT_N];
@@ -26,11 +23,8 @@ graph IsomorphismHyper::cg[MAX_INPUT_N * MAX_M];
 set* IsomorphismHyper::gv;
 
 map< vector< pair<int, int> >, string> IsomorphismHyper::canonStrCache; // could maybe be replaced by hashing or pre-calc
-
 std::unordered_map< vector< vector<int> >, int, HashFunction> IsomorphismHyper::canonCache;
-
 std::map< vector<graph>, int> IsomorphismHyper::found;
-
 map< int, vector< vector<int> > > IsomorphismHyper::canonCacheReverse;
 
 
@@ -150,29 +144,12 @@ vector<graph> IsomorphismHyper::canonization(Hypergraph& h) {
 }
 
 int IsomorphismHyper::getLabel(Hypergraph& h) {
-  auto adj = h.getIncidenceMatrix();
-  assert(is_sorted(adj.begin(), adj.end()));
-  if (canonCache.find(h.getIncidenceMatrix()) != canonCache.end()) return canonCache[h.getIncidenceMatrix()];
-  
-  for (auto edge : adj) {
-    for (auto n : edge) cout << n << ' ';
-    cout << '\n';
-  }
-  exit(0);
-  assert(false);
+  return canonCache[h.getIncidenceMatrix()];
 }
 
 
 int IsomorphismHyper::getLabel(const vector< vector<int> >& incidenceMatrix) {
-  
-  if (canonCache.find(incidenceMatrix) != canonCache.end()) return canonCache[incidenceMatrix];
-  cout << "WTF" << '\n';
-  for (auto edge : incidenceMatrix) {
-    for (auto n : edge) cout << n << ' ';
-    cout << '\n';
-  }
-  exit(0);
-  assert(false);
+  return canonCache[incidenceMatrix];
 }
 
 void IsomorphismHyper::precalc(int N) {

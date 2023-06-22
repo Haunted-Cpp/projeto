@@ -261,7 +261,6 @@ Hypergraph Hypergraph::filterEdge(int maximumSize) {
   for (auto& edge : incidenceMatrix) if ((int) edge.size() <= maximumSize) adj.emplace_back(edge);
   h.setN(getNodeCount());
   h.setIncidenceMatrix(adj);
-  //h.compress(); // from 0 to n - 1 // This bugs K3 -> Notice how we need the vertices with the correct label to induce the subgraph properly!
   return h;
 }
 
@@ -269,7 +268,6 @@ Hypergraph Hypergraph::filterEdge(int maximumSize) {
 // Returns graph with ONLY order 2 links
 vector< vector<int> > Hypergraph::getGraph() {
   vector< vector<int> > graph(getNodeCount());
-  //vector< vector<int> > adj = (this -> filterEdge(2)).getIncidenceMatrix();
   for (auto& edge : incidenceMatrix) {
     if ( (int) edge.size() != 2 ) continue; // we are ignoring self-loops
     graph[ edge[0] ].emplace_back( edge[1] );

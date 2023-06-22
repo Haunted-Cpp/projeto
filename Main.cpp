@@ -95,8 +95,6 @@ int main(int argc, char* argv[]) {
       return 0;
     }
   }
-  
-  
   // -r is optional, but should be bigger than 0
   if (randomNetworks < 0) {
     cout << "No valid number of random networks provided with -r flag" << endl;
@@ -139,11 +137,9 @@ int main(int argc, char* argv[]) {
     cout << "output file: " << outputFile << " - could not be opened" << endl;
     exit(EXIT_FAILURE);
   };
-  
   // https://oeis.org/A323817
   IsomorphismHyper::precalc(3);
   IsomorphismHyper::precalc(4);
-  IsomorphismHyper::no_use = 1;
   Hypergraph h(n); 
   cout << "-----------------------------------------------" << endl;
   cout << "Reading hypergraph from file: " << inputFile << endl;

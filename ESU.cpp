@@ -93,11 +93,9 @@ void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
     assert(subgraph.empty());
     assert(incidenceMatrix.empty());
     extension = {i};
-    for (auto to : f) assert(to == 0);
     ++f[i];
     enumerateSubgraphs(extension);
     --f[i];
-    for (auto to : f) assert(to == 0);
   }
 }
 
@@ -287,14 +285,8 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
   vector< vector<int> > g = h.getGraph();
-  
-  //return counterHyper;
-  
   int n = (int) g.size();
   long long res = 0;
-  //for (int i = 0; i < n; i++) {
-    
-  //}
   long long triangle = 0;
   vector<int> deg(n);
   for (int i = 0; i < n; i++) {
@@ -303,7 +295,6 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
     deg[i] = (int) g[i].size();
   }
   for (int i = 0; i < n; i++) {
-    
     vector<int> bigger;
     for (auto& to : g[i]) {
       if (make_pair(deg[to], to) > make_pair(deg[i], i)) bigger.emplace_back(to);
@@ -316,20 +307,14 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
   }
   vector< vector<int> > g_line = { {0, 1}, {1, 2} };
   vector< vector<int> > g_trig = { {0, 1}, {1, 2}, {2, 0} };
-  
-  
-  
   Hypergraph h_line; 
   h_line.setIncidenceMatrix(g_line); 
   h_line.setN(3);
-  
   Hypergraph h_trig; 
   h_trig.setIncidenceMatrix(g_trig);
   h_trig.setN(3);
-
   counterHyper[IsomorphismHyper::getLabel(h_trig)] += triangle;
   counterHyper[IsomorphismHyper::getLabel(h_line)] += res - 3 * triangle;
-  
   return counterHyper;
 }
 
@@ -379,9 +364,6 @@ std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
     visited.insert(edge); // it will insert the 3 nodes just visited
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
     assert(motif.getEdgeMaxDeg() == 4);
-    
-    //cout << "YES" << '\n';
-    //exit(0);
   }
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
   assert( reducedGraph.getEdgeCount() == reducedGraph.getIncidenceMatrix().size() );
@@ -519,7 +501,6 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
       rem.pop();
     }
   }
-  
   h = inputGraph.filterEdge(2);
 }
 
@@ -537,8 +518,6 @@ std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
     counterHyper[IsomorphismHyper::getLabel(hyper)] += cnt;
   }
   return counterHyper;
-  
-  
 }
 
 // SIMPLE ESU
@@ -747,79 +726,3 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
   cout << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   cout << "-----------------------------------------------" << endl;
 }
-
-
-//-----------------------------------------------
-//Calculating the significance profile for each hyper-subgraph ...
-//-----------------------------------------------
-//Hyper-subgraph #0
-//-----------------------------------------------
-//Nodes: 3
-//Hyperedges:2
-//1 2 
-//1 3 
-//-----------------------------------------------
-//Number of occurences: 3883966
-//Significance Profile: -0.0135206
-//-----------------------------------------------
-//Hyper-subgraph #1
-//-----------------------------------------------
-//Nodes: 3
-//Hyperedges:3
-//1 2 
-//1 3 
-//2 3 
-//-----------------------------------------------
-//Number of occurences: 10203
-//Significance Profile: 0.452516
-//-----------------------------------------------
-//Hyper-subgraph #2
-//-----------------------------------------------
-//Nodes: 3
-//Hyperedges:1
-//1 2 3 
-//-----------------------------------------------
-//Number of occurences: 360377
-//Significance Profile: -0.208064
-//-----------------------------------------------
-//Hyper-subgraph #3
-//-----------------------------------------------
-//Nodes: 3
-//Hyperedges:2
-//1 2 
-//1 2 3 
-//-----------------------------------------------
-//Number of occurences: 240889
-//Significance Profile: 0.170979
-//-----------------------------------------------
-//Hyper-subgraph #4
-//-----------------------------------------------
-//Nodes: 3
-//Hyperedges:3
-//1 2 
-//1 2 3 
-//1 3 
-//-----------------------------------------------
-//Number of occurences: 62509
-//Significance Profile: 0.503756
-//-----------------------------------------------
-//Hyper-subgraph #5
-//-----------------------------------------------
-//Nodes: 3
-//Hyperedges:4
-//1 2 
-//1 2 3 
-//1 3 
-//2 3 
-//-----------------------------------------------
-//Number of occurences: 3526
-//Significance Profile: 0.684655
-//-----------------------------------------------
-
-
-//./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase
-//./hypermotif -s 3 -i datasets/hs.edges -a 1 -o hs1/baseline && ./hypermotif -s 3 -i datasets/hs.edges -a 2 -o hs1/mod && ./hypermotif -s 3 -i datasets/hs.edges -a 3 -o hs1/triangle && ./hypermotif -s 3 -i datasets/hs.edges -a 4 -o hs1/fase
-
-//
-
-//./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase

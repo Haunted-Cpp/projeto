@@ -163,6 +163,18 @@ int IsomorphismHyper::getLabel(Hypergraph& h) {
 }
 
 
+int IsomorphismHyper::getLabel(const vector< vector<int> >& incidenceMatrix) {
+  
+  if (canonCache.find(incidenceMatrix) != canonCache.end()) return canonCache[incidenceMatrix];
+  cout << "WTF" << '\n';
+  for (auto edge : incidenceMatrix) {
+    for (auto n : edge) cout << n << ' ';
+    cout << '\n';
+  }
+  exit(0);
+  assert(false);
+}
+
 void IsomorphismHyper::precalc(int N) {
   vector< vector<int> > edges;
   for (int mask = 0; mask < (1 << N); mask++) {

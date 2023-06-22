@@ -4,11 +4,9 @@
 
 class ESU {
 private:
-  static int pos[MAX_INPUT_N];
   static int f[MAX_INPUT_N];
-  static std::vector< std::pair<int, int> > edgeList;
+  static std::vector< std::vector<int> > incidenceMatrix;
   static std::vector<int> subgraph;
-  static std::vector<int> subgraph_compressed;
   static std::vector< std::vector< std::pair<int, int> > > subgraphs;
   static std::vector< std::vector<int> > g;
   static int K; // Subgraph size

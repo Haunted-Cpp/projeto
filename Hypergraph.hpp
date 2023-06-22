@@ -47,6 +47,6 @@ public:
   void shuffleHypergraph (int);
   Hypergraph induceSubgraph(const std::vector<int>&);
   Hypergraph induceSubgraphSkipComp(const std::vector<int>&);
-  Hypergraph induceSubgraphNoComp(const std::vector<int>&, const std::vector<int>&);
+  Hypergraph induceSubgraphNoComp(const std::vector<int>&);
   std::vector<int> getEdgeBySize();
 };

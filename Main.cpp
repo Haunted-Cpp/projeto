@@ -159,6 +159,16 @@ int main(int argc, char* argv[]) {
     cout << "E" << i << ": " << size[i] << endl;
   }
   
+  if (algorithm == -1) algorithm = motifSize; // Set default algorithm - If size 3 => Triangle, size 4 => FaSE
+  
+  cout << "-----------------------------------------------" << endl;
+  switch (algorithm) {
+    case 1: cout << "Method: ESU Baseline" << endl; out << "Method: ESU Baseline" << endl; break;
+    case 2: cout << "Method: ESU Modified" << endl; out << "Method: ESU Modified" << endl; break;
+    case 3: cout << "Method: Triangle" << endl; out << "Method: Triangle" << endl; break;
+    case 4: cout << "Method: FaSE" << endl; out << "Method: FaSE" << endl; break;
+  }
+  
   if (!motif) { // network-census of whole network
     ESU::networkCensus(h, motifSize, detailedOutput, algorithm, out);
   } else { // find motifs - significance profile of each subgraph
@@ -170,7 +180,6 @@ int main(int argc, char* argv[]) {
   
   return 0; 
 }
-
 
 
 

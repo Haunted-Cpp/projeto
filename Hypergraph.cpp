@@ -269,8 +269,8 @@ Hypergraph Hypergraph::filterEdge(int maximumSize) {
 // Returns graph with ONLY order 2 links
 vector< vector<int> > Hypergraph::getGraph() {
   vector< vector<int> > graph(getNodeCount());
-  vector< vector<int> > adj = (this -> filterEdge(2)).getIncidenceMatrix();
-  for (auto& edge : adj) {
+  //vector< vector<int> > adj = (this -> filterEdge(2)).getIncidenceMatrix();
+  for (auto& edge : incidenceMatrix) {
     if ( (int) edge.size() != 2 ) continue; // we are ignoring self-loops
     graph[ edge[0] ].emplace_back( edge[1] );
     graph[ edge[1] ].emplace_back( edge[0] );
@@ -365,7 +365,7 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   return h;
 }
 
-Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const std::vector<int>& subgraph_compressed)  {
+Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph)  {
   const int nodes = (int) subgraph.size();
   assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
@@ -379,7 +379,7 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph, const s
     for (int i = 0; i < nodes; i++) {
       if ((mask >> i) & 1) {
         edge.emplace_back(subgraph[i]); // convert to 0-indexed
-        edgeComp.emplace_back(subgraph_compressed[i]); // convert to 0-indexed
+        edgeComp.emplace_back(i); // convert to 0-indexed
       }
     }
     sort(edge.begin(), edge.end());

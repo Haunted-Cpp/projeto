@@ -29,7 +29,8 @@ public:
    static int no_use;
    static bool isomorphismSlow( Hypergraph& h1,  Hypergraph& h2);
    static bool isomorphismNauty( Hypergraph& h1,  Hypergraph& h2);
-   static int getLabel( Hypergraph& h);
+   static int getLabel(Hypergraph& h);
+   static int getLabel(const std::vector<std::vector<int> >&);
    static std::vector<graph> canonization( std::vector<std::vector<int> >&);
    static std::string canonStr( std::vector<std::pair<int, int> >&, int); 
    static std::string canonStrSparse( std::vector<std::pair<int, int> >&, int); 

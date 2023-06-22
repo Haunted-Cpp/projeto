@@ -9,7 +9,6 @@ private:
   static const int MAX_M = SETWORDSNEEDED(MAX_N);
   
   
-  
   static int lab[MAX_INPUT_N];
   static int ptn[MAX_INPUT_N];
   static int orbits[MAX_INPUT_N];

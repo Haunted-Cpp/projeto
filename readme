@@ -55,7 +55,7 @@ Optional:
 
                       Currently each one corresponds to:
                         ESU Baseline - 1
-                        ESU modified - 2
+                        ESU Modified - 2
                         Triangle - 3
                         FaSE - 4
                     ]
@@ -76,6 +76,15 @@ Sample valid commands:
 ./hypermotif -s 3 -i datasets/geology.edges -r 10 -m -d -a 1
 ./hypermotif -s 3 -i datasets/geology.edges
 ./hypermotif -s 4 -i datasets/geology.edges -r 10 -m -d -a 4
+
+./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase
+
+
+
+
+
+
+./hypermotif -s 3 -i datasets/geology.edges -a 1 -o hs1/baseline -m -r 3 -e 3
 
 
 A list of sample datasets is provided in the folder "datasets".

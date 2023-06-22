@@ -1,18 +1,18 @@
 #include <bits/stdc++.h>
 
-
-
 #include "Hypergraph.hpp"
 #include "nauty.h"
 #include "ESU.hpp"
 #include "IsomorphismHyper.hpp"
 #include "Settings.hpp"
-
+#include "FaSE/Fase.h"
+#include "FaSE/DynamicGraph.h"
+#include "FaSE/GraphMatrix.h"
+#include "FaSE/GraphUtils.h" 
 
 /* 
  * Initialize static variables
  */
-
 
 int ESU::f[MAX_INPUT_N];
 
@@ -93,11 +93,11 @@ void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
     assert(subgraph.empty());
     assert(incidenceMatrix.empty());
     extension = {i};
-    //for (auto to : f) assert(to == 0);
+    for (auto to : f) assert(to == 0);
     ++f[i];
     enumerateSubgraphs(extension);
     --f[i];
-    //for (auto to : f) assert(to == 0);
+    for (auto to : f) assert(to == 0);
   }
 }
 
@@ -191,11 +191,7 @@ std::map< int, long long> ESU::bruteForce4(Hypergraph& inputGraph) {
 /*
  * FaSE API to count subgraphs
  */
- 
-#include "FaSE/Fase.h"
-#include "FaSE/DynamicGraph.h"
-#include "FaSE/GraphMatrix.h"
-#include "FaSE/GraphUtils.h" 
+
  
 map<string, long long> ESU::FaSE(const vector<pair<int, int> > edges, int k) {
   // Set up FaSE usage
@@ -635,7 +631,6 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, int a
   }
   auto endTime = steady_clock::now();
   out << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  out << "-----------------------------------------------" << endl;
   printResults(startTime, endTime, counterHyper, k, detailedOutput, out);
 }
   
@@ -745,7 +740,7 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
       h.printIncidenceMatrix(out);
     }
     out << "Number of occurences: " << b << endl;
-    out << "Significance Profile: " << score[counter++] << endl;
+    out << (significance_profile ? "Significance Profile: " : "Z score: ") << score[counter++] << endl;
     out << "-----------------------------------------------" << endl;
   }
   auto endTime = steady_clock::now();
@@ -823,5 +818,8 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
 
 
 //./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase
+//./hypermotif -s 3 -i datasets/hs.edges -a 1 -o hs1/baseline && ./hypermotif -s 3 -i datasets/hs.edges -a 2 -o hs1/mod && ./hypermotif -s 3 -i datasets/hs.edges -a 3 -o hs1/triangle && ./hypermotif -s 3 -i datasets/hs.edges -a 4 -o hs1/fase
 
 //
+
+//./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase

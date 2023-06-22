@@ -228,3 +228,4 @@ vector< vector<int> > IsomorphismHyper::getHypergraph(int mask) {
   assert(canonCacheReverse.find(mask) != canonCacheReverse.end());
   return canonCacheReverse[mask];
 }
+

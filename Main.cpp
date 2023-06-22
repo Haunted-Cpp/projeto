@@ -143,12 +143,11 @@ int main(int argc, char* argv[]) {
   // https://oeis.org/A323817
   IsomorphismHyper::precalc(3);
   IsomorphismHyper::precalc(4);
-  
+  IsomorphismHyper::no_use = 1;
   Hypergraph h(n); 
-  h.readFromFile(inputFile);
-    
-    
   cout << "-----------------------------------------------" << endl;
+  cout << "Reading hypergraph from file: " << inputFile << endl;
+  h.readFromFile(inputFile);
   cout << "Hypergraph read from file: " << inputFile << endl;
   cout << "-----------------------------------------------" << endl;
   cout << "Number of nodes: " << h.getNodeCount() << endl;

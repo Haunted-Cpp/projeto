@@ -3,10 +3,6 @@ CC=g++
 
 CFLAGS = -O3 -std=c++17
 #CFLAGS = -std=c++17 -Wall -Wextra -Wno-unused-result -Wno-char-subscripts -Wshadow -Wfloat-equal -Wconversion -Wformat-signedness -Wvla -Wduplicated-cond -Wlogical-op -Wredundant-decls -ggdb3 -fno-optimize-sibling-calls -fstack-protector-all -fno-sanitize-recover=all -O3 -fsanitize=undefined,address,float-divide-by-zero,float-cast-overflow -fno-omit-frame-pointer -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2  -D_GLIBCXX_DEBUG 
-#
-#
-#
-
 
 SRC =                         \
 	nauty/nauty.h	              \

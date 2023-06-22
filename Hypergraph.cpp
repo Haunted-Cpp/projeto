@@ -436,7 +436,7 @@ bool Hypergraph::validEdge(std::vector<int> edge) { // it MUST be sorted
 
 int Hypergraph::getEdgeMaxDeg() {
   int mx = 0;
-  for (auto edge : incidenceMatrix) mx = max(mx, (int) edge.size());
+  for (auto& edge : incidenceMatrix) mx = max(mx, (int) edge.size());
   return mx;
 }
 
@@ -467,8 +467,8 @@ vector< vector<int> > Hypergraph::getDegreeSequence() {
 
 bool Hypergraph::shuffleEdgesSubset(int e1, int e2) {
   vector<int> nodes;
-  for (auto node : incidenceMatrix[e1]) nodes.emplace_back(node); 
-  for (auto node : incidenceMatrix[e2]) nodes.emplace_back(node); 
+  for (auto& node : incidenceMatrix[e1]) nodes.emplace_back(node); 
+  for (auto& node : incidenceMatrix[e2]) nodes.emplace_back(node); 
   shuffle(nodes.begin(), nodes.end(), rng);
   vector<int> n1;
   for (int i = 0; i < (int) nodes.size() / 2; i++) {
@@ -500,9 +500,9 @@ bool Hypergraph::shuffleEdgesSingle(int e1, int e2) {
   
   
   vector<int> n1;
-  for (auto node : incidenceMatrix[e1]) n1.emplace_back(node); 
+  for (auto& node : incidenceMatrix[e1]) n1.emplace_back(node); 
   vector<int> n2;
-  for (auto node : incidenceMatrix[e2]) n2.emplace_back(node); 
+  for (auto& node : incidenceMatrix[e2]) n2.emplace_back(node); 
   
   
   int p = gen(0, (int) n1.size() - 1);

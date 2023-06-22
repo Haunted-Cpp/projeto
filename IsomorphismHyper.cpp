@@ -76,7 +76,7 @@ vector<graph> IsomorphismHyper::canonization(vector< vector<int> >& adj) {
   
   int n = (int) adj.size(); // number of nodes in our modified graph # node + # edges
   int deg = 0;
-  for (auto edge : adj) deg += (int) edge.size();
+  for (auto& edge : adj) deg += (int) edge.size();
   deg /= 2;
   n += deg;
   

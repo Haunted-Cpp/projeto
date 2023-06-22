@@ -264,7 +264,6 @@ void ESU::k3IntermediateForm(Hypergraph& inputGraph) {
     }
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
   }
-  h = inputGraph.filterEdge(2);
 }
 
 
@@ -273,7 +272,7 @@ void ESU::k3IntermediateForm(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
-  vector< vector<int> > g = h.getGraph();
+  vector< vector<int> > g = inputGraph.getGraph();
   int n = (int) g.size();
   long long res = 0;
   long long triangle = 0;
@@ -290,7 +289,7 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
     }
     for (int j = 0; j < (int) bigger.size(); j++) {
       for (int z = j + 1; z < (int) bigger.size(); z++) {
-        if (h.validEdge({bigger[j], bigger[z]})) ++triangle;
+        if (inputGraph.validEdge({bigger[j], bigger[z]})) ++triangle;
       }
     }
   }
@@ -313,7 +312,7 @@ std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
-  for (auto& edge : h.getIncidenceMatrix()) {
+  for (auto& edge : inputGraph.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
   auto census = FaSE(edges, 3);
@@ -329,9 +328,9 @@ std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k3ESU(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
-  h = inputGraph;
   Search = GRAPH;
-  setupAndRun(h.getGraph(), 3);
+  h = inputGraph.filterEdge(2);
+  setupAndRun(inputGraph.getGraph(), 3);
   return counterHyper;
 }
 
@@ -479,7 +478,6 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
       rem.pop();
     }
   }
-  h = inputGraph.filterEdge(2);
 }
 
 // FaSE
@@ -487,7 +485,7 @@ std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
-  for (auto& edge : h.getIncidenceMatrix()) {
+  for (auto& edge : inputGraph.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
   }
   auto census = FaSE(edges, 4);
@@ -503,9 +501,9 @@ std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k4ESU(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
-  h = inputGraph;
   Search = GRAPH;
-  setupAndRun(h.getGraph(), 4);
+  h = inputGraph.filterEdge(2);
+  setupAndRun(inputGraph.getGraph(), 4);
   return counterHyper;
 }
 

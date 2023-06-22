@@ -21,7 +21,6 @@ Hypergraph::Hypergraph(int n) {
   N = n;
   K = 0; // initially the max. degree is 0
   edgeBySize.resize(MAX_EDGE_SIZE + 1);
-  //cout << edgeBySize.size() << '\n';
 }
 
 Hypergraph::Hypergraph() {
@@ -34,7 +33,6 @@ Hypergraph::Hypergraph() {
 void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
   N = n;
   M = m;
-  
   vector<int> subset;
   for (int mask = 1; mask < (1 << N); mask++) {
     if (__builtin_popcount(mask) > maxDegree) continue;
@@ -42,12 +40,9 @@ void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
     subset.emplace_back(mask);
   }
   shuffle(subset.begin(), subset.end(), rng);
-  
-  
   vector<int> perm(N);
   iota(perm.begin(), perm.end(), 0);
   shuffle(perm.begin(), perm.end(), rng);
-  
   incidenceMatrix.clear();
   for (int i = 0; i < M; i++) {
     vector<int> edge;
@@ -75,14 +70,7 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
     }
     sort(nodes.begin(), nodes.end()); 
     nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
-    if (nodes.size() > MAX_EDGE_SIZE) { // Ignore Hyperedges with size > MAX_EDGE_SIZE (currently 4)
-      continue;
-    }
-    
-    if (nodes.size() < 2) { // Ignore Hyperedges with size < 2
-      continue;
-    }
-    if (duplicate.find(nodes) != duplicate.end()) {
+    if (nodes.size() > MAX_EDGE_SIZE || nodes.size() < 2 || duplicate.find(nodes) != duplicate.end()) { // Ignore Hyperedges with size > MAX_EDGE_SIZE (currently 4)
       continue;
     }
     duplicate.insert(nodes);

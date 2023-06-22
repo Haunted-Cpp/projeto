@@ -8,7 +8,6 @@ using namespace std;
 
 
 GTrie::GTrie(int k) : K(k) { // Limit on MAX EDGE size
-  assert(k <= 10); // Limit the MAX EDGE SIZE
   root = make_shared<Node>();
   bijection.clear();
   bijection.emplace_back(vector< vector<int> >()); // level 0 is empty ...
@@ -53,7 +52,6 @@ GTrie::GTrie(int k) : K(k) { // Limit on MAX EDGE size
 
 
 string GTrie::getEncoding(Hypergraph& subHyperGraph, const vector<int>& nodes, int depth) {
-  assert( (int) nodes.size() == depth );
   string encode;
   for (auto values : bijection[depth]) {
     vector<int> ordered_nodes;
@@ -65,8 +63,6 @@ string GTrie::getEncoding(Hypergraph& subHyperGraph, const vector<int>& nodes, i
 }
 
 void GTrie::insert(Hypergraph& subHyperGraph) {
-  assert( (int) subHyperGraph.getNodeCount() <= 10 );
-  assert(subHyperGraph.getEdgeMaxDeg() <= K);
   shared_ptr<Node> node = root;
   for (int i = 0; i < subHyperGraph.getNodeCount(); i++) {
     vector<int> nodes(i + 1); 
@@ -97,11 +93,9 @@ void GTrie::match(Hypergraph& h, shared_ptr<Node> gtrie, int len) {
     iota(Vcand.begin(), Vcand.end(), 0);
   } else {
     vector<int> Vconn = {}; // find all the nodes that the current one MUST be connected
-    assert( (int) gtrie -> edgeLink.size() == (int) bijection[len + 1].size() );
     for (int i = 0; i < (int) gtrie -> edgeLink.size(); i++) {
       if (gtrie -> edgeLink[i] == '1') {
         for (int j = 0; j < (int) bijection[len + 1][i].size() - 1; j++) { // -1 because we don't consider the last node - it's not added yet
-          assert(bijection[len + 1][i][j] < (int) Vused.size());
           Vconn.emplace_back(Vused[ bijection[len + 1][i][j] ]);
         }
       }

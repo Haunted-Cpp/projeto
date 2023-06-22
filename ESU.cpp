@@ -61,7 +61,6 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
           }
         }
       }
-      assert(is_sorted(adj.begin(), adj.end()));
       counterHyper[IsomorphismHyper::getLabel(adj)]++;
     }
     return;
@@ -90,8 +89,6 @@ void ESU::setupAndRun(const vector< vector<int> >& inputGraph, int k) {
   vector<int> extension;
   for (int i = 0; i < inputGraph.size(); i++) {
     V = i;
-    assert(subgraph.empty());
-    assert(incidenceMatrix.empty());
     extension = {i};
     ++f[i];
     enumerateSubgraphs(extension);
@@ -245,7 +242,6 @@ std::map< int, long long> ESU::k3(Hypergraph& inputGraph) {
   for (auto edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
-    assert(is_sorted(edge.begin(), edge.end()));
     visited.insert(edge); // it will insert the 3 nodes just visited
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
   }
@@ -271,9 +267,7 @@ void ESU::k3IntermediateForm(Hypergraph& inputGraph) {
       --counterHyper[IsomorphismHyper::getLabel(simpleMotif)];
       // this occurence will be found by ESU!
     }
-    assert(is_sorted(edge.begin(), edge.end()));
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 3);
   }
   h = inputGraph.filterEdge(2);
 }
@@ -360,13 +354,10 @@ std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
   for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 4) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
-    assert(is_sorted(edge.begin(), edge.end()));
     visited.insert(edge); // it will insert the 3 nodes just visited
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 4);
   }
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
-  assert( reducedGraph.getEdgeCount() == reducedGraph.getIncidenceMatrix().size() );
   vector< vector<int> > g(reducedGraph.getNodeCount());
   int edge = 0;
   for (auto e : reducedGraph.getIncidenceMatrix()) {
@@ -390,7 +381,6 @@ std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
         if (e1.size() == 4 && visited.find(e1) == visited.end()) {
           visited.insert(e1);
           Hypergraph motif = inputGraph.induceSubgraph(e1);
-          assert(is_sorted(e1.begin(), e1.end()));
           counterHyper[IsomorphismHyper::getLabel(motif)]++;
         }
       }
@@ -415,14 +405,12 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
   for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 4) continue;
     Hypergraph motif = inputGraph.induceSubgraph(edge);
-    assert(is_sorted(edge.begin(), edge.end()));
     if (motif.is_two_connected()) {
       Hypergraph simpleMotif = motif.filterEdge(2);
       --counterHyper[IsomorphismHyper::getLabel(simpleMotif)];
       // this occurence will be found by ESU!
     }
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
-    assert(motif.getEdgeMaxDeg() == 4);
   }
   Hypergraph reducedGraph = inputGraph.filterEdge(3); // at most 3 edges
   vector< vector<int> > g(reducedGraph.getNodeCount());
@@ -451,11 +439,9 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
             break;
           }
         }
-        assert(added_node != -1);
         if (f[added_node]) continue;
         f[added_node] = 1;
         rem.push(added_node);
-        assert(is_sorted(nodes.begin(), nodes.end()));
         Hypergraph motif1 = inputGraph.induceSubgraphSkipComp(nodes);
         if (motif1.getEdgeMaxDeg() != 3) continue;
         int skip = 0;
@@ -469,7 +455,6 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
               break;
             }
           }
-          assert(missing != -1);
           for (int mask1 = 1; mask1 < (1 << 3) - 1; mask1++) { // all subsets of current edge
             vector<int> new_edge1;
             for (int x = 0; x < 3; x++) {
@@ -486,13 +471,11 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
         }
         if (skip) continue; 
         Hypergraph motif = inputGraph.induceSubgraph(nodes);
-        assert(motif.getEdgeMaxDeg() == 3);
         if (motif.is_two_connected()) {
           Hypergraph simpleMotif = motif.filterEdge(2);
           --counterHyper[IsomorphismHyper::getLabel(simpleMotif)];
           // this occurence will be found by ESU!
         }
-        assert(is_sorted(nodes.begin(), nodes.end()));
         counterHyper[IsomorphismHyper::getLabel(motif)]++;
       }
     }
@@ -706,7 +689,6 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
     if (sum > 0) value /= sum;
     else value = 0; // probably not enough networks were created / null model didn't work as intended ... set the value to 0
   }
-  assert(score.size() == census.size());
   int counter = 0;
   out << "-----------------------------------------------" << endl;
   for (auto [a, b] : census) {

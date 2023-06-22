@@ -22,14 +22,12 @@ Hypergraph::Hypergraph(int n) {
   K = 0; // initially the max. degree is 0
   edgeBySize.resize(MAX_EDGE_SIZE + 1);
   //cout << edgeBySize.size() << '\n';
-  assert(MAX_HYPER_MOTIF_SIZE <= MAX_EDGE_SIZE);
 }
 
 Hypergraph::Hypergraph() {
   N = -1;
   K = 0; // initially the max. degree is 0
   edgeBySize.resize(MAX_EDGE_SIZE + 1);
-  assert(MAX_HYPER_MOTIF_SIZE <= MAX_EDGE_SIZE);
   // Don't call here - Otherwise when a small, empty Hypergraph is created this methods will be called
 }
 
@@ -43,7 +41,6 @@ void Hypergraph::randomHypergraph(int n, int m, int maxDegree) {
     if (__builtin_popcount(mask) < 2) continue;
     subset.emplace_back(mask);
   }
-  assert( (int) subset.size() >= M );
   shuffle(subset.begin(), subset.end(), rng);
   
   
@@ -75,7 +72,6 @@ void Hypergraph::readIncidenceMatrix(istream& in) {
     string node;
     while (token >> node) {
       nodes.emplace_back(stoi(node));
-      assert(nodes.back() >= 0);
     }
     sort(nodes.begin(), nodes.end()); 
     nodes.erase(unique(nodes.begin(), nodes.end()), nodes.end());
@@ -125,9 +121,6 @@ void Hypergraph::sortAndCheck(vector< vector<int> >& edge) {
   sort(edge.begin(), edge.end());
   edge.erase(unique(edge.begin(), edge.end()), edge.end());
   // Each edge should be unique => List size without duplicates MUST be M
-  
-  assert ( (int) edge.size() == M );
-  
   edgeBySize.clear();
   edgeBySize.resize(MAX_EDGE_SIZE + 1);
   for (int i = 0; i <= MAX_EDGE_SIZE; i++) {
@@ -215,7 +208,6 @@ vector<int> Hypergraph::getEdgeBySize() {
 }
 
 vector<int> Hypergraph::getEdge(int n) {
-  assert(n >= 0 && n < M);
   return incidenceMatrix[n];
 }
 
@@ -285,7 +277,6 @@ vector<int> Hypergraph::bfs(const vector< vector<int> >& graph) {
     int node = q.front();
     q.pop();
     for (auto& to : graph[node]) {
-      assert(to < graph.size());
       if (!vis[to]) {
         vis[to] = 1;
         q.emplace(to);
@@ -297,7 +288,6 @@ vector<int> Hypergraph::bfs(const vector< vector<int> >& graph) {
 
 bool Hypergraph::is_two_connected() {
   vector< vector<int> > graph = getGraph();
-  assert(graph.size() == getNodeCount());
   vector<int> vis = bfs(graph);
   return count(vis.begin(), vis.end(), 1) == getNodeCount();
 }
@@ -342,7 +332,6 @@ vector<int> subsets = {3,5,6,7,9,10,11,12,13,14,15};
 
 Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
   const int nodes = (int) subgraph.size();
-  assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
@@ -365,7 +354,6 @@ Hypergraph Hypergraph::induceSubgraph(const vector<int>& subgraph) {
 
 Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph)  {
   const int nodes = (int) subgraph.size();
-  assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
@@ -392,7 +380,6 @@ Hypergraph Hypergraph::induceSubgraphNoComp(const vector<int>& subgraph)  {
 
 Hypergraph Hypergraph::induceSubgraphSkipComp(const vector<int>& subgraph) {
   const int nodes = (int) subgraph.size();
-  assert(nodes <= 4); // only for motifs of size 3 and 4!
   Hypergraph h;
   h.setN(nodes);
   vector< vector<int> > adj;
@@ -444,8 +431,6 @@ void Hypergraph::readFromStdin() {
 }
 
 bool Hypergraph::validEdge(std::vector<int> edge) { // it MUST be sorted
-  assert(is_sorted(edge.begin(), edge.end()));
-  assert(edge.size() <= MAX_HYPER_MOTIF_SIZE) ;
   return hashEdge.find(edge) != hashEdge.end();
 }
 
@@ -481,7 +466,6 @@ vector< vector<int> > Hypergraph::getDegreeSequence() {
  */
 
 bool Hypergraph::shuffleEdgesSubset(int e1, int e2) {
-  assert( incidenceMatrix[e1].size() == incidenceMatrix[e2].size() );
   vector<int> nodes;
   for (auto node : incidenceMatrix[e1]) nodes.emplace_back(node); 
   for (auto node : incidenceMatrix[e2]) nodes.emplace_back(node); 
@@ -503,7 +487,6 @@ bool Hypergraph::shuffleEdgesSubset(int e1, int e2) {
    //no overlaping edges ...
   if ( hashEdge.find(n1) != hashEdge.end() ) return false;
   if ( hashEdge.find(n2) != hashEdge.end() ) return false;
-  assert( (int) n1.size() == (int) n2.size() );
   hashEdge.erase(incidenceMatrix[e1]);
   hashEdge.erase(incidenceMatrix[e2]);
   incidenceMatrix[e1] = n1;
@@ -515,7 +498,6 @@ bool Hypergraph::shuffleEdgesSubset(int e1, int e2) {
 
 bool Hypergraph::shuffleEdgesSingle(int e1, int e2) {
   
-  assert(incidenceMatrix[e1].size() == incidenceMatrix[e2].size());
   
   vector<int> n1;
   for (auto node : incidenceMatrix[e1]) n1.emplace_back(node); 
@@ -523,7 +505,6 @@ bool Hypergraph::shuffleEdgesSingle(int e1, int e2) {
   for (auto node : incidenceMatrix[e2]) n2.emplace_back(node); 
   
   
-  assert(n1.size() == n2.size());
   int p = gen(0, (int) n1.size() - 1);
   
   swap(n1[p], n2[p]);

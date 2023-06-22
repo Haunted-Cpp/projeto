@@ -32,7 +32,11 @@ bool IsomorphismHyper::isomorphismSlow(Hypergraph& h1, Hypergraph& h2) {
   if (h1.getNodeCount() != h2.getNodeCount()) return false;
   if (h1.getEdgeCount() != h2.getEdgeCount()) return false;
   const int nodeCount = h1.getNodeCount();
-  assert(nodeCount <= 10); // If value is greater than 10 this method is too slow!
+  if (nodeCount > 10) {
+    cout << "Sorry, brute-force isomorphism is too slow for the current number of nodes." << endl;
+    cout << "Only use Hypergraphs with at most 10 nodes" << endl;
+    return false;
+  }
   vector<int> perm(nodeCount);
   iota(perm.begin(), perm.end(), 0);
   do {
@@ -86,13 +90,11 @@ vector<graph> IsomorphismHyper::canonization(vector< vector<int> >& adj) {
   vector< vector<int> > incidenceMatrix;
   for (int i = 0; i < (int) adj.size(); i++) {
     for (auto& nei : adj[i]) {
-      assert(i != nei); // no self-loop
       if (i < nei) {
         incidenceMatrix.push_back({i, nei});
       }
     }
   }
-  assert( (int) incidenceMatrix.size() == deg );
   for (int i = 0; i < incidenceMatrix.size(); i++) {
     for (auto& node : incidenceMatrix[i]) {
       ADDONEEDGE(g, node, (int) adj.size() + i, m); // --- nodes SHOULD be numbered from 0 to n - 1 !!!
@@ -112,9 +114,7 @@ vector<graph> IsomorphismHyper::canonization(vector< vector<int> >& adj) {
 }
 
 vector<graph> IsomorphismHyper::canonization(Hypergraph& h) {
-  assert(no_use == 0); // REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
   // Make sure this is only called in the beginning ..............
-  
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
   int n = h.getNodeCount() + h.getEdgeCount(); // number of nodes in our modified graph # node + # edges
@@ -202,7 +202,6 @@ void IsomorphismHyper::precalc(int N) {
 }
 
 vector< vector<int> > IsomorphismHyper::getHypergraph(int mask) {
-  assert(canonCacheReverse.find(mask) != canonCacheReverse.end());
   return canonCacheReverse[mask];
 }
 

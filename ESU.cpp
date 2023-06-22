@@ -513,7 +513,7 @@ std::map< int, long long> ESU::k4ESU(Hypergraph& inputGraph) {
   k4IntermediateForm(inputGraph);
   Search = GRAPH;
   h = inputGraph.filterEdge(2);
-  vector< vector<int> > g;
+  vector< vector<int> > g = h.getGraph();
   startAlgo = steady_clock::now();
   setupAndRun(g, 4);
   return counterHyper;

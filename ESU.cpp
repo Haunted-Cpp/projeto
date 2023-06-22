@@ -695,6 +695,6 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
     out << "-----------------------------------------------" << endl;
   }
   auto endTime = steady_clock::now();
-  cout << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
-  cout << "-----------------------------------------------" << endl;
+  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
+  out << "-----------------------------------------------" << endl;
 }

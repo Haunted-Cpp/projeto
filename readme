@@ -1,63 +1,85 @@
-Para executar a aplicação deve-se executar o comando:
+In order to build our application run:
+
 $ make
-De modo a criar o binário executável.
 
-O programa deverá ser executado com o comando ./main e dois argumentos, da seguinte forma:
-$ ./main traindata.csv testdata.csv
+A binary called "hypermotif" will be created.
 
-Após isso, será apresentado um output similar ao apresentado no enunciado do trabalho. 
-
-Um exemplo de execução é:
-$ cat testdata.csv 
-$ X1,Yes,Yes,No,No,Some,$$,Yes,No,Thai,10-30
-$ ./main restaurant.csv testdata.csv
------------------------ 
-Decision Tree: 
------------------------ 
-<Pat>
-    Full:
-        <Est>
-            0-10: Yes (0)
-            10-30:
-                <Type>
-                    Burger: No (0)
-                    French: No (0)
-                    Italian: No (1)
-                    Thai: Yes (1)
-            30-60:
-                <Type>
-                    Burger: Yes (1)
-                    French: No (0)
-                    Italian: No (0)
-                    Thai: No (1)
-            >60: No (2)
-    None: No (2)
-    Some: Yes (4)
------------------------ 
-Classification Results: 
------------------------ 
-Yes
-$
-
-Os resultados obtidos foram recolhidos observando os resultados devolvidos no terminal
-
-A aplicação foi testada no sistema operativo:
-Ubuntu 20.04.3 LTS
-
-O compilador utilizado foi:
-g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+To execute follow the given structure:
+$ ./hypermotif -s <integer> -i <input_file> [ ... arguments ... ]
 
 
-MANDATORY
+Input Format:
 
--s size           [Motif size to search, either 3 or 4]
--i input          [Input filename]
--m count OR motif [Select if network-census or motif discovery should be performed]
+An edge list format is used.
+A Hypergraph can be encoded as a list of edges of the following form:
 
-OPTIONAL
+"""
+e11 e12 ... e1n         [Nodes in edge 1]
+e21 e22 ... e2m         [Nodes in edge 2]
+...
+"""
 
--d                [Specify if output should be detailed or not]
--o output         [Output filename] 
+A valid input is:
+
+"""
+2 1 3
+3 4
+1 2 3 4
+"""
+
+Each edge should have size between 2 and 4. No duplicate vertices should be included.
+
+However, the code will try to detect such cases and recover from a badly formatted input file.
 
 
-duplicate nodes will be removed from hyperedges
+List of arguments valid arguments:
+
+Mandatory:
+
+-s <size>           [Motif size - Currently only accepts 3 or 4]
+-i <input>          [Input filename]
+
+Optional:
+
+
+-d                  [Specify if the output should be detailed or not]
+-o <output>         [Output filename to where save results - Default is "report.txt"]
+-n <k>              [
+                      Specify the number of nodes in the hypergraph (In order to allow for isolated vertices) - 
+                      Should be at least as large as the number of nodes used
+                      By default the minimum amount of nodes needed will be used. This means all isolated vertices will be removed
+                    ]
+-a <k>              [
+                      Select which algorithm should be used - Currently a number between 1 and 4
+                      For more information about each one of them, please read the Project Report.
+
+                      Currently each one corresponds to:
+                        ESU Baseline - 1
+                        ESU modified - 2
+                        Triangle - 3
+                        FaSE - 4
+                    ]
+
+<--- The following are options only used for Motif discovery ---> 
+
+-m                  [Perform motif discovery- By default a network-census is executed in the input hypergraph]
+-z                  [Display the z_score instead of the SP - By default, SP is shown]
+-r <k>              [Number of random networks to sample from - Integer greater than 0]
+-e <k>              [Number of random shuffles between edges - Integer greater than 0]
+
+
+Notice that algorithm 3 - Triangle, cannot be used with size 4. 
+
+Sample valid commands:
+
+./hypermotif -s 4 -i datasets/hs.edges -r 10 -m -d -a 4
+./hypermotif -s 3 -i datasets/geology.edges -r 10 -m -d -a 1
+./hypermotif -s 3 -i datasets/geology.edges
+./hypermotif -s 4 -i datasets/geology.edges -r 10 -m -d -a 4
+
+
+A list of sample datasets is provided in the folder "datasets".
+
+All the steps have been tested on:
+- Ubuntu 20.04.5 LTS
+- g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0

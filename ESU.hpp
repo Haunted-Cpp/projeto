@@ -4,6 +4,7 @@
 
 class ESU {
 private:
+  static std::chrono::time_point<std::chrono::steady_clock> startAlgo;
   static int f[MAX_INPUT_N];
   static std::vector<int> subgraph;
   static std::vector< std::vector<int> > g;

@@ -525,11 +525,10 @@ std::map< int, long long> ESU::k4ESU(Hypergraph& inputGraph) {
  * 
  */
 
-
 void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startTime, std::chrono::time_point<std::chrono::steady_clock> endTime, map< int, long long> subgraph_count, int k, bool detailedOutput, ostream& out) {
   // Remove keys with value 0 (only useful for display only)
-  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-    if(it -> second == 0) it = counterHyper.erase(it);
+  for(auto it = subgraph_count.begin(); it != subgraph_count.end(); ) {
+    if(it -> second == 0) it = subgraph_count.erase(it);
     else ++it;
   }
   long long total_subgraph = 0;

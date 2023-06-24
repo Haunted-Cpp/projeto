@@ -14,6 +14,11 @@
  * Initialize static variables
  */
 
+//const int ESU::CLASSES = 180;
+
+int ESU::SC = 0;
+int ESU::EC = 0;
+
 int ESU::f[MAX_INPUT_N];
 
 std::vector<int> ESU::subgraph;
@@ -27,7 +32,8 @@ vector< vector<int> > ESU::g;
 
  //Used in Hypergraph
 Hypergraph ESU::h;
-map< int, long long> ESU::counterHyper;
+std:: vector<long long> ESU::counterHyper(CLASSES);
+
 std::unordered_set< vector<int>, HashFunction> ESU::visited;
 
 enum option { HYPERGRAPH, GRAPH };
@@ -35,9 +41,9 @@ option Search;
 
 
 
-vector<int> next_extension;
 
-void ESU::enumerateSubgraphs(vector<int> extension) {
+
+void ESU::enumerateSubgraphs(vector<int>& extension) {
   if ( (int) subgraph.size() == K) {
     if (Search == HYPERGRAPH) {
       vector<int> subgraph_ordered = subgraph;
@@ -47,6 +53,8 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
       }
       Hypergraph motif = h.induceSubgraphNoComp(subgraph_ordered);
       counterHyper[IsomorphismHyper::getLabel(motif)]++;
+      assert(IsomorphismHyper::getLabel(motif) < counterHyper.size());
+      assert(IsomorphismHyper::getLabel(motif) >= 0);
     } else {
       // Since this procedure is method is only used in graphs, we can void the induceSubgraph method and use a simpler one
       vector< vector<int> > adj;
@@ -61,10 +69,13 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
     }
     return;
   }
-  while (!extension.empty()) {
-    int current_node = extension.back();
-    extension.pop_back();
-    next_extension = extension;
+  //next_extension = extension;
+  vector<int> next_extension = extension;
+  while (!next_extension.empty()) {
+    int current_node = next_extension.back();
+    next_extension.pop_back();
+    //vector<int> next_extension = extension;
+    //next_extension.pop_back();
     for (auto& to : g[current_node]) {
       if (to > V) {
         if (f[to] == 0) next_extension.emplace_back(to);
@@ -74,7 +85,12 @@ void ESU::enumerateSubgraphs(vector<int> extension) {
     subgraph.emplace_back(current_node);
     enumerateSubgraphs(next_extension);
     subgraph.pop_back();
-    for (auto& to : g[current_node]) if (to > V) --f[to];
+    for (auto& to : g[current_node]) {
+      if (to > V) {
+        f[to]--;
+        if (f[to] == 0) next_extension.pop_back();
+      }
+    }
   }
 };
 
@@ -125,7 +141,7 @@ struct DisjointSet {
   }
 };
 
-std::map< int, long long> ESU::bruteForce3(Hypergraph& inputGraph) {
+std::vector<long long> ESU::bruteForce3(Hypergraph& inputGraph) {
   clearDataStruct();
   const int n = inputGraph.getNodeCount();
   vector<int> nodes;
@@ -152,7 +168,7 @@ std::map< int, long long> ESU::bruteForce3(Hypergraph& inputGraph) {
 }
 
  //This method is used just for debug only!
-std::map< int, long long> ESU::bruteForce4(Hypergraph& inputGraph) {
+std::vector<long long> ESU::bruteForce4(Hypergraph& inputGraph) {
   clearDataStruct();
   const int n = inputGraph.getNodeCount();
   vector<int> nodes;
@@ -233,7 +249,7 @@ Hypergraph ESU::binaryToHyper(string str, int k) {
 // https://github.com/HGX-Team/hypergraphx
 // https://arxiv.org/pdf/2209.10241.pdf
 
-std::map< int, long long> ESU::k3(Hypergraph& inputGraph) {
+vector<long long> ESU::k3(Hypergraph& inputGraph) {
   clearDataStruct();
   for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 3) continue;
@@ -272,7 +288,7 @@ void ESU::k3IntermediateForm(Hypergraph& inputGraph) {
 
 // TRIANGLE method
 
-std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
+vector<long long> ESU::k3Triangle(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
   vector< vector<int> > g = inputGraph.getGraph();
@@ -312,7 +328,7 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
 
 // FASE method
 
-std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
+vector<long long> ESU::k3Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
@@ -330,7 +346,7 @@ std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
 
 // SIMPLE ESU
 
-std::map< int, long long> ESU::k3ESU(Hypergraph& inputGraph) {
+vector<long long> ESU::k3ESU(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
   Search = GRAPH;
@@ -350,7 +366,7 @@ std::map< int, long long> ESU::k3ESU(Hypergraph& inputGraph) {
 // https://github.com/HGX-Team/hypergraphx
 // https://arxiv.org/pdf/2209.10241.pdf
 
-std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
+vector<long long> ESU::k4(Hypergraph& inputGraph) {
   clearDataStruct();
   for (auto& edge : inputGraph.getIncidenceMatrix()) { // assuming no duplicate edges ...
     if (edge.size() != 4) continue;
@@ -490,7 +506,7 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
 }
 
 // FaSE
-std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
+vector<long long> ESU::k4Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
   vector< pair<int, int> > edges;
@@ -508,7 +524,7 @@ std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
 
 // SIMPLE ESU
 
-std::map< int, long long> ESU::k4ESU(Hypergraph& inputGraph) {
+vector<long long> ESU::k4ESU(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
   Search = GRAPH;
@@ -526,35 +542,35 @@ std::map< int, long long> ESU::k4ESU(Hypergraph& inputGraph) {
  */
 
 
-void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startTime, std::chrono::time_point<std::chrono::steady_clock> endTime, map< int, long long> subgraph_count, int k, bool detailedOutput, ostream& out) {
+void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startTime, std::chrono::time_point<std::chrono::steady_clock> endTime, vector<long long> subgraph_count, int k, bool detailedOutput, ostream& out) {
   // Remove keys with value 0 (only useful for display only)
-  for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
-    if(it -> second == 0) it = counterHyper.erase(it);
-    else ++it;
-  }
+  //for(auto it = counterHyper.begin(); it != counterHyper.end(); ) {
+    //if(it -> second == 0) it = counterHyper.erase(it);
+    //else ++it;
+  //}
   long long total_subgraph = 0;
-  for (auto& [a, b] : subgraph_count) {
-    total_subgraph += b;
-  }
+  for (int i = SC; i < EC; i++) total_subgraph += subgraph_count[i];
+ 
   out << "-----------------------------------------------" << endl;
   out << "Hyper-subgraphs: " << total_subgraph << " extracted" << endl;
   out << "Types: " << subgraph_count.size() << " found" << endl;
   out << "-----------------------------------------------" << endl;
   int counter = 0;
-  for (auto& [a, b] : subgraph_count) {
-    out << "Type #" << ++counter << ": " << std::setw(26) << std::right << b << " occurrences" << endl;
+  for (int i = SC; i < EC; i++) {
+    out << "Type #" << ++counter << ": " << std::setw(26) << std::right << subgraph_count[i] << " occurrences" << endl;
   }
   out << "-----------------------------------------------" << endl;
+   //exit(0);
   if (detailedOutput) {
     counter = 0;
-    for (auto& [a, b] : subgraph_count) {
-      auto adj = IsomorphismHyper::getHypergraph(a);
+    for (int i = SC; i < EC; i++) {
+      auto adj = IsomorphismHyper::getHypergraph(i);
       Hypergraph h;
       h.setIncidenceMatrix(adj);
       h.setN(k);
       out << "Hyper-subgraph #" << ++counter << endl;
       h.printIncidenceMatrix(out);
-      out << "Number of occurences: " << b << endl;
+      out << "Number of occurences: " << subgraph_count[i] << endl;
       out << "-----------------------------------------------" << endl;
     }
   }
@@ -563,12 +579,27 @@ void ESU::printResults(std::chrono::time_point<std::chrono::steady_clock> startT
 
 void ESU::clearDataStruct() {
   subgraph.clear();
-  counterHyper.clear();
+  for (int i = 0; i < CLASSES; i++) counterHyper[i] = 0;
   visited.clear();
+}
+
+void ESU::computeSize(int motifSize) {
+  if (motifSize == 3) {
+    SC = 0;
+    EC = 6;
+  } else {
+    SC = 6;
+    EC = 177;
+  }
 }
 
 
 void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, int algorithm, ostream& out) {
+  computeSize(motifSize);
+  
+  //cout << SC << ' ' << EC << ' ' << CLASSES << '\n';
+  //cout << counterHyper.size() << '\n';
+  
   cout << "Task: Network-census" << endl;
   cout << "Computing network-census on given network" << endl;
   cout << "-----------------------------------------------" << endl;
@@ -593,16 +624,21 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, int a
       default: ESU::k4Fase(h); break;
     }
   }
+  //exit(0);
   auto endTime = steady_clock::now();
-  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startAlgo).count() << " seconds" << endl;
+  cout << "Task completed in: " << duration_cast<duration<double>>(endTime - startAlgo).count() << " seconds" << endl;
   printResults(startTime, endTime, counterHyper, k, detailedOutput, out);
 }
   
   
 void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool significance_profile, int randomNetworks, int randomShuffles, int algorithm, ostream& out) {
+  computeSize(motifSize);
+  cout << SC << ' ' << EC << ' ' << CLASSES << '\n';
+  cout << counterHyper.size() << '\n';
+  exit(0);
   cout << "Task: Motif discovery" << endl;
   auto startTime = steady_clock::now();
-  map<int, long long> census;
+  vector<long long> census;
   if (motifSize == 3) {
     switch (algorithm) {
       case 1: census = ESU::k3(h); break;
@@ -613,9 +649,9 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
     }
     // the numbers 0 - 5 are the internal labeling of all hyper-subgraphs with size = 3 
     // these numbers should cover all the possible values of IsomorphismHyper::precalc(3)
-    for (int i = 0; i <= 5; i++) { 
-      if (census.find(i) == census.end()) census[i] = 0; // if a subgraph didn't appear in the census => count is 0 
-    }
+    //for (int i = 0; i <= 5; i++) { 
+      //if (census.find(i) == census.end()) census[i] = 0; // if a subgraph didn't appear in the census => count is 0 
+    //}
   } else {
     switch (algorithm) {
       case 1: census = ESU::k4(h); break;
@@ -625,18 +661,18 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
     }
     // the numbers 6 - 176 are the internal labeling of all hyper-subgraphs with size = 4 
     // these numbers should cover all the possible values of IsomorphismHyper::precalc(4)
-    for (int i = 6; i <= 176; i++) {
-      if (census.find(i) == census.end()) census[i] = 0; // if a subgraph didn't appear in the census => count is 0 
-    }
+    //for (int i = 6; i <= 176; i++) {
+      //if (census.find(i) == census.end()) census[i] = 0; // if a subgraph didn't appear in the census => count is 0 
+    //}
   }
-  map< int, vector<long long> > sample;
+  vector< vector<long long> > sample(CLASSES);
   cout << "Computing network-census on random networks" << endl;
   cout << "-----------------------------------------------" << endl;
   for (int i = 0; i < randomNetworks; i++) {
     cout << "Running on network: " << i + 1 << "/" << randomNetworks << endl;
     Hypergraph tmp = h;
     tmp.shuffleHypergraph(randomShuffles);
-    map<int, long long> count;
+    vector<long long> count;
     if (motifSize == 3) {
       switch (algorithm) {
         case 1: count = ESU::k3(tmp); break;
@@ -653,7 +689,12 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
         default: count = ESU::k4Fase(tmp); break;
       }
     }
-    for (auto& [a, b] : census) {
+    //for (auto& [a, b] : census) {
+      //sample[a].emplace_back(count[a]);
+    //}
+    for (int i = SC; i < EC; i++) {
+      int a = i;
+      int b = census[i];
       sample[a].emplace_back(count[a]);
     }
   }
@@ -663,7 +704,10 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
   if (significance_profile) { // sp
     cout << "Calculating the significance profile" << endl;
     cout << "-----------------------------------------------" << endl;
-    for (auto& [a, b] : census) {
+    for (int i = SC; i < EC; i++) {
+      int a = i;
+      int b = census[i];
+          
       double mean = 0;
       for (auto& value : sample[a]) mean += value;
       mean /= randomNetworks;
@@ -674,7 +718,10 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
     cout << "Calculating the z_score" << endl;
     cout << "-----------------------------------------------" << endl;
     vector<double> z_score;
-    for (auto& [a, b] : census) {
+    for (int i = SC; i < EC; i++) {
+      int a = i;
+      int b = census[i];
+      
       double mean = 0;
       for (auto& value : sample[a]) mean += value;
       mean /= randomNetworks;
@@ -693,7 +740,9 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
   }
   int counter = 0;
   out << "-----------------------------------------------" << endl;
-  for (auto& [a, b] : census) {
+  for (int i = SC; i < EC; i++) {
+    int a = i;
+    int b = census[i];
     out << "Hyper-subgraph #" << counter + 1 << endl;
     if (detailedOutput) {
       auto adj = IsomorphismHyper::getHypergraph(a);

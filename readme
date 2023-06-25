@@ -78,6 +78,7 @@ Sample valid commands:
 ./hypermotif -s 4 -i datasets/geology.edges -r 10 -m -d -a 4
 ./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase
 ./hypermotif -s 3 -i datasets/geology.edges -a 1 -o hs1/baseline -m -r 3 -e 3
+./hypermotif -s 4 -i datasets/hs.edges -a 1 -o k4/m11.out -r 2 -e 2 -m && ./hypermotif -s 4 -i datasets/hs.edges -a 2 -o k4/m22.out -r 2 -e 2 -m && ./hypermotif -s 4 -i datasets/hs.edges -a 3 -o k4/m33.out -r 2 -e 2 -m&& ./hypermotif -s 4 -i datasets/hs.edges -a 4 -o k4/m44.out -r 2 -e 2 -m
 
 
 A list of sample datasets is provided in the folder "datasets".
@@ -86,11 +87,6 @@ All the steps have been tested on:
 - Ubuntu 20.04.5 LTS
 - g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 
-
-
-
-
-
-
-./hypermotif -s 4 -i datasets/hs.edges -a 1 -o k4/m11.out -r 2 -e 2 -m && ./hypermotif -s 4 -i datasets/hs.edges -a 2 -o k4/m22.out -r 2 -e 2 -m && ./hypermotif -s 4 -i datasets/hs.edges -a 3 -o k4/m33.out -r 2 -e 2 -m&& ./hypermotif -s 4 -i datasets/hs.edges -a 4 -o k4/m44.out -r 2 -e 2 -m
+Random Dataset:
+https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5eBhR8D/view?usp=sharing
 

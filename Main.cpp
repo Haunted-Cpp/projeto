@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   std::ios::sync_with_stdio(0);
   std::cin.tie(0);
   
-  int motifSize = -1, n = -1, randomNetworks = 100, randomShuffles = 1000, algorithm = -1;
+  int motifSize = -1, n = -1, randomNetworks = 1000, randomShuffles = 1000, algorithm = -1;
   string inputFile, outputFile = "report.txt";
   bool detailedOutput = false, significanceProfile = true, motif = false;
   

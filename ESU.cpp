@@ -593,7 +593,7 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, int a
     }
   }
   auto endTime = steady_clock::now();
-  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startAlgo).count() << " seconds" << endl;
+  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   printResults(startTime, endTime, counterHyper, k, detailedOutput, out);
 }
   

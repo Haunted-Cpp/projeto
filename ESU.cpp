@@ -241,6 +241,7 @@ std::map< int, long long> ESU::k3(Hypergraph& inputGraph) {
     visited.insert(edge); // it will insert the 3 nodes just visited
     counterHyper[IsomorphismHyper::getLabel(motif)]++;
   }
+  return counterHyper;
   h = inputGraph;
   Search = HYPERGRAPH;
   vector< vector<int> > g = h.getGraph();
@@ -315,6 +316,7 @@ std::map< int, long long> ESU::k3Triangle(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k3Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k3IntermediateForm(inputGraph);
+  return counterHyper;
   vector< pair<int, int> > edges;
   for (auto& edge : inputGraph.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
@@ -387,6 +389,7 @@ std::map< int, long long> ESU::k4(Hypergraph& inputGraph) {
       }
     }
   }
+  return counterHyper;
   h = inputGraph;
   Search = HYPERGRAPH;
   g = h.getGraph();
@@ -493,6 +496,7 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
 std::map< int, long long> ESU::k4Fase(Hypergraph& inputGraph) {
   clearDataStruct();
   k4IntermediateForm(inputGraph);
+  return counterHyper;
   vector< pair<int, int> > edges;
   for (auto& edge : inputGraph.getIncidenceMatrix()) {
     if ((int) edge.size() == 2) edges.emplace_back(edge[0], edge[1]); 
@@ -593,7 +597,7 @@ void ESU::networkCensus(Hypergraph& h, int motifSize, bool detailedOutput, int a
     }
   }
   auto endTime = steady_clock::now();
-  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startAlgo).count() << " seconds" << endl;
+  out << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   printResults(startTime, endTime, counterHyper, k, detailedOutput, out);
 }
   
@@ -709,3 +713,4 @@ void ESU::findMotifs(Hypergraph& h, int motifSize, bool detailedOutput, bool sig
   out << "Task completed in: " << duration_cast<duration<double>>(endTime - startTime).count() << " seconds" << endl;
   out << "-----------------------------------------------" << endl;
 }
+

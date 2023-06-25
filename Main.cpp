@@ -4,7 +4,7 @@
 #include "Hypergraph.hpp"
 #include "GTrie.hpp"
 #include "IsomorphismHyper.hpp"
-#include "ESU.hpp"
+#include "CountingMethods.hpp"
 #include "FaSE/Fase.h"
 #include "FaSE/DynamicGraph.h"
 #include "FaSE/GraphMatrix.h"
@@ -165,9 +165,9 @@ int main(int argc, char* argv[]) {
   }
   
   if (!motif) { // network-census of whole network
-    ESU::networkCensus(h, motifSize, detailedOutput, algorithm, out);
+    CountingMethods::networkCensus(h, motifSize, detailedOutput, algorithm, out);
   } else { // find motifs - significance profile of each subgraph
-    ESU::findMotifs(h, motifSize, detailedOutput, significanceProfile, randomNetworks, randomShuffles, algorithm, out);
+    CountingMethods::findMotifs(h, motifSize, detailedOutput, significanceProfile, randomNetworks, randomShuffles, algorithm, out);
   }
   
   cout << "Results saved to file: " << outputFile << '\n';

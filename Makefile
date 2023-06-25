@@ -12,7 +12,7 @@ SRC =                         \
 	nauty/naugraph.c	     	    \
 	nauty/schreier.c	          \
 	nauty/naurng.c              \
-	ESU.cpp                     \
+	CountingMethods.cpp                     \
 	Hypergraph.cpp              \
 	IsomorphismHyper.cpp             \
 	FaSE/Fase.cpp 	\

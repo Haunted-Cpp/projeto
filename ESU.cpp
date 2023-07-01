@@ -448,35 +448,17 @@ void ESU::k4IntermediateForm(Hypergraph& inputGraph) {
         if (f[added_node]) continue;
         f[added_node] = 1;
         rem.push(added_node);
-        Hypergraph motif1 = inputGraph.induceSubgraphSkipComp(nodes);
-        if (motif1.getEdgeMaxDeg() != 3) continue;
+        Hypergraph motif = inputGraph.induceSubgraphSkipComp(nodes);
+        if (motif.getEdgeMaxDeg() != 3) continue;
         int skip = 0;
-        for (auto& motif_edge : motif1.getIncidenceMatrix()) {
+        for (auto& motif_edge : motif.getIncidenceMatrix()) {
           if (motif_edge.size() != 3) continue;
           if (motif_edge <= e) continue;
-          int missing = -1;
-          for (auto& n : nodes) {
-            if (find(motif_edge.begin(), motif_edge.end(), n) == motif_edge.end()) {
-              missing = n;
-              break;
-            }
-          }
-          for (int mask1 = 1; mask1 < (1 << 3) - 1; mask1++) { // all subsets of current edge
-            vector<int> new_edge1;
-            for (int x = 0; x < 3; x++) {
-              if ((mask1 >> x) & 1) {
-                new_edge1.emplace_back(motif_edge[x]);
-              }
-            }
-            new_edge1.emplace_back(missing);
-            sort(new_edge1.begin(), new_edge1.end());
-            if (! reducedGraph.validEdge(new_edge1) ) continue;
-            skip = 1;
-            break;
-          }
+          skip = 1;
+          break;
         }
         if (skip) continue; 
-        Hypergraph motif = inputGraph.induceSubgraph(nodes);
+        motif.compress();
         if (motif.is_two_connected()) {
           Hypergraph simpleMotif = motif.filterEdge(2);
           --counterHyper[IsomorphismHyper::getLabel(simpleMotif)];

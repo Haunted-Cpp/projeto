@@ -11,12 +11,12 @@ private:
   std::vector< std::vector<int> > incidenceMatrix; // "sparse" edge-vertex incidence matrix
   std::vector< std::vector<int> > edgeBySize; 
   void sortAndCheck(std::vector< std::vector<int> >&);
-  void compress();
   void readIncidenceMatrix(std::istream&);
   bool shuffleEdgesSingle(int, int);
   bool shuffleEdgesSubset(int, int);
   std::vector<int> bfs(const std::vector< std::vector<int> >&);
 public:
+  void compress();
   Hypergraph(int);
   Hypergraph();
   void randomHypergraph(int, int, int);

@@ -90,3 +90,4 @@ All the steps have been tested on:
 Random Dataset:
 https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5eBhR8D/view?usp=sharing
 
+This software uses nauty by Brendan McKay. Therefore, nauty's license restrictions apply to the usage of hypermotif.

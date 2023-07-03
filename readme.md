@@ -30,7 +30,7 @@ en1 en2 ... enk
 
 A valid input is for the following hypergraph:
 
-<img src="https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/410.svg" width=500>
+<img src="https://raw.githubusercontent.com/Haunted-Cpp/projeto/main/images/sample_hypergraph9.svg?token=GHSAT0AAAAAACES54E4Q6GTALLDLF2E4Y6UZFDJMTA" width=500>
 
 is:
 
@@ -45,8 +45,7 @@ is:
 * Each edge should have size between 2 and 4. No duplicate vertices should be included.
 * However, the code will try to detect such cases and recover from a badly formatted input file.
 
-
-List of arguments valid arguments:
+##### List of arguments and parameters:
 
 Mandatory:
 
@@ -84,30 +83,34 @@ Optional:
 
 Notice that algorithm 3 - Triangle, cannot be used with size 4. 
 
-Sample valid commands:
 
+##### Sample valid commands
+
+
+``` bash
 ./hypermotif -s 4 -i datasets/hs.edges -r 10 -m -d -a 4
 ./hypermotif -s 3 -i datasets/geology.edges -r 10 -m -d -a 1
 ./hypermotif -s 3 -i datasets/geology.edges
 ./hypermotif -s 4 -i datasets/geology.edges -r 10 -m -d -a 4
-./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology/baseline && ./hypermotif -s 3 -i datasets/geology.edges -a 2 -o geology/mod && ./hypermotif -s 3 -i datasets/geology.edges -a 3 -o geology/triangle && ./hypermotif -s 3 -i datasets/geology.edges -a 4 -o geology/fase
+./hypermotif -s 3 -i datasets/geology.edges -a 1 -o geology
 ./hypermotif -s 3 -i datasets/geology.edges -a 1 -o hs1/baseline -m -r 3 -e 3
-./hypermotif -s 4 -i datasets/hs.edges -a 1 -o k4/m11.out -r 2 -e 2 -m && ./hypermotif -s 4 -i datasets/hs.edges -a 2 -o k4/m22.out -r 2 -e 2 -m && ./hypermotif -s 4 -i datasets/hs.edges -a 3 -o k4/m33.out -r 2 -e 2 -m&& ./hypermotif -s 4 -i datasets/hs.edges -a 4 -o k4/m44.out -r 2 -e 2 -m
+./hypermotif -s 4 -i datasets/hs.edges -a 1 -o ouput.out -r 2 -e 2 -m 
+```
+##### Datasets
 
+A list of test datasets is provided in the folder "datasets".
+Some of them should be uncompressed first.
 
-A list of sample datasets is provided in the folder "datasets".
+The random dataset is a big file and could not be uploaded. 
+It is available at: https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5eBhR8D/view?usp=sharing
 
-Random Dataset:
-https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5eBhR8D/view?usp=sharing
+##### License
 
-
-All the steps have been tested on:
-- Ubuntu 20.04.5 LTS
-- g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
-
-
-###### License
-
-A 
+No license has been yet selected for this project.
 
 However, this software uses nauty by Brendan McKay. Therefore, nauty's license restrictions apply to the usage of hypermotif.
+##### Test Environment
+
+This tool has been tested on:
+* Ubuntu 20.04.5 LTS
+* g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0

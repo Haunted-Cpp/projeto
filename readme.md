@@ -7,9 +7,10 @@ In order to build our application simply execute:
 ```sh
 make
 ```
-An executable filed called "hypermotif" will be created.
+An executable file called "hypermotif" will be created.
 
-To execute follow the given structure:
+To run follow the given structure:
+
 ```sh
 ./hypermotif -s <integer> -i <input_file> [... optinal arguments...]
 ```
@@ -17,7 +18,7 @@ To execute follow the given structure:
 #### Input Format
 
 An edge list format is used.
-A Hypergraph is encoded as a list of edges in the following form:
+A Hypergraph is encoded as a list of edges of the following form:
 
 ```
 e11 e12 ... e1n         
@@ -26,7 +27,7 @@ e21 e22 ... e2m
 en1 en2 ... enk 
 ```
 
-A valid input is for the following hypergraph:
+A valid input for the following hypergraph:
 
 <img src="https://raw.githubusercontent.com/Haunted-Cpp/projeto/main/images/sample_hypergraph9.svg?token=GHSAT0AAAAAACES54E4Q6GTALLDLF2E4Y6UZFDJMTA" width=500>
 
@@ -53,7 +54,7 @@ Mandatory arguments that must be included in every command
 | -i <string>         | Input file path (a string without spaces) |
 
 List of optional arguments that ensure the behaviour desired by the user. If not specified
-otherwise, the default value is used.
+otherwise, the default value will be used.
 
 | Flag                  | Description                                                 | Default                       |
 |-----------------------|-------------------------------------------------------------|-------------------------------|
@@ -77,6 +78,8 @@ The flag -a <integer> may be used to select the desired algorithm, overriding ou
 
 Note that algorithm 3 (triangle) cannot be used with size 4. 
 
+Our recommended choice, for $k=3$, is the method triangle, and for $k=4$, fase.
+
 #### Sample valid commands
 
 
@@ -90,7 +93,8 @@ Note that algorithm 3 (triangle) cannot be used with size 4.
 ```
 #### Datasets
 
-A list of test datasets is provided in the folder "datasets".
+The list of test datasets is provided in the folder "datasets".
+The final test file has a ".edge" extension.
 Some of them should be uncompressed first.
 
 The random dataset is a big file and could not be uploaded. 

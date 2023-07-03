@@ -1,8 +1,6 @@
 # Hypermotif
 ## An efficient tool for motif discovery in hypergraphs
 
-
-
 #### Building
 In order to build our application simply execute:
 
@@ -63,7 +61,7 @@ otherwise, the default value is used.
 |       -o <string>     | Modify the output file path                                 | report.txt                    |
 |       -n <integer>    | Manually set the number of hypernodes                       | Minimum necessary             |
 |       -m              | Opt for motif discovery                                     | Network-census                |
-|       -z              | Use Z_score                                                 | Significance Profile          |
+|       -z              | Use the z_score formula                                     | Significance Profile          |
 |       -r <integer>    | Number of sample random networks (integer greater than $0$) | 1000                          |
 |       -e <integer>    | Number of random edge shuffles (integer greater than $0$)   | 1000                          |
 |       -a <integer>    | Select the desired algorithm (integer between $1$ and $4$)  | Our recommended choice        |
@@ -72,14 +70,12 @@ The flag -a <integer> may be used to select the desired algorithm, overriding ou
 
 | Flag                      | Algorithm                                       |
 |---------------------------|-------------------------------------------------|
-| -a 1}                     | baseline                                        |
-| -a 2}                     | esu'                                            |
-| -a 3}                     | triangle                                        |
-| -a 4}                     | fase                                            |
-
+| -a 1                      | baseline                                        |
+| -a 2                      | esu'                                            |
+| -a 3                      | triangle                                        |
+| -a 4                      | fase                                            |
 
 Note that algorithm 3 (triangle) cannot be used with size 4. 
-
 
 #### Sample valid commands
 

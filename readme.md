@@ -30,9 +30,9 @@ en1 en2 ... enk
 
 A valid input is for the following hypergraph:
 
+<img src="./images/hypergraph.svg" width=500>
 
-
-is
+is:
 
 ```
 3 5

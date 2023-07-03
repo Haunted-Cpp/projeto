@@ -29,7 +29,7 @@ en1 en2 ... enk
 
 A valid input for the following hypergraph:
 
-<img src="https://raw.githubusercontent.com/Haunted-Cpp/projeto/main/images/sample_hypergraph9.svg?token=GHSAT0AAAAAACES54E4Q6GTALLDLF2E4Y6UZFDJMTA" width=500>
+<img src="images/sample_hypergraph9.svg" width=500>
 
 is:
 

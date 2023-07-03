@@ -30,7 +30,7 @@ en1 en2 ... enk
 
 A valid input is for the following hypergraph:
 
-<img src="./images/hypergraph.svg" width=500>
+<img src="https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/410.svg" width=500>
 
 is:
 

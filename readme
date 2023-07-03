@@ -1,35 +1,49 @@
-In order to build our application run:
+# Hypermotif
+## An efficient tool for motif discovery in hypergraphs
 
-$ make
 
-A binary called "hypermotif" will be created.
+
+##### Building
+In order to build our application simply execute:
+
+```sh
+make
+```
+An executable filed called "hypermotif" will be created.
 
 To execute follow the given structure:
-$ ./hypermotif -s <integer> -i <input_file> [ ... arguments ... ]
+```sh
+./hypermotif -s <integer> -i <input_file> [... optinal arguments...]
+```
 
-
-Input Format:
+##### Input Format
 
 An edge list format is used.
-A Hypergraph can be encoded as a list of edges of the following form:
+A Hypergraph is encoded as a list of edges in the following form:
 
-"""
-e11 e12 ... e1n         [Nodes in edge 1]
-e21 e22 ... e2m         [Nodes in edge 2]
+```
+e11 e12 ... e1n         
+e21 e22 ... e2m         
 ...
-"""
+en1 en2 ... enk 
+```
 
-A valid input is:
+A valid input is for the following hypergraph:
 
-"""
-2 1 3
-3 4
-1 2 3 4
-"""
 
-Each edge should have size between 2 and 4. No duplicate vertices should be included.
 
-However, the code will try to detect such cases and recover from a badly formatted input file.
+is
+
+```
+3 5
+1 2 3
+1 4 6 7
+```
+ 
+###### Input restrictions
+
+* Each edge should have size between 2 and 4. No duplicate vertices should be included.
+* However, the code will try to detect such cases and recover from a badly formatted input file.
 
 
 List of arguments valid arguments:
@@ -83,11 +97,17 @@ Sample valid commands:
 
 A list of sample datasets is provided in the folder "datasets".
 
+Random Dataset:
+https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5eBhR8D/view?usp=sharing
+
+
 All the steps have been tested on:
 - Ubuntu 20.04.5 LTS
 - g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 
-Random Dataset:
-https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5eBhR8D/view?usp=sharing
 
-This software uses nauty by Brendan McKay. Therefore, nauty's license restrictions apply to the usage of hypermotif.
+###### License
+
+A 
+
+However, this software uses nauty by Brendan McKay. Therefore, nauty's license restrictions apply to the usage of hypermotif.

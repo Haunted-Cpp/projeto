@@ -105,7 +105,9 @@ It is available at: https://drive.google.com/file/d/1T3cov10rd3RAxpXrbYXrQqFXy5e
 This software is released under the "Artistic License 2.0". See the file "LICENSE" for more details.
 
 This software uses nauty by Brendan McKay. Nauty's license restrictions apply to the usage of hypermotif.
+
 This software uses FaSE by Pedro Paredes and Pedro Ribeiro. FaSE's license restrictions apply to the usage of hypermotif.
+
 This software uses GTrie by Pedro Ribeiro. GTrie's license restrictions apply to the usage of hypermotif.
 
 #### Test Environment

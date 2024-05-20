@@ -1,6 +1,10 @@
 # Hypermotif
 ## An efficient tool for motif discovery in hypergraphs
 
+#### References
+
+Nóbrega, Duarte & Ribeiro, Pedro. (2024). Computing Motifs in Hypergraphs. 10.1007/978-3-031-57515-0_5. 
+
 #### Building
 In order to build our application simply execute:
 
